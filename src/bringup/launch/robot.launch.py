@@ -9,7 +9,7 @@ import os
 
 def generate_launch_description():
     
-    bringup_dir = get_package_share_directory('campus_robot_bringup')
+    bringup_dir = get_package_share_directory('bringup')
     
     # Launch arguments
     use_external_llm_arg = DeclareLaunchArgument(

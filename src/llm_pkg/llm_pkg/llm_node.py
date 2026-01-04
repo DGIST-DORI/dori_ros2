@@ -60,7 +60,21 @@ class CampusKnowledgeBase: # knowledge base for the lightweight RAG
         try:
             with open(filepath, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                # TODO: JSON parsing logic
+                
+                # JSON parsing logic
+                if 'locations' in data:
+                    for key, loc_data in data['locations'].items():
+                        self.locations[key] = Location(
+                            name=loc_data.get('name', key),
+                            description=loc_data.get('description', ''),
+                            coordinates=tuple(loc_data.get('coordinates', [0.0, 0.0])),
+                            keywords=loc_data.get('keywords', [])
+                        )
+            
+                if 'faqs' in data:
+                    self.faqs = data['faqs']
+                
+                self.get_logger().info(f"Loaded {len(self.locations)} locations and {len(self.faqs)} FAQs")
         except Exception as e:
             print(f"Failed to load knowledge: {e}")
             self._init_default_knowledge()

@@ -175,7 +175,9 @@ class STTNode(Node):
                         self.buffer.clear()
 
                 elif self.state == "LISTENING":
-                    self.audio_queue.put(indata.copy())
+                    audio_data = bytes(indata)
+                    self.audio_queue.put(audio_data)
+                    # self.audio_queue.put(indata.copy())
         
         except Exception as e:
             self.get_logger().error(f"Error in audio callback: {e}")
@@ -216,10 +218,10 @@ class STTNode(Node):
                 audio_duration = len(self.buffer) * FRAME_LENGTH / SAMPLE_RATE
                 
                 if audio_duration >= MIN_SPEECH_SECONDS:
-                    self.get_logger().info(f"✓ Speech ended ({audio_duration:.2f}s)")
+                    self.get_logger().info(f"Speech ended ({audio_duration:.2f}s)")
                     self.transcribe_buffer()
                 else:
-                    self.get_logger().info(f"✗ Speech too short ({audio_duration:.2f}s), skipping")
+                    self.get_logger().info(f"Speech too short ({audio_duration:.2f}s), skipping")
                 
                 self.state = "IDLE"
                 self.buffer.clear()
@@ -241,21 +243,29 @@ class STTNode(Node):
 
             self.get_logger().info(f"Transcribing {len(audio) / SAMPLE_RATE:.2f} s audio")
 
-            segments, info = self.model.transcribe(
+            segments_gen, info = self.model.transcribe(
                 audio,
                 language=None,
                 vad_filter=False,
                 beam_size=5
             )
 
+            segments = list(segments_gen)
+
             text = "".join([seg.text for seg in segments]).strip()
             
             logprobs = [
                 seg.avg_logprob for seg in segments
-                if seg.avg_logprob is not None
+                if hasattr(seg, 'avg_logprob') and seg.avg_logprob is not None
             ]
 
-            confidence = min(1.0, max(0.0, (np.mean(logprobs) + 1.0))) # >0.8: >0.5: <0.4:
+            if logprobs:
+                # avg_logprob ~ -0.5 ~ 0
+                avg_logprob = np.mean(logprobs)
+                # 0.0 ~ 1.0 Normalize
+                confidence = min(1.0, max(0.0, np.exp(avg_logprob)))
+            else:
+                confidence = 0.5
 
             if text:
                 payload = {
