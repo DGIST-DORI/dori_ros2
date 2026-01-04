@@ -14,7 +14,7 @@ import os
 
 import pvporcupine
 from faster_whisper import WhisperModel
-from silero_vad import VoiceActivityDetector
+import torch
 
 
 SAMPLE_RATE = 16000
@@ -35,7 +35,7 @@ class STTNode(Node):
         super().__init__('stt_node')
 
         # Parameters
-        self.declare_parameter('wake_word', 'hey robot')
+        self.declare_parameter('wake_word', 'porcupine')
         self.declare_parameter('whisper_model', 'small')
         self.declare_parameter('whisper_device', 'cpu')
         self.declare_parameter('vad_threshold', 0.5)
@@ -44,7 +44,7 @@ class STTNode(Node):
         wake_word = self.get_parameter('wake_word').value
         model_size = self.get_parameter('whisper_model').value
         device = self.get_parameter('whisper_device').value
-        vad_threshold = self.get_parameter('vad_threshold').value
+        self.vad_threshold = self.get_parameter('vad_threshold').value
         self.vad_silence_sec = self.get_parameter('silence_duration').value
 
         # ROS Publishers / Subscribers
@@ -74,7 +74,7 @@ class STTNode(Node):
         try:
             self.porcupine = pvporcupine.create(
                 access_key=os.getenv('PORCUPINE_ACCESS_KEY'),
-                keywords=[wake_word]
+                keywords=[wake_word] # TODO
             )
             self.get_logger().info(f"Porcupine initialized with wake word: {wake_word}")
         except Exception as e:
@@ -83,11 +83,14 @@ class STTNode(Node):
         
         # VAD
         try:
-            self.vad = VoiceActivityDetector(
-                sample_rate=SAMPLE_RATE,
-                threshold=vad_threshold
+            self.vad_model, utils = torch.hub.load(
+                repo_or_dir='snakers4/silero-vad',
+                model='silero_vad',
+                force_reload=False,
+                onnx=False
             )
-            self.get_logger().info(f"VAD initialized (threshold: {vad_threshold})")
+            self.get_vad_speech_prob = utils[0]
+            self.get_logger().info(f"Silero VAD initialized (threshold: {self.vad_threshold})")
         except Exception as e:
             self.get_logger().error(f"Failed to initialize VAD: {e}")
             raise
@@ -177,6 +180,16 @@ class STTNode(Node):
         except Exception as e:
             self.get_logger().error(f"Error in audio callback: {e}")
 
+    def check_voice_activity(self, audio_float):
+        try:
+            # audio_float: numpy array, float32, [-1, 1]
+            audio_tensor = torch.from_numpy(audio_float)
+            speech_prob = self.vad_model(audio_tensor, SAMPLE_RATE).item()
+            return speech_prob > self.vad_threshold
+        except Exception as e:
+            self.get_logger().warn(f"VAD error: {e}")
+            return False
+
     def process_audio(self):
         if self.robot_speaking:
             return
@@ -193,11 +206,8 @@ class STTNode(Node):
                 chunks_processed += 1
 
                 # VAD
-                try:
-                    if self.vad(audio):
-                        self.last_voice_time = time.time()
-                except Exception as e:
-                    self.get_logger().warn(f"VAD error: {e}")
+                if self.check_voice_activity(audio):
+                    self.last_voice_time = time.time()
 
             now = time.time()
 

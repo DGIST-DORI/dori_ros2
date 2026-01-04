@@ -37,7 +37,7 @@ def generate_launch_description():
     
     wake_word_arg = DeclareLaunchArgument(
         'wake_word',
-        default_value='hey robot',
+        default_value='porcupine', # TODO
         description='Wake word for voice activation'
     )
     
