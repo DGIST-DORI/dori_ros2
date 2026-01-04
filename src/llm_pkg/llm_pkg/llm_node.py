@@ -248,7 +248,6 @@ class LLMNode(Node):
             return "죄송합니다. 이해하지 못했습니다. 다시 말씀해주시겠어요?"
     
     def _call_external_llm(self, text: str) -> str:
-        """외부 LLM API 호출"""
         # TODO: call OpenAI ...
         # with conv hist and campus context
         system_prompt = """당신은 대학 캠퍼스 안내 로봇입니다. 

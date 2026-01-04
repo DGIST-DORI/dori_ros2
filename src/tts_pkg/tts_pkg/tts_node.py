@@ -126,7 +126,7 @@ class TTSNode(Node):
                 # speaking start signal
                 self.is_speaking = True
                 self.speaking_pub.publish(Bool(data=True))
-                self.get_logger().info(f"🔊 Speaking: {text}")
+                self.get_logger().info(f"Speaking: {text}")
                 
                 if self.tts_engine == 'pyttsx3':
                     self._speak_pyttsx3(text)
