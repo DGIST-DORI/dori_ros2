@@ -1,6 +1,8 @@
 # UGRP
 ![greetings](https://github.com/github/docs/actions/workflows/greetings.yml/badge.svg)
 
+[![video](https://img.youtube.com/vi/HAOXd66fIe0/maxresdefault.jpg)](https://youtu.be/HAOXd66fIe0)
+
 ## Installation
 ### Prerequisites
 * Ubuntu 22.04
