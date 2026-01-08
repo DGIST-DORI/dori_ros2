@@ -53,6 +53,7 @@ class TTSNode(Node):
         
         # ROS Publishers
         self.speaking_pub = self.create_publisher(Bool, '/robot/speaking', 10)
+        self.done_pub = self.create_publisher(Bool, '/tts/done', 10)
         
         # ROS Subscribers
         self.text_sub = self.create_subscription(
@@ -137,12 +138,14 @@ class TTSNode(Node):
                 time.sleep(0.5)
                 self.is_speaking = False
                 self.speaking_pub.publish(Bool(data=False))
+                self.done_pub.publish(Bool(data=True))
                 self.get_logger().info("Speech completed")
                 
             except Exception as e:
                 self.get_logger().error(f"TTS failed: {e}")
                 self.is_speaking = False
                 self.speaking_pub.publish(Bool(data=False))
+                self.done_pub.publish(Bool(data=True))
     
     def _speak_pyttsx3(self, text: str):
         try:
