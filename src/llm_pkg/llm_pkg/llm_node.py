@@ -19,9 +19,10 @@ class Location:
 
 
 class CampusKnowledgeBase: # knowledge base for the lightweight RAG
-    def __init__(self, knowledge_file: str = None):
+    def __init__(self, knowledge_file: str = None, logger=None):
         self.locations: Dict[str, Location] = {}
         self.faqs: Dict[str, str] = {}
+        self.logger = logger
         
         if knowledge_file:
             self.load_knowledge(knowledge_file)
@@ -64,6 +65,13 @@ class CampusKnowledgeBase: # knowledge base for the lightweight RAG
                 # JSON parsing logic
                 if 'locations' in data:
                     for key, loc_data in data['locations'].items():
+                        if not key or not key.strip():
+                            continue
+
+                        name = loc_data.get('name', key)
+                        if not name or not name.strip():
+                            continue
+                        
                         self.locations[key] = Location(
                             name=loc_data.get('name', key),
                             description=loc_data.get('description', ''),
@@ -72,11 +80,22 @@ class CampusKnowledgeBase: # knowledge base for the lightweight RAG
                         )
             
                 if 'faqs' in data:
-                    self.faqs = data['faqs']
+                    self.faqs = {k: v for k, v in data['faqs'].items() if k and v}
                 
-                self.get_logger().info(f"Loaded {len(self.locations)} locations and {len(self.faqs)} FAQs")
+                if self.logger:
+                    self.logger.info(f"Loaded {len(self.locations)} locations and {len(self.faqs)} FAQs")
+        
+        except FileNotFoundError:
+            if self.logger:
+                self.logger.error(f"Knowledge file not found: {filepath}")
+            self._init_default_knowledge()
+        except json.JSONDecodeError as e:
+            if self.logger:
+                self.logger.error(f"JSON decode error: {e}")
+            self._init_default_knowledge()
         except Exception as e:
-            print(f"Failed to load knowledge: {e}")
+            if self.logger:
+                self.logger.error(f"Failed to load knowledge: {e}")
             self._init_default_knowledge()
     
     def search_location(self, query: str) -> Optional[Location]: # search location based on keywords
@@ -108,19 +127,19 @@ class CampusKnowledgeBase: # knowledge base for the lightweight RAG
 class IntentClassifier:    
     INTENT_PATTERNS = {
         "navigation": [
-            r"(가|찾|어디|where|how to get)",
-            r"(길|route|way)",
-            r"(안내|guide)"
+            r"(가|찾|어디|where|how to get|take me|guide me)",
+            r"(길|route|way|direction)",
+            r"(안내|guide|show)"
         ],
         "information": [
-            r"(무엇|what|설명|explain|소개|introduce)",
-            r"(어떤|which|뭐|무슨)"
+            r"(무엇|what|설명|explain|소개|introduce|tell me)",
+            r"(어떤|which|뭐|무슨|what kind)"
         ],
         "greeting": [
-            r"^(안녕|hello|hi|hey)",
+            r"^(안녕|hello|hi|hey|greetings)",
         ],
         "thanks": [
-            r"(고마|감사|thank)"
+            r"(고마|감사|thank|appreciate)"
         ]
     }
     
@@ -144,16 +163,22 @@ class LLMNode(Node):
         self.declare_parameter('knowledge_file', '')
         self.declare_parameter('use_external_llm', False)  # True: using API
         self.declare_parameter('model_name', 'gpt-3.5-turbo')
+        self.declare_parameter('confidence_threshold', 0.4)
+        self.declare_parameter('api_key', '')
         
         knowledge_file = self.get_parameter('knowledge_file').value
         self.use_external_llm = self.get_parameter('use_external_llm').value
+        self.model_name = self.get_parameter('model_name').value
+        self.confidence_threshold = self.get_parameter('confidence_threshold').value
+        api_key = self.get_parameter('api_key').value
         
         # Knowledge base
-        self.kb = CampusKnowledgeBase(knowledge_file if knowledge_file else None)
+        self.kb = CampusKnowledgeBase(knowledge_file if knowledge_file else None, self.get_logger())
         
-        # LLM (external API 사용 시)
+        # LLM (external API client)
+        self.llm_client = None
         if self.use_external_llm:
-            self._init_llm_client()
+            self._init_llm_client(api_key)
         
         # ROS Publishers
         self.response_pub = self.create_publisher(String, '/llm/response', 10)
@@ -167,16 +192,46 @@ class LLMNode(Node):
             self.stt_callback,
             10
         )
+
+        self.tts_done_sub = self.create_subscription(
+            Bool,
+            '/tts/done',
+            self.tts_done_callback,
+            10
+        )
         
         # State
         self.conversation_history = []
         self.current_destination = None
+        self.current_language = "ko"
+        self.is_speaking = False
         
         self.get_logger().info("LLM node started")
     
     def _init_llm_client(self):
-        # TODO: API client initialize
-        self.get_logger().info("External LLM API initialized")
+        try:
+            if 'gpt' in self.model_name.lower(): # OpenAI API
+                import openai
+                self.llm_client = openai.OpenAI(api_key=api_key or None)
+                self.llm_type = 'openai'
+                self.get_logger().info(f"OpenAI API initialized with model: {self.model_name}")
+                
+            elif 'claude' in self.model_name.lower(): # Anthropic Claude API
+                import anthropic
+                self.llm_client = anthropic.Anthropic(api_key=api_key or None)
+                self.llm_type = 'claude'
+                self.get_logger().info(f"Claude API initialized with model: {self.model_name}")
+                
+            else:
+                self.get_logger().warn(f"Unknown model: {self.model_name}, falling back to rule-based")
+                self.use_external_llm = False
+                
+        except ImportError as e:
+            self.get_logger().error(f"Failed to import LLM library: {e}")
+            self.use_external_llm = False
+        except Exception as e:
+            self.get_logger().error(f"Failed to initialize LLM client: {e}")
+            self.use_external_llm = False
     
     def stt_callback(self, msg: String):
         try:
@@ -184,17 +239,23 @@ class LLMNode(Node):
             user_text = data.get("text", "")
             confidence = data.get("confidence", 0.0)
             language = data.get("language", "unknown")
+
+            self.current_language = language
             
             self.get_logger().info(f"Received [{language}] (conf: {confidence:.2f}): {user_text}")
             
-            if confidence < 0.4:
-                self.get_logger().warn("Low confidence, ignoring...")
+            if confidence < self.confidence_threshold:
+                self.get_logger().warn("Low confidence ({confidence:.2f}), ignoring...")
                 return
             
         except json.JSONDecodeError:
             user_text = msg.data
             self.get_logger().info(f"Received: {user_text}")
-            
+        
+        if not user_text or not user_text.strip():
+            return
+        
+        self.is_speaking = True
         self.speaking_pub.publish(Bool(data=True)) # publish that the robot is talking
         
         response = self.generate_response(user_text)
@@ -204,12 +265,18 @@ class LLMNode(Node):
         
         self.conversation_history.append({
             "user": user_text,
-            "assistant": response
+            "assistant": response,
+            "language": self.current_language
         })
         
         # speaking done (if TTS is done, must be changed to False)
         # TODO: done signal from TTS node
-        self.create_timer(3.0, lambda: self.speaking_pub.publish(Bool(data=False)))
+
+    def tts_done_callback(self, msg: Bool):
+        if msg.data:
+            self.is_speaking = False
+            self.speaking_pub.publish(Bool(data=False))
+            self.get_logger().info("TTS done, robot is silent now.")
     
     def generate_response(self, user_text: str) -> str:
         # Classify intent
@@ -218,10 +285,10 @@ class LLMNode(Node):
         
         # handle
         if intent == "greeting":
-            return self._handle_greeting()
+            return self._get_localized_response("greeting")
         
         elif intent == "thanks":
-            return "천만에요! 더 도움이 필요하시면 말씀해주세요."
+            return self._get_localized_response("thanks")
         
         elif intent == "navigation":
             return self._handle_navigation(user_text)
@@ -232,17 +299,46 @@ class LLMNode(Node):
         else:
             return self._handle_general(user_text)
     
-    def _handle_greeting(self) -> str:
-        return "안녕하세요! 저는 캠퍼스 안내 로봇입니다. 어디로 안내해드릴까요?"
+    def _get_localized_response(self, key: str) -> str:
+        """언어별 응답"""
+        responses = {
+            "greeting": {
+                "ko": "안녕하세요! 저는 캠퍼스 안내 로봇입니다. 어디로 안내해드릴까요?",
+                "en": "Hello! I'm the campus guide robot. Where would you like to go?"
+            },
+            "thanks": {
+                "ko": "천만에요! 더 도움이 필요하시면 말씀해주세요.",
+                "en": "You're welcome! Let me know if you need more help."
+            },
+            "not_found": {
+                "ko": "죄송합니다. 해당 장소를 찾을 수 없습니다. 다시 말씀해주시겠어요?",
+                "en": "Sorry, I couldn't find that location. Could you say it again?"
+            },
+            "no_info": {
+                "ko": "죄송합니다. 해당 정보를 찾을 수 없습니다.",
+                "en": "Sorry, I couldn't find that information."
+            },
+            "no_understand": {
+                "ko": "죄송합니다. 이해하지 못했습니다. 다시 말씀해주시겠어요?",
+                "en": "Sorry, I didn't understand. Could you please repeat?"
+            }
+        }
+        
+        lang = "ko" if self.current_language == "ko" else "en"
+        return responses.get(key, {}).get(lang, responses[key]["ko"])
     
     def _handle_navigation(self, text: str) -> str:
         location = self.kb.search_location(text)
         
         if location:
             self._set_destination(location)
-            return f"{location.name}(으)로 안내하겠습니다. {location.description}"
+            
+            if self.current_language == "en":
+                return f"I'll guide you to {location.name}. {location.description}"
+            else:
+                return f"{location.name}(으)로 안내하겠습니다. {location.description}"
         else:
-            return "죄송합니다. 해당 장소를 찾을 수 없습니다. 다시 말씀해주시겠어요?"
+            return self._get_localized_response("not_found")
     
     def _handle_information(self, text: str) -> str:
         faq_answer = self.kb.search_faq(text)
@@ -253,24 +349,74 @@ class LLMNode(Node):
         if location:
             return location.description
         
-        return "죄송합니다. 해당 정보를 찾을 수 없습니다."
+        return self._get_localized_response("no_info")
     
     def _handle_general(self, text: str) -> str:
         if self.use_external_llm:
             return self._call_external_llm(text)
         else:
-            return "죄송합니다. 이해하지 못했습니다. 다시 말씀해주시겠어요?"
+            return self._get_localized_response("no_understand")
     
     def _call_external_llm(self, text: str) -> str:
-        # TODO: call OpenAI ...
-        # with conv hist and campus context
-        system_prompt = """당신은 대학 캠퍼스 안내 로봇입니다. 
-        친절하고 간결하게 답변하며, 캠퍼스 관련 질문에 답변합니다.
-        모르는 내용은 솔직히 모른다고 말합니다."""
-        
-        # API 호출 로직
-        return "external LLM response"
+        try:
+            system_prompt = self._build_system_prompt()
+            
+            messages = self._build_message_history(text)
+            
+            if self.llm_type == 'openai':
+                response = self.llm_client.chat.completions.create(
+                    model=self.model_name,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        *messages
+                    ],
+                    temperature=0.7,
+                    max_tokens=200
+                )
+                return response.choices[0].message.content.strip()
+                
+            elif self.llm_type == 'claude':
+                response = self.llm_client.messages.create(
+                    model=self.model_name,
+                    system=system_prompt,
+                    messages=messages,
+                    max_tokens=200,
+                    temperature=0.7
+                )
+                return response.content[0].text.strip()
+            
+        except Exception as e:
+            self.get_logger().error(f"LLM API call failed: {e}")
+            return self._get_localized_response("no_understand")
     
+    def _build_system_prompt(self) -> str:
+        locations_str = ", ".join(self.kb.locations.keys())
+        
+        if self.current_language == "en":
+            return f"""You are a university campus guide robot. 
+            Be friendly, concise, and helpful.
+            Available locations: {locations_str}
+            Answer questions about campus locations, facilities, and services.
+            If you don't know something, honestly say so."""
+        else:
+            return f"""당신은 대학 캠퍼스 안내 로봇입니다. 
+            친절하고 간결하게 답변하며, 캠퍼스 관련 질문에 답변합니다.
+            이용 가능한 장소: {locations_str}
+            캠퍼스 위치, 시설, 서비스에 대한 질문에 답변하세요.
+            모르는 내용은 솔직히 모른다고 말합니다."""
+    
+    def _build_message_history(self, current_text: str) -> list:
+        messages = []
+        
+        # recent three conversations
+        for conv in self.conversation_history[-3:]:
+            messages.append({"role": "user", "content": conv["user"]})
+            messages.append({"role": "assistant", "content": conv["assistant"]})
+        
+        messages.append({"role": "user", "content": current_text})
+        
+        return messages
+
     def _set_destination(self, location: Location):
         pose = PoseStamped()
         pose.header.stamp = self.get_clock().now().to_msg()
