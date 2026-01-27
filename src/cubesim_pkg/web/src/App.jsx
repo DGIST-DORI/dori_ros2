@@ -705,21 +705,21 @@ const CubeSimulator = () => {
         React.createElement('div', { className: 'mt-3 flex gap-2' },
           React.createElement('button', {
             onClick: () => setVisualMode('wheel'),
-            className: `flex-1 px-3 py-2 rounded text-sm font-medium ${visualMode === 'wheel' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`
+            className: `flex-1 px-3 py-2 rounded text-sm font-medium ${visualMode === 'wheel' ? 'bg-blue-500 text-green' : 'bg-gray-200 text-gray-700'}`
           },
             React.createElement(Eye, { className: 'inline w-4 h-4 mr-1' }),
             '바퀴 모드'
           ),
           React.createElement('button', {
             onClick: () => setVisualMode('color'),
-            className: `flex-1 px-3 py-2 rounded text-sm font-medium ${visualMode === 'color' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`
+            className: `flex-1 px-3 py-2 rounded text-sm font-medium ${visualMode === 'color' ? 'bg-blue-500 text-green' : 'bg-gray-200 text-gray-700'}`
           },
             React.createElement(Eye, { className: 'inline w-4 h-4 mr-1' }),
             '색상 모드'
           ),
           React.createElement('button', {
             onClick: () => setVisualMode('both'),
-            className: `flex-1 px-3 py-2 rounded text-sm font-medium ${visualMode === 'both' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`
+            className: `flex-1 px-3 py-2 rounded text-sm font-medium ${visualMode === 'both' ? 'bg-blue-500 text-green' : 'bg-gray-200 text-gray-700'}`
           },
             React.createElement(Eye, { className: 'inline w-4 h-4 mr-1' }),
             '통합 모드'
@@ -765,7 +765,7 @@ const CubeSimulator = () => {
                 setCommandInput('');
               },
               disabled: isRotating || !commandInput.trim(),
-              className: 'w-full bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 disabled:opacity-50 text-sm'
+              className: 'w-full bg-purple-500 px-4 py-2 rounded hover:bg-purple-600 disabled:opacity-50 text-sm'
             }, '실행'),
             React.createElement('div', { className: 'text-xs text-gray-600' }, '여러 명령어를 공백으로 구분 (예: U R B\')')
           )
@@ -776,10 +776,10 @@ const CubeSimulator = () => {
           React.createElement('button', {
             onClick: runAlgorithmSearch,
             disabled: isSearching,
-            className: 'w-full bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 disabled:opacity-50 text-sm mb-2 flex items-center justify-center gap-2'
+            className: 'w-full bg-orange-500 px-4 py-2 rounded hover:bg-orange-600 disabled:opacity-50 text-sm mb-2 flex items-center justify-center gap-2'
           },
             React.createElement(Search, { className: 'w-4 h-4' }),
-            isSearching ? '탐색 중...' : '최단 경로 탐색'
+            isSearching ? '탐색 중...' : '최단 경로 탐색 (BFS)'
           ),
           searchResult && React.createElement('div', { className: 'text-sm space-y-2' },
             searchResult.success ? React.createElement(React.Fragment, null,
@@ -790,7 +790,7 @@ const CubeSimulator = () => {
               React.createElement('button', {
                 onClick: executeSearchResult,
                 disabled: isRotating,
-                className: 'w-full bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 disabled:opacity-50 text-sm mt-2 flex items-center justify-center gap-2'
+                className: 'w-full bg-green-500 px-3 py-2 rounded hover:bg-green-600 disabled:opacity-50 text-sm mt-2 flex items-center justify-center gap-2'
               },
                 React.createElement(Play, { className: 'w-4 h-4' }),
                 '알고리즘 실행'
@@ -811,14 +811,14 @@ const CubeSimulator = () => {
                 React.createElement('button', {
                   onClick: () => rotateFace(face, null, true),
                   disabled: isRotating,
-                  className: 'flex-1 bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600 text-xs disabled:opacity-50'
+                  className: 'flex-1 bg-blue-500 px-2 py-2 rounded hover:bg-blue-600 text-xs disabled:opacity-50'
                 },
                   face, ' ', React.createElement(RotateCw, { className: 'inline w-3 h-3' })
                 ),
                 React.createElement('button', {
                   onClick: () => rotateFace(face, null, false),
                   disabled: isRotating,
-                  className: 'flex-1 bg-blue-400 text-white px-2 py-2 rounded hover:bg-blue-500 text-xs disabled:opacity-50'
+                  className: 'flex-1 bg-blue-400 px-2 py-2 rounded hover:bg-blue-500 text-xs disabled:opacity-50'
                 },
                   face, '\' ', React.createElement(RotateCcw, { className: 'inline w-3 h-3' })
                 )
@@ -835,14 +835,14 @@ const CubeSimulator = () => {
                 React.createElement('button', {
                   onClick: () => rotateFace(face, null, true),
                   disabled: isRotating,
-                  className: 'flex-1 bg-gray-500 text-white px-2 py-2 rounded hover:bg-gray-600 text-xs disabled:opacity-50'
+                  className: 'flex-1 bg-gray-500 px-2 py-2 rounded hover:bg-gray-600 text-xs disabled:opacity-50'
                 },
                   face, ' ', React.createElement(RotateCw, { className: 'inline w-3 h-3' })
                 ),
                 React.createElement('button', {
                   onClick: () => rotateFace(face, null, false),
                   disabled: isRotating,
-                  className: 'flex-1 bg-gray-400 text-white px-2 py-2 rounded hover:bg-gray-500 text-xs disabled:opacity-50'
+                  className: 'flex-1 bg-gray-400 px-2 py-2 rounded hover:bg-gray-500 text-xs disabled:opacity-50'
                 },
                   face, '\' ', React.createElement(RotateCcw, { className: 'inline w-3 h-3' })
                 )
@@ -853,7 +853,7 @@ const CubeSimulator = () => {
         
         React.createElement('button', {
           onClick: reset,
-          className: 'w-full bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 flex items-center justify-center gap-2'
+          className: 'w-full bg-gray-500 px-4 py-2 rounded hover:bg-gray-600 flex items-center justify-center gap-2'
         },
           React.createElement(RefreshCw, { className: 'w-4 h-4' }),
           '초기화'
@@ -906,7 +906,7 @@ const CubeSimulator = () => {
               trackedPieceObj ? `(${trackedPieceObj.x}, ${trackedPieceObj.y}, ${trackedPieceObj.z})` : '찾을 수 없음'
             ),
             React.createElement('div', { className: 'text-xs text-gray-600' },
-              trackedPieceObj && trackedPieceObj.originalKey === trackedPiece ? '✅ 원래 위치' : '⚠️ 이동됨'
+              trackedPieceObj && trackedPieceObj.originalKey === trackedPiece ? '✅ 원래 위치 = 현재 위치' : '⚠️ 이동됨 (원래 위치 != 현재 위치)'
             )
           )
         ),
