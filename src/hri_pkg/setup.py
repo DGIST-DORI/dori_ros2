@@ -24,8 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'camera_node = cube_hri.camera_node:main',
-            'face_detection_node = cube_hri.face_detection_node:main',
+            'camera_node = hri_pkg.camera_node:main',
+            'face_detection_node = hri_pkg.face_detection_node:main',
         ],
     },
 )

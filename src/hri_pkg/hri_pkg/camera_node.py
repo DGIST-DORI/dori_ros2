@@ -34,7 +34,7 @@ class CameraNode(Node):
         self.cap.set(cv2.CAP_PROP_AUTOFOCUS, 1)
         
         if not self.cap.isOpened():
-            self.get_logger().error('카메라를 열 수 없습니다!')
+            self.get_logger().error('Failed to open camera with index {}'.format(camera_idx))
             return
         
         # Log actual camera settings
@@ -42,7 +42,7 @@ class CameraNode(Node):
         actual_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         actual_fps = self.cap.get(cv2.CAP_PROP_FPS)
         
-        self.get_logger().info(f'카메라 초기화 완료: {actual_width}x{actual_height} @ {actual_fps}fps')
+        self.get_logger().info(f'Camera initialized with settings: {actual_width}x{actual_height} @ {actual_fps}fps')
         
         # Publisher setup
         self.image_pub = self.create_publisher(Image, '/cube/camera/image_raw', 10)
@@ -55,7 +55,7 @@ class CameraNode(Node):
         timer_period = 1.0 / publish_rate
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
-        self.get_logger().info('Camera Node 시작됨')
+        self.get_logger().info('Camera Node started, publishing images at {:.2f} Hz'.format(publish_rate))
     
     def timer_callback(self):
         ret, frame = self.cap.read()
@@ -71,9 +71,9 @@ class CameraNode(Node):
                 self.image_pub.publish(ros_image)
                 
             except Exception as e:
-                self.get_logger().error(f'이미지 변환 실패: {str(e)}')
+                self.get_logger().error(f'Failed to convert image: {str(e)}')
         else:
-            self.get_logger().warn('프레임 읽기 실패')
+            self.get_logger().warn('Failed to capture image from camera')
     
     def destroy_node(self):
         if self.cap.isOpened():

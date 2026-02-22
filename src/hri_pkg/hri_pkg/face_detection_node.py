@@ -54,10 +54,9 @@ class FaceDetectionNode(Node):
                 10
             )
         
-        self.get_logger().info('Face Detection Node 시작됨')
+        self.get_logger().info('Face Detection Node started')
     
     def image_callback(self, msg):
-        """카메라 이미지를 받아 얼굴 감지 수행"""
         try:
             # ROS Image to OpenCV image
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
@@ -100,7 +99,7 @@ class FaceDetectionNode(Node):
                 self.face_position_pub.publish(face_pos)
                 
                 self.get_logger().debug(
-                    f'얼굴 감지: 위치=({offset_x:.2f}, {offset_y:.2f}), 크기={face_pos.z:.3f}'
+                    f'Face detected: position=({offset_x:.2f}, {offset_y:.2f}), size={face_pos.z:.3f}'
                 )
             
             # visualization
@@ -117,7 +116,7 @@ class FaceDetectionNode(Node):
                 self.annotated_image_pub.publish(annotated_msg)
                 
         except Exception as e:
-            self.get_logger().error(f'이미지 처리 실패: {str(e)}')
+            self.get_logger().error(f'Failed to process image: {str(e)}')
     
     def _get_bbox_area(self, bbox):
         return bbox.width * bbox.height
