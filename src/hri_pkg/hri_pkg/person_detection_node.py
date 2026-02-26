@@ -95,8 +95,8 @@ class PersonDetectionNode(Node):
             Bool, '/dori/hri/set_follow_mode', self._follow_mode_callback, 10)
 
         # Publishers
-        self.person_detected_pub = self.create_publisher(Bool,   '/dori/hri/face_detected', 10)
-        self.person_position_pub = self.create_publisher(Point,  '/dori/hri/face_position', 10)
+        # self.person_detected_pub = self.create_publisher(Bool,   '/dori/hri/face_detected', 10)
+        # self.person_position_pub = self.create_publisher(Point,  '/dori/hri/face_position', 10)
         self.persons_detail_pub  = self.create_publisher(String, '/dori/hri/persons', 10)
         self.hri_trigger_pub     = self.create_publisher(Bool,   '/dori/hri/interaction_trigger', 10)
         self.tracking_state_pub  = self.create_publisher(String, '/dori/hri/tracking_state', 10)
@@ -270,21 +270,6 @@ class PersonDetectionNode(Node):
 
     # Publish
     def _publish_all(self, detections, closest_person, target_det, w, h, original_msg):
-
-        # ① face_detected (하위 호환)
-        detected_msg = Bool()
-        detected_msg.data = len(detections) > 0
-        self.person_detected_pub.publish(detected_msg)
-
-        # ② face_position (하위 호환) — target 우선, 없으면 closest
-        ref = target_det or closest_person
-        if ref:
-            pos = Point()
-            pos.x = ref['center_norm'][0] - 0.5
-            pos.y = ref['center_norm'][1] - 0.5
-            pos.z = ref['distance_m'] if ref['distance_m'] else ref['bbox_area_norm']
-            self.person_position_pub.publish(pos)
-
         # persons detail JSON
         detail = String()
         detail.data = json.dumps({
