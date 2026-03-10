@@ -32,10 +32,16 @@ User speaks
 
 ### Hardware
 
-| Component | Spec |
+#### Component
+
+| Component | Spec | Weight (g) | Power (W) | Voltage (V) | Price (₩) | Stock | Notes |
+|---|---|---|---|---|---|---|---|
+| Compute | NVIDIA Jetson Orin Nano Super | 72| 2| 526,000| 1|
+| Camera | Intel RealSense D435i| | | | 2|
+
+#### 
+|||
 |---|---|
-| Compute | NVIDIA Jetson Orin Nano (6-core ARM, 1024 CUDA cores, 8 GB RAM) |
-| Camera | Intel RealSense D435i × 2 |
 | Robot form | Spherical, 540 mm diameter, dual-shell cube mechanism |
 | Camera height | 270 mm |
 
