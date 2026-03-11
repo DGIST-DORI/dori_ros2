@@ -30,8 +30,10 @@ class Location:
     keywords: List[str] = field(default_factory=list)
 
 
+# Campus Knowledge Base (structured JSON — fast exact lookup)
+
 class CampusKnowledgeBase:
-    """Lightweight RAG knowledge base for campus locations and FAQs."""
+    """Lightweight structured knowledge base for campus locations and FAQs."""
 
     def __init__(self, knowledge_file: Optional[str] = None, logger=None):
         self.locations: Dict[str, Location] = {}
@@ -58,12 +60,6 @@ class CampusKnowledgeBase:
                 coordinates=(37.51, 127.01),
                 keywords=['식당', '밥', '식사', 'cafeteria', '먹'],
             ),
-            'engineering': Location(
-                name='공학관',
-                description='공과대학 건물입니다. 실험실과 강의실이 있습니다.',
-                coordinates=(37.49, 126.99),
-                keywords=['공학관', '공대', 'engineering'],
-            ),
         }
         self.faqs = {
             '운영시간': '저는 평일 오전 9시부터 오후 6시까지 캠퍼스 투어를 제공합니다.',
@@ -76,12 +72,13 @@ class CampusKnowledgeBase:
                 data = json.load(f)
 
             for key, loc in data.get('locations', {}).items():
-                name = loc.get('name', key)
+                name = loc.get('name_ko') or loc.get('name') or loc.get('name_en') or key
                 if not name:
                     continue
+                desc = loc.get('description_ko') or loc.get('description', '')
                 self.locations[key] = Location(
                     name=name,
-                    description=loc.get('description', ''),
+                    description=desc,
                     coordinates=tuple(loc.get('coordinates', [0.0, 0.0])),
                     keywords=loc.get('keywords', []),
                 )
@@ -100,19 +97,16 @@ class CampusKnowledgeBase:
 
     def search_location(self, query: str) -> Optional[Location]:
         query_lower = query.lower()
-
-        # Exact name match first
+        # Exact name match
         for loc in self.locations.values():
             if loc.name in query:
                 return loc
-
         # Keyword scoring
         best, max_score = None, 0
         for loc in self.locations.values():
             score = sum(1 for kw in loc.keywords if kw in query_lower)
             if score > max_score:
                 max_score, best = score, loc
-
         return best if max_score > 0 else None
 
     def search_faq(self, query: str) -> Optional[str]:
@@ -122,6 +116,66 @@ class CampusKnowledgeBase:
                 return answer
         return None
 
+
+# Vector RAG Retriever (semantic search over campus_documents/*.txt)
+
+class VectorRetriever:
+    """
+    Wraps the FAISS index built by build_index.py.
+    Loaded lazily on first query to avoid slowing down node startup.
+    """
+
+    def __init__(self, index_dir: Optional[str], logger=None):
+        self.index_dir = index_dir
+        self.logger    = logger
+        self._retriever = None   # lazy init
+
+    def _load(self):
+        if not self.index_dir or not Path(self.index_dir).exists():
+            if self.logger:
+                self.logger.warn(
+                    f'RAG index not found at "{self.index_dir}". '
+                    'Vector search disabled. Run build_index.py first.'
+                )
+            return
+        try:
+            # Import here so missing deps only fail at search time, not import time
+            from build_index import Retriever
+            self._retriever = Retriever(self.index_dir)
+            if self.logger:
+                self.logger.info(f'Vector retriever ready: {self.index_dir}')
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f'Failed to load vector index: {e}')
+
+    def search(self, query: str, top_k: int = 3) -> List[dict]:
+        """
+        Return top_k relevant chunks. Falls back to [] if index unavailable.
+        Each result: {score, source, text}
+        """
+        if self._retriever is None:
+            self._load()
+        if self._retriever is None:
+            return []
+        try:
+            return self._retriever.search(query, top_k=top_k)
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f'Vector search failed: {e}')
+            return []
+
+    def format_context(self, results: List[dict]) -> str:
+        """Format retrieved chunks into a compact context string for the LLM prompt."""
+        if not results:
+            return ''
+        parts = []
+        for r in results:
+            src = Path(r['source']).stem  # filename without extension
+            parts.append(f'[{src}]\n{r["text"]}')
+        return '\n\n'.join(parts)
+
+
+# Intent Classifier
 
 class IntentClassifier:
     """Rule-based intent classifier using regex patterns."""
@@ -135,6 +189,7 @@ class IntentClassifier:
         'information': [
             r'(무엇|what|설명|explain|소개|introduce|tell me)',
             r'(어떤|which|뭐|무슨|what kind)',
+            r'(메뉴|식단|밥|lunch|dinner|오늘|today)',
         ],
         'greeting': [
             r'^(안녕|hello|hi|hey)',
@@ -154,27 +209,32 @@ class IntentClassifier:
         return 'general'
 
 
+# LLM Node
+
 class LLMNode(Node):
     def __init__(self):
         super().__init__('llm_node')
 
         # Parameters
-        self.declare_parameter('knowledge_file', '')
+        self.declare_parameter('knowledge_file',   '')
+        self.declare_parameter('rag_index_dir',    '')   # path to build_index.py output
         self.declare_parameter('use_external_llm', False)
-        self.declare_parameter('model_name', 'claude-sonnet-4-6')
-        self.declare_parameter('api_key', '')
-        self.declare_parameter('confidence_threshold', 0.4)
+        self.declare_parameter('model_name',       'gemini-2.0-flash')
+        self.declare_parameter('api_key',          '')
+        self.declare_parameter('rag_top_k',        3)    # chunks to retrieve per query
 
-        knowledge_file      = self.get_parameter('knowledge_file').value
+        knowledge_file   = self.get_parameter('knowledge_file').value
+        rag_index_dir    = self.get_parameter('rag_index_dir').value
         self.use_external   = self.get_parameter('use_external_llm').value
         self.model_name     = self.get_parameter('model_name').value
         api_key             = self.get_parameter('api_key').value
-        self.conf_threshold = self.get_parameter('confidence_threshold').value
+        self.rag_top_k      = self.get_parameter('rag_top_k').value
 
-        # Knowledge base
-        self.kb = CampusKnowledgeBase(
-            knowledge_file or None, self.get_logger()
-        )
+        # Knowledge base (structured)
+        self.kb = CampusKnowledgeBase(knowledge_file or None, self.get_logger())
+
+        # Vector retriever (semantic)
+        self.retriever = VectorRetriever(rag_index_dir or None, self.get_logger())
 
         # External LLM client (optional)
         self.llm_client = None
@@ -187,52 +247,51 @@ class LLMNode(Node):
         self.current_language: str = 'ko'
         self.current_location_context: str = ''
 
-        # Subscribers
-        # Primary input: routed through HRI Manager
-        self.create_subscription(
-            String, '/dori/llm/query', self._on_query, 10)
-
-        # Publishers
-        self.response_pub     = self.create_publisher(String,      '/dori/llm/response', 10)
-        self.destination_pub  = self.create_publisher(PoseStamped, '/dori/nav/destination', 10)
+        # Subscribers / Publishers
+        self.create_subscription(String, '/dori/llm/query', self._on_query, 10)
+        self.response_pub    = self.create_publisher(String,      '/dori/llm/response', 10)
+        self.destination_pub = self.create_publisher(PoseStamped, '/dori/nav/destination', 10)
 
         self.get_logger().info('LLM Node started')
 
-    # LLM client initialization
+    # LLM client init
+
     def _init_llm_client(self, api_key: str):
-        """Initialize external LLM API client based on model_name."""
         try:
-            if 'gpt' in self.model_name.lower():
-                import openai
-                self.llm_client = openai.OpenAI(api_key=api_key or None)
-                self.llm_type = 'openai'
-                self.get_logger().info(f'OpenAI client ready: {self.model_name}')
+            if 'gemini' in self.model_name.lower():
+                import google.generativeai as genai
+                genai.configure(api_key=api_key or os.environ.get('GEMINI_API_KEY', ''))
+                self.llm_client = genai.GenerativeModel(self.model_name)
+                self.llm_type   = 'gemini'
+                self.get_logger().info(f'Gemini client ready: {self.model_name}')
 
             elif 'claude' in self.model_name.lower():
                 import anthropic
                 self.llm_client = anthropic.Anthropic(api_key=api_key or None)
-                self.llm_type = 'claude'
+                self.llm_type   = 'claude'
                 self.get_logger().info(f'Anthropic client ready: {self.model_name}')
+
+            elif 'gpt' in self.model_name.lower():
+                import openai
+                self.llm_client = openai.OpenAI(api_key=api_key or None)
+                self.llm_type   = 'openai'
+                self.get_logger().info(f'OpenAI client ready: {self.model_name}')
 
             else:
                 self.get_logger().warn(
-                    f'Unknown model "{self.model_name}" — falling back to rule-based'
-                )
+                    f'Unknown model "{self.model_name}" — falling back to rule-based')
                 self.use_external = False
 
         except ImportError as e:
-            self.get_logger().error(f'LLM library not found: {e}')
+            self.get_logger().error(f'LLM library not installed: {e}')
             self.use_external = False
         except Exception as e:
             self.get_logger().error(f'LLM client init failed: {e}')
             self.use_external = False
 
     # Query callback
+
     def _on_query(self, msg: String):
-        """
-        Receive query from HRI Manager.
-        Expected JSON: {user_text, location_context, hri_state, timestamp}
-        """
         try:
             data = json.loads(msg.data)
             user_text = data.get('user_text', '').strip()
@@ -243,22 +302,20 @@ class LLMNode(Node):
         if not user_text:
             return
 
-        self.get_logger().info(f'Query received: "{user_text}"')
-
+        self.get_logger().info(f'Query: "{user_text}"')
         response = self._generate_response(user_text)
 
-        resp_msg = String()
-        resp_msg.data = response
-        self.response_pub.publish(resp_msg)
+        out = String()
+        out.data = response
+        self.response_pub.publish(out)
         self.get_logger().info(f'Response: "{response}"')
 
         self.conversation_history.append({
-            'user':      user_text,
-            'assistant': response,
-            'language':  self.current_language,
+            'user': user_text, 'assistant': response, 'language': self.current_language,
         })
 
     # Response generation
+
     def _generate_response(self, user_text: str) -> str:
         intent = IntentClassifier.classify(user_text)
         self.get_logger().info(f'Intent: {intent}')
@@ -269,11 +326,9 @@ class LLMNode(Node):
             return self._localized('thanks')
         if intent == 'navigation':
             return self._handle_navigation(user_text)
-        if intent == 'information':
-            return self._handle_information(user_text)
 
-        # general: try external LLM, else fallback
-        return self._handle_general(user_text)
+        # For information and general: run full RAG pipeline
+        return self._handle_with_rag(user_text, intent)
 
     def _handle_navigation(self, text: str) -> str:
         location = self.kb.search_location(text)
@@ -284,63 +339,105 @@ class LLMNode(Node):
             return f'{location.name}(으)로 안내하겠습니다. {location.description}'
         return self._localized('not_found')
 
-    def _handle_information(self, text: str) -> str:
-        answer = self.kb.search_faq(text)
-        if answer:
-            return answer
-        location = self.kb.search_location(text)
-        if location:
-            return location.description
-        return self._localized('no_info')
+    def _handle_with_rag(self, text: str, intent: str) -> str:
+        """
+        Two-stage retrieval:
+          1. Structured KB  — fast, exact (JSON)
+          2. Vector search  — semantic, document chunks (FAISS)
+        Combine both into LLM context, fall back to rule-based if LLM unavailable.
+        """
+        # Stage 1: structured KB
+        struct_context = ''
+        faq_answer = self.kb.search_faq(text)
+        if faq_answer:
+            struct_context = faq_answer
+        else:
+            loc = self.kb.search_location(text)
+            if loc:
+                struct_context = f'{loc.name}: {loc.description}'
 
-    def _handle_general(self, text: str) -> str:
-        if self.use_external and self.llm_client:
-            return self._call_external_llm(text)
-        return self._localized('no_understand')
+        # Stage 2: vector search
+        vec_results = self.retriever.search(text, top_k=self.rag_top_k)
+        vec_context = self.retriever.format_context(vec_results)
 
-    def _call_external_llm(self, text: str) -> str:
+        # If no LLM, return best structured result or fallback
+        if not self.use_external or not self.llm_client:
+            if struct_context:
+                return struct_context
+            if vec_results:
+                # Return the top chunk text directly (trimmed)
+                return vec_results[0]['text'][:200]
+            return self._localized('no_understand')
+
+        # Build combined context for LLM
+        context_parts = []
+        if struct_context:
+            context_parts.append(f'[Campus DB]\n{struct_context}')
+        if vec_context:
+            context_parts.append(f'[Documents]\n{vec_context}')
+        combined_context = '\n\n'.join(context_parts)
+
+        return self._call_llm_with_context(text, combined_context)
+
+    # LLM call
+
+    def _call_llm_with_context(self, user_text: str, context: str) -> str:
+        system_prompt = self._build_system_prompt(context)
+        messages      = self._build_messages(user_text)
         try:
-            system_prompt = self._build_system_prompt()
-            messages = self._build_messages(text)
-
-            if self.llm_type == 'openai':
-                resp = self.llm_client.chat.completions.create(
-                    model=self.model_name,
-                    messages=[{'role': 'system', 'content': system_prompt}, *messages],
-                    temperature=0.7,
-                    max_tokens=200,
-                )
-                return resp.choices[0].message.content.strip()
+            if self.llm_type == 'gemini':
+                # Gemini: prepend system prompt as first user turn
+                full_history = [
+                    {'role': 'user',  'parts': [system_prompt + '\n\n' + messages[0]['content']]},
+                ]
+                for m in messages[1:]:
+                    full_history.append({
+                        'role': 'model' if m['role'] == 'assistant' else 'user',
+                        'parts': [m['content']],
+                    })
+                chat = self.llm_client.start_chat(history=full_history[:-1])
+                resp = chat.send_message(full_history[-1]['parts'][0])
+                return resp.text.strip()
 
             elif self.llm_type == 'claude':
                 resp = self.llm_client.messages.create(
                     model=self.model_name,
                     system=system_prompt,
                     messages=messages,
-                    max_tokens=200,
+                    max_tokens=300,
                 )
                 return resp.content[0].text.strip()
 
+            elif self.llm_type == 'openai':
+                resp = self.llm_client.chat.completions.create(
+                    model=self.model_name,
+                    messages=[{'role': 'system', 'content': system_prompt}, *messages],
+                    max_tokens=300,
+                    temperature=0.7,
+                )
+                return resp.choices[0].message.content.strip()
+
         except Exception as e:
-            self.get_logger().error(f'External LLM call failed: {e}')
+            self.get_logger().error(f'LLM call failed: {e}')
         return self._localized('no_understand')
 
-    def _build_system_prompt(self) -> str:
-        locations_str = ', '.join(self.kb.locations.keys())
+    def _build_system_prompt(self, context: str) -> str:
         location_hint = (
-            f' Current location context: {self.current_location_context}.'
+            f' Current location: {self.current_location_context}.'
             if self.current_location_context else ''
         )
+        context_block = f'\n\n--- Reference Information ---\n{context}\n---' if context else ''
+
         if self.current_language == 'en':
             return (
-                f'You are DORI, a university campus guide robot. '
-                f'Be friendly and concise. Available locations: {locations_str}.'
-                f'{location_hint}'
+                f'You are DORI, a friendly campus guide robot at DGIST university. '
+                f'Answer concisely (1-3 sentences). Use only the reference information below '
+                f'if relevant; do not fabricate facts.{location_hint}{context_block}'
             )
         return (
-            f'당신은 DORI, 대학 캠퍼스 안내 로봇입니다. '
-            f'친절하고 간결하게 답변하세요. 안내 가능한 장소: {locations_str}.'
-            f'{location_hint}'
+            f'당신은 DGIST 캠퍼스 안내 로봇 도리입니다. '
+            f'친절하고 간결하게 1-3문장으로 답변하세요. '
+            f'아래 참고 정보를 활용하되, 없는 내용은 지어내지 마세요.{location_hint}{context_block}'
         )
 
     def _build_messages(self, current_text: str) -> list:
@@ -352,30 +449,19 @@ class LLMNode(Node):
         return messages
 
     # Helpers
+
     def _localized(self, key: str) -> str:
         responses = {
-            'greeting': {
-                'ko': '안녕하세요! 저는 캠퍼스 안내 로봇 도리입니다. 어디로 안내해드릴까요?',
-                'en': "Hello! I'm DORI, the campus guide robot. Where would you like to go?",
-            },
-            'thanks': {
-                'ko': '천만에요! 더 도움이 필요하시면 불러주세요.',
-                'en': "You're welcome! Call me if you need more help.",
-            },
-            'not_found': {
-                'ko': '죄송합니다. 해당 장소를 찾을 수 없습니다. 다시 말씀해주시겠어요?',
-                'en': "Sorry, I couldn't find that location. Could you say it again?",
-            },
-            'no_info': {
-                'ko': '죄송합니다. 해당 정보를 찾을 수 없습니다.',
-                'en': "Sorry, I couldn't find that information.",
-            },
-            'no_understand': {
-                'ko': '죄송합니다. 이해하지 못했습니다. 다시 말씀해주시겠어요?',
-                'en': "Sorry, I didn't understand. Could you please repeat?",
-            },
+            'greeting':    {'ko': '안녕하세요! 저는 캠퍼스 안내 로봇 도리입니다. 어디로 안내해드릴까요?',
+                            'en': "Hello! I'm DORI, the campus guide robot. Where would you like to go?"},
+            'thanks':      {'ko': '천만에요! 더 도움이 필요하시면 불러주세요.',
+                            'en': "You're welcome! Call me if you need more help."},
+            'not_found':   {'ko': '죄송합니다. 해당 장소를 찾을 수 없습니다. 다시 말씀해주시겠어요?',
+                            'en': "Sorry, I couldn't find that location. Could you say it again?"},
+            'no_understand':{'ko': '죄송합니다. 이해하지 못했습니다. 다시 말씀해주시겠어요?',
+                             'en': "Sorry, I didn't understand. Could you please repeat?"},
         }
-        lang = 'ko' if self.current_language == 'ko' else 'en'
+        lang  = 'ko' if self.current_language == 'ko' else 'en'
         entry = responses.get(key, {})
         return entry.get(lang, entry.get('ko', ''))
 
@@ -383,15 +469,18 @@ class LLMNode(Node):
         pose = PoseStamped()
         pose.header.stamp    = self.get_clock().now().to_msg()
         pose.header.frame_id = 'map'
-        pose.pose.position.x = location.coordinates[0]
-        pose.pose.position.y = location.coordinates[1]
+        pose.pose.position.x = float(location.coordinates[0])
+        pose.pose.position.y = float(location.coordinates[1])
         pose.pose.position.z = 0.0
         pose.pose.orientation.w = 1.0
         self.destination_pub.publish(pose)
         self.get_logger().info(f'Navigation destination: {location.name}')
 
 
+# Entry point
+
 def main(args=None):
+    import os
     rclpy.init(args=args)
     node = LLMNode()
     try:
