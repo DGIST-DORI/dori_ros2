@@ -1,38 +1,29 @@
 /**
  * core/ros.js
  * ROS WebSocket singleton.
- * Dynamically loads roslibjs from CDN so no npm package needed.
+ * Uses bundled roslib package first, with optional global fallback.
  * Usage:
  *   import { connectROS, disconnectROS, subscribeROS, publishROS } from './core/ros'
  */
 
-const ROSLIB_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/roslibjs/1.3.0/roslib.min.js';
+import * as ROSLIB from 'roslib';
 
 let ros = null;
-let loadPromise = null;
 const subscribers = {}; // topic -> ROSLIB.Topic
 const listeners = {};   // topic -> Set<callback>
 
-// ─── Load roslibjs ─────────────────────────────────────────────────────────
-function loadROSLib() {
-  if (loadPromise) return loadPromise;
-  if (window.ROSLIB) { loadPromise = Promise.resolve(); return loadPromise; }
-  loadPromise = new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = ROSLIB_CDN;
-    s.onload = resolve;
-    s.onerror = reject;
-    document.head.appendChild(s);
-  });
-  return loadPromise;
+function getROSLib() {
+  if (ROSLIB) return ROSLIB;
+  if (typeof window !== 'undefined' && window.ROSLIB) return window.ROSLIB;
+  throw new Error('ROSLIB is unavailable. Check local bundle/dependency loading state.');
 }
 
 // ─── Connect ────────────────────────────────────────────────────────────────
 export async function connectROS(url, { onConnect, onError, onClose } = {}) {
-  await loadROSLib();
+  const roslib = getROSLib();
   if (ros) { ros.close(); ros = null; }
 
-  ros = new window.ROSLIB.Ros({ url });
+  ros = new roslib.Ros({ url });
 
   ros.on('connection', () => {
     onConnect?.();
@@ -42,7 +33,7 @@ export async function connectROS(url, { onConnect, onError, onClose } = {}) {
   ros.on('error',   e => onError?.(e));
   ros.on('close',   () => {
     onClose?.();
-    Object.values(subscribers).forEach(s => { try { s.unsubscribe(); } catch (_) {} });
+    Object.values(subscribers).forEach(s => { try { s.unsubscribe(); } catch { return; } });
     Object.keys(subscribers).forEach(k => delete subscribers[k]);
   });
 }
@@ -82,9 +73,10 @@ export function subscribeROS(topic, msgType, cb) {
 }
 
 function _subscribe(topic, msgType) {
-  if (!ros || !window.ROSLIB) return;
+  if (!ros) return;
+  const roslib = getROSLib();
   const type = msgType || _inferMsgType(topic);
-  const sub = new window.ROSLIB.Topic({ ros, name: topic, messageType: type });
+  const sub = new roslib.Topic({ ros, name: topic, messageType: type });
   sub.subscribe(msg => {
     const val = msg.data !== undefined ? msg.data : msg;
     listeners[topic]?.forEach(cb => cb(val));
@@ -103,7 +95,8 @@ function _inferMsgType(topic) {
 
 // ─── Publish ─────────────────────────────────────────────────────────────────
 export function publishROS(topic, msgType, data) {
-  if (!ros || !window.ROSLIB) return;
-  const t = new window.ROSLIB.Topic({ ros, name: topic, messageType: msgType });
-  t.publish(new window.ROSLIB.Message(data));
+  if (!ros) return;
+  const roslib = getROSLib();
+  const t = new roslib.Topic({ ros, name: topic, messageType: msgType });
+  t.publish(new roslib.Message(data));
 }
