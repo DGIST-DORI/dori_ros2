@@ -13,18 +13,59 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
   const addLog       = useStore(s => s.addLog);
 
   const [urlInput, setUrlInput] = useState(wsUrl);
+  const [isConnecting, setIsConnecting] = useState(false);
 
-  function handleConnect() {
+  function formatConnectError(error, url, source = 'network') {
+    const message = String(error?.message || error || 'Unknown error');
+    if (source === 'url') {
+      return `Connection failed [url]: Invalid WebSocket URL (${url}). Use ws:// or wss://.`;
+    }
+    if (source === 'loading' || message.includes('Script error') || message.includes('Failed to fetch')) {
+      return `Connection failed [loading]: Failed to load ROS client library. (${message})`;
+    }
+    return `Connection failed [network]: Could not open WebSocket (${url}). (${message})`;
+  }
+
+  async function handleConnect() {
+    if (isConnecting) return;
+
     if (connected) {
       disconnectROS(); setConnected(false); addLog(LOG_TAGS.SYS, 'Disconnected from ROS');
     } else {
-      stopDemo();
-      connectROS(urlInput, {
-        onConnect: () => { setConnected(true); addLog(LOG_TAGS.SYS, `Connected → ${urlInput}`); },
-        onError:   (e) => addLog(LOG_TAGS.ERROR, `WebSocket error: ${e}`),
-        onClose:   () => { setConnected(false); addLog(LOG_TAGS.SYS, 'Connection closed'); },
-      });
-      setWsUrl(urlInput);
+      try {
+        // quick URL sanity check for clearer user-facing errors
+        const parsed = new URL(urlInput);
+        if (!['ws:', 'wss:'].includes(parsed.protocol)) {
+          throw new Error('URL protocol must be ws:// or wss://');
+        }
+
+        setIsConnecting(true);
+        setConnected(false);
+        stopDemo();
+        await connectROS(urlInput, {
+          onConnect: () => {
+            setConnected(true);
+            setIsConnecting(false);
+            addLog(LOG_TAGS.SYS, `Connected → ${urlInput}`);
+          },
+          onError: (e) => {
+            setConnected(false);
+            setIsConnecting(false);
+            addLog(LOG_TAGS.ERROR, formatConnectError(e, urlInput, 'network'));
+          },
+          onClose: () => {
+            setConnected(false);
+            setIsConnecting(false);
+            addLog(LOG_TAGS.SYS, 'Connection closed');
+          },
+        });
+        setWsUrl(urlInput);
+      } catch (e) {
+        const source = e instanceof TypeError || e.message?.includes('protocol') ? 'url' : 'loading';
+        setConnected(false);
+        setIsConnecting(false);
+        addLog(LOG_TAGS.ERROR, formatConnectError(e, urlInput, source));
+      }
     }
   }
 
@@ -63,11 +104,15 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
           value={urlInput}
           onChange={e => setUrlInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleConnect()}
-          disabled={connected || isDemoMode}
+          disabled={connected || isDemoMode || isConnecting}
           spellCheck={false}
         />
-        <button className={`hdr-btn ${connected ? 'connected' : ''}`} onClick={handleConnect}>
-          {connected ? '⏏ disconnect' : '⏎ connect'}
+        <button
+          className={`hdr-btn ${connected ? 'connected' : ''}`}
+          onClick={handleConnect}
+          disabled={isDemoMode || isConnecting}
+        >
+          {isConnecting ? 'connecting...' : (connected ? '⏏ disconnect' : '⏎ connect')}
         </button>
         <button className={`hdr-btn demo ${isDemoMode ? 'active' : ''}`} onClick={handleDemo}>
           {isDemoMode ? '■ stop demo' : '▶ demo'}
