@@ -82,11 +82,13 @@ Last updated: March 10, 2026.
 ### Software Packages
 
 ```
-ros2_ws/src/
+src/
 ├── hri_pkg/              # Perception: person detection, gesture, expression, landmark
 ├── stt_pkg/              # Wake word (Porcupine) + transcription (Whisper)
 ├── llm_pkg/              # Intent classification + RAG + LLM response
 ├── tts_pkg/              # Text-to-speech playback
+├── navigation_pkg/       # Navigation execution node
+├── dashboard_pkg/        # ROS ↔ web dashboard bridge
 └── bringup/              # Launch files
     ├── robot.launch.py           # Full robot (top-level)
     ├── hri.launch.py             # HRI perception only
@@ -150,15 +152,38 @@ sudo apt install -y \
 ### 2. Clone Repository
 
 ```bash
-git clone https://github.com/DGIST-DORI/dori_ros2
-cd dori_ros2
+git clone https://github.com/DGIST-DORI/dori
+cd dori
 ```
 
 ### 3. Install Python Dependencies
 
+#### 필수 (공통)
+
+아래 한 번으로 음성 인터페이스 핵심 패키지(`stt_pkg`, `tts_pkg`, `llm_pkg`) 의존성을 모두 설치합니다.
+
 ```bash
 pip3 install -r requirements.txt
 ```
+
+루트 `requirements.txt`는 다음 파일을 참조합니다.
+
+- `src/stt_pkg/requirements.txt`
+- `src/tts_pkg/requirements.txt`
+- `src/llm_pkg/requirements.txt`
+
+#### 선택 (패키지별 추가 설치)
+
+기능별로 아래를 추가 설치하세요.
+
+- `hri_pkg` (카메라/비전 기능):
+
+  ```bash
+  pip3 install opencv-python mediapipe ultralytics pyrealsense2
+  ```
+
+- `llm_pkg` 외부 모델 API 사용 시: API 키 설정 필요 (`OPENAI_API_KEY`, `GEMINI_API_KEY` 등)
+- `stt_pkg` Silero VAD 사용 시: `torch` 설치 권장
 
 ### 4. Set API Keys
 
@@ -166,8 +191,9 @@ pip3 install -r requirements.txt
 # Porcupine wake word (required)
 echo 'export PORCUPINE_ACCESS_KEY="your_key_here"' >> ~/.bashrc
 
-# Optional: external LLM
+# Optional: external LLM providers
 echo 'export OPENAI_API_KEY="your_key_here"' >> ~/.bashrc
+echo 'export GEMINI_API_KEY="your_key_here"' >> ~/.bashrc
 
 source ~/.bashrc
 ```
@@ -314,14 +340,40 @@ Korean TTS with `gtts` (online) or `pyttsx3` (offline). Publishes `/dori/tts/spe
 A browser-based debug dashboard is available, serving both an HRI monitor and a 3×3 cube simulator.
 
 ```bash
-# Start rosbridge + HTTP server
-ros2 launch cubesim_pkg cubesim.launch.py
+# 1) Build the frontend assets first (required)
+cd web
+npm ci   # or: npm install
+npm run build
 
-# Access from any device on the same network
-http://[Robot IP]:3000
+# 2) Return to ROS workspace root
+cd ..
+
+# 3) Build workspace and source overlay
+colcon build --symlink-install
+source install/setup.bash
+
+# 4) Start dashboard backend (rosbridge + HTTP server)
+ros2 launch dashboard_pkg dashboard.launch.py
 ```
 
-The dashboard connects to ROS2 via WebSocket (`ws://[Robot IP]:9090`) and displays real-time topic values, HRI state, person tracking, gesture/expression state, and event log.
+Dashboard access endpoints:
+
+- Dashboard URL: `http://[Robot IP]:3000`
+- ROS WebSocket URL: `ws://[Robot IP]:9090`
+
+Connection examples:
+
+```text
+# Local access on robot host
+http://localhost:3000
+ws://localhost:9090
+
+# Remote access from another device on the same network
+http://[Robot IP]:3000
+ws://[Robot IP]:9090
+```
+
+The dashboard displays real-time topic values, HRI state, person tracking, gesture/expression state, and event log through the ROS WebSocket bridge.
 
 ---
 
@@ -349,22 +401,23 @@ Internal axes (fixed):  F, D
 
 ### Adding Campus Knowledge
 
-Edit `llm_pkg/config/campus_knowledge.json`:
+Edit `/data/campus/indexed/campus_knowledge.json`:
 
 ```json
-{
-  "locations": {
-    "library": {
-      "name": "E8: 중앙도서관",
-      "description": "학생들이 공부하는 공간",
-      "coordinates": [42.424, 242.424],
-      "keywords": ["도서관", "책", "열람실"]
-    }
-  },
-  "faqs": {
-    "wifi": "캠퍼스 Wi-Fi는 'DGIST-Guest' 네트워크를 사용하세요."
-  }
-}
+"E8": {
+      "bldg_no": "E8",
+      "class": "E",
+      "name_ko": "학술정보관",
+      "name_en": "Central Library",
+      "description_ko": "학술정보관입니다. 열람실과 스터디룸이 있습니다.",
+      "description_en": "",
+      "coordinates": [0.0, 0.0],
+      "floor": 6,
+      "keywords": ["도서관", "책", "공부", "열람실", "library", "study"],
+      "hours": "09:00-24:00",
+      "facilities": ["열람실", "그룹스터디룸", "북카페"],
+      "url": "https://library.dgist.ac.kr/main.do"
+    },
 ```
 
 ### Training a Custom Landmark Model
