@@ -1,13 +1,16 @@
 import Panel from '../components/Panel';
 import { useStore, TOPIC_META } from '../core/store';
+import { parseWsUrl } from '../core/url';
 import './SystemTab.css';
 
 export default function SystemTab() {
   const topicHz  = useStore(s => s.topicHz);
   const connected = useStore(s => s.connected);
   const isDemoMode = useStore(s => s.isDemoMode);
+  const wsUrl = useStore(s => s.wsUrl);
 
   const topics = Object.keys(TOPIC_META);
+  const parsedWsUrl = parseWsUrl(wsUrl);
 
   return (
     <div className="sys-layout">
@@ -40,13 +43,41 @@ export default function SystemTab() {
             </span>
           </div>
           <div className="sys-info-row">
-            <span>Transport</span>
-            <span>rosbridge WebSocket</span>
+            <span>{connected ? 'Current URL' : 'Configured URL'}</span>
+            <span>{wsUrl}</span>
           </div>
-          <div className="sys-info-row">
-            <span>Port</span>
-            <span>9090</span>
-          </div>
+
+          {parsedWsUrl ? (
+            <>
+              <div className="sys-info-row">
+                <span>Transport</span>
+                <span>{parsedWsUrl.protocol.toUpperCase()}</span>
+              </div>
+              <div className="sys-info-row">
+                <span>Host</span>
+                <span>{parsedWsUrl.host}</span>
+              </div>
+              <div className="sys-info-row">
+                <span>Port</span>
+                <span>{parsedWsUrl.port}</span>
+              </div>
+              <div className="sys-info-row">
+                <span>Path</span>
+                <span>{parsedWsUrl.path || '/'}</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="sys-info-row">
+                <span>Transport</span>
+                <span style={{ color: 'var(--red)' }}>Invalid URL</span>
+              </div>
+              <div className="sys-info-row">
+                <span>Raw URL</span>
+                <span>{wsUrl || '(empty)'}</span>
+              </div>
+            </>
+          )}
         </div>
       </Panel>
     </div>
