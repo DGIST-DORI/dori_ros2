@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 from glob import glob
 import os
 
-package_name = 'cubesim_pkg'
+package_name = 'dashboard_pkg'
 
 setup(
     name=package_name,
@@ -28,7 +28,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'cube_bridge = cubesim_pkg.cube_bridge:main',
+            'cube_bridge = dashboard_pkg.cube_bridge:main',
         ],
     },
 )

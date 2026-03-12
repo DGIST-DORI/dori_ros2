@@ -5,7 +5,7 @@ from ament_index_python.packages import get_package_share_directory
 import os
 
 def generate_launch_description():
-    pkg_dir = get_package_share_directory('cubesim_pkg')
+    pkg_dir = get_package_share_directory('dashboard_pkg')
     web_dir = os.path.join(pkg_dir, 'web')
     
     return LaunchDescription([
