@@ -150,8 +150,8 @@ sudo apt install -y \
 ### 2. Clone Repository
 
 ```bash
-git clone https://github.com/DGIST-DORI/dori_ros2
-cd dori_ros2
+git clone https://github.com/DGIST-DORI/dori
+cd dori
 ```
 
 ### 3. Install Python Dependencies
@@ -349,22 +349,23 @@ Internal axes (fixed):  F, D
 
 ### Adding Campus Knowledge
 
-Edit `llm_pkg/config/campus_knowledge.json`:
+Edit `/data/campus/indexed/campus_knowledge.json`:
 
 ```json
-{
-  "locations": {
-    "library": {
-      "name": "E8: 중앙도서관",
-      "description": "학생들이 공부하는 공간",
-      "coordinates": [42.424, 242.424],
-      "keywords": ["도서관", "책", "열람실"]
-    }
-  },
-  "faqs": {
-    "wifi": "캠퍼스 Wi-Fi는 'DGIST-Guest' 네트워크를 사용하세요."
-  }
-}
+"E8": {
+      "bldg_no": "E8",
+      "class": "E",
+      "name_ko": "학술정보관",
+      "name_en": "Central Library",
+      "description_ko": "학술정보관입니다. 열람실과 스터디룸이 있습니다.",
+      "description_en": "",
+      "coordinates": [0.0, 0.0],
+      "floor": 6,
+      "keywords": ["도서관", "책", "공부", "열람실", "library", "study"],
+      "hours": "09:00-24:00",
+      "facilities": ["열람실", "그룹스터디룸", "북카페"],
+      "url": "https://library.dgist.ac.kr/main.do"
+    },
 ```
 
 ### Training a Custom Landmark Model
