@@ -2,7 +2,7 @@
 """
 DORI Campus Guide Robot - Knowledge Base Index Builder
 
-Chunks campus_documents/*.txt files, embeds them with a lightweight
+Chunks data/campus/processed/*.txt files, embeds them with a lightweight
 multilingual sentence-transformer, and saves a FAISS index + metadata.
 
 Designed for NVIDIA Jetson Orin Nano Super (8GB).
@@ -10,13 +10,13 @@ Embedding model: paraphrase-multilingual-MiniLM-L12-v2 (~120 MB, CPU/GPU)
 
 Usage:
     # First time or full rebuild
-    python3 build_index.py --docs ./campus_documents --output ./rag_index
+    python3 build_index.py --docs ./data/campus/processed --output ./data/campus/indexed
 
     # Incremental: only re-embed changed/new files
-    python3 build_index.py --docs ./campus_documents --output ./rag_index --incremental
+    python3 build_index.py --docs ./data/campus/processed --output ./data/campus/indexed --incremental
 
     # After adding new menu files
-    python3 build_index.py --docs ./campus_documents/cafeteria --output ./rag_index --incremental
+    python3 build_index.py --docs ./data/campus/processed/cafeteria --output ./data/campus/indexed --incremental
 
 Install:
     pip install sentence-transformers faiss-cpu numpy
@@ -105,6 +105,7 @@ class IndexBuilder:
         self._meta   = []     # list of {source, chunk_id, text}
         self._hashes = {}     # {filepath: md5}
 
+    # Model (lazy)
 
     def _get_model(self):
         if self._model is None:
@@ -246,7 +247,7 @@ class Retriever:
 
     Usage:
         from build_index import Retriever
-        retriever = Retriever("./rag_index")
+        retriever = Retriever("./data/campus/indexed")
         results = retriever.search("오늘 학생식당 점심", top_k=3)
         for r in results:
             print(r['score'], r['source'], r['text'])
@@ -293,7 +294,7 @@ def main():
     parser = argparse.ArgumentParser(description="DORI RAG Index Builder")
     parser.add_argument("--docs",        required=True,
                         help="Directory containing .txt document files")
-    parser.add_argument("--output",      default="./rag_index",
+    parser.add_argument("--output",      default="./data/campus/indexed",
                         help="Directory to save FAISS index + metadata")
     parser.add_argument("--incremental", action="store_true",
                         help="Only re-embed changed/new files (faster updates)")
@@ -305,4 +306,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    

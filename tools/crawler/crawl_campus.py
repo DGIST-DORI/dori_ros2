@@ -6,13 +6,13 @@ structured JSON + txt documents for the RAG knowledge base.
 
 Usage:
   # Crawl all URLs and refine with LLM
-  python3 crawl_campus.py --output ./campus_documents/
+  python3 crawl_campus.py --output ./data/campus/
 
   # Crawl only (no LLM, save raw text for manual review)
-  python3 crawl_campus.py --output ./campus_documents/ --no-llm
+  python3 crawl_campus.py --output ./data/campus/ --no-llm
 
   # Add more URLs at runtime
-  python3 crawl_campus.py --urls extra_urls.txt --output ./campus_documents/
+  python3 crawl_campus.py --urls extra_urls.txt --output ./data/campus/
 
 Dependencies:
   pip install requests beautifulsoup4 google-genai
@@ -239,7 +239,7 @@ def save_refined(refined: dict, raw: dict, category: str,
         "key_facts":     refined.get("key_facts", []),
     }
 
-    json_dir = out_dir / "json"
+    json_dir = out_dir / "indexed"
     json_dir.mkdir(parents=True, exist_ok=True)
     json_path = json_dir / f"{doc_id}.json"
     with open(json_path, "w", encoding="utf-8") as f:
@@ -247,7 +247,7 @@ def save_refined(refined: dict, raw: dict, category: str,
     print(f"  [JSON] -> {json_path}")
 
     # TXT (full prose, for RAG vector search)
-    txt_dir = out_dir / category
+    txt_dir = out_dir / "processed" / category
     txt_dir.mkdir(parents=True, exist_ok=True)
     txt_path = txt_dir / f"{doc_id}.txt"
     with open(txt_path, "w", encoding="utf-8") as f:
@@ -264,7 +264,7 @@ def save_refined(refined: dict, raw: dict, category: str,
 def save_fallback_txt(raw: dict, category: str,
                       description_ko: str, description_en: str, out_dir: Path):
     """Save raw text as txt when LLM refinement fails/skipped."""
-    txt_dir = out_dir / category
+    txt_dir = out_dir / "processed" / category
     txt_dir.mkdir(parents=True, exist_ok=True)
     txt_path = txt_dir / f"{raw['doc_id']}_raw.txt"
     with open(txt_path, "w", encoding="utf-8") as f:
@@ -303,7 +303,7 @@ def load_extra_urls(path: str) -> list[tuple]:
 
 def main():
     parser = argparse.ArgumentParser(description="DORI Campus Knowledge Crawler")
-    parser.add_argument("--output", default="./campus_documents",
+    parser.add_argument("--output", default="./data/campus",
                         help="Output root directory")
     parser.add_argument("--no-llm", action="store_true",
                         help="Skip LLM refinement, save raw text only")

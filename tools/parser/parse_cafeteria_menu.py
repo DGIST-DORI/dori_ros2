@@ -10,7 +10,7 @@ Supported cafeterias:
 
 Usage:
   python3 parse_cafeteria_menu.py --input <file_or_dir> --output <output_dir>
-  python3 parse_cafeteria_menu.py --input ./menus/ --output ./campus_documents/cafeteria/
+  python3 parse_cafeteria_menu.py --input ./menus/ --output ./data/campus/processed/cafeteria/
 """
 
 import argparse
@@ -406,9 +406,7 @@ def to_txt(data: dict, out_dir: Path):
     return out_path
 
 
-# ---------------------------------------------------------------------------
 # File dispatcher
-# ---------------------------------------------------------------------------
 
 FILENAME_HINTS = {
     '학생식당': 'student',
@@ -452,7 +450,7 @@ def main():
     parser = argparse.ArgumentParser(description='DORI Cafeteria Menu Parser')
     parser.add_argument('--input', required=True,
                         help='Path to a menu file or directory containing menu files')
-    parser.add_argument('--output', default='./campus_documents/cafeteria',
+    parser.add_argument('--output', default='./data/campus/processed/cafeteria',
                         help='Output directory for JSON + TXT files')
     args = parser.parse_args()
 
