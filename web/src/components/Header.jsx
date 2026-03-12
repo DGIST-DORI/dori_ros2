@@ -17,13 +17,26 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
 
   function formatConnectError(error, url, source = 'network') {
     const message = String(error?.message || error || 'Unknown error');
+    const eventType = error?.type;
+    const target = error?.target;
+    const readyState = target?.readyState;
+    const stateLabel = readyState === undefined
+      ? 'n/a'
+      : ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'][readyState] || String(readyState);
+    const debugParts = [
+      `url=${url || 'n/a'}`,
+      `eventType=${eventType || 'n/a'}`,
+      `readyState=${stateLabel}`,
+      `message=${message}`,
+    ];
+
     if (source === 'url') {
-      return `Connection failed [url]: Invalid WebSocket URL (${url}). Use ws:// or wss://.`;
+      return `Connection failed [url]: Invalid WebSocket URL. ${debugParts.join(', ')}. Use ws:// or wss://.`;
     }
-    if (source === 'loading' || message.includes('Script error') || message.includes('Failed to fetch')) {
-      return `Connection failed [loading]: Failed to load ROS client library. (${message})`;
+    if (source === 'loading' || message.includes('ROSLIB is unavailable') || message.includes('Failed to fetch')) {
+      return `Connection failed [loading]: Failed to load ROS client library. ${debugParts.join(', ')}`;
     }
-    return `Connection failed [network]: Could not open WebSocket (${url}). (${message})`;
+    return `Connection failed [network]: Could not open WebSocket. ${debugParts.join(', ')}`;
   }
 
   async function handleConnect() {
