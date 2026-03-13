@@ -10,6 +10,11 @@
  */
 
 import { create } from 'zustand';
+import {
+  DEFAULT_EMOTION,
+  resolveEmotionFromState,
+  resolveROSOrStateEmotion,
+} from './emotion';
 
 const FACE_KEYS = ['U', 'R', 'F', 'D', 'L', 'B'];
 const FACE_COLORS = Object.freeze({
@@ -195,16 +200,15 @@ export const useStore = create((set, get) => ({
   expression: 'NEUTRAL',
 
   // ── Emotion (robot display face) ─────────────────────────────────────────
-  emotion: 'CALM',
-  emotionSource: 'state',   // 'state' | 'override'
+  emotion: DEFAULT_EMOTION,
+  emotionSource: 'state',   // 'state' | 'ros' | 'override'
   _emotionOverride: null,   // manually set from FaceTab palette
 
   setEmotionOverride: (em) => set({ emotion: em, emotionSource: 'override', _emotionOverride: em }),
   clearEmotionOverride: () => {
     // Revert to state-driven emotion
     const { hriState } = get();
-    const STATE_TO_EMOTION = { IDLE: 'CALM', LISTENING: 'ATTENTIVE', RESPONDING: 'THINKING', NAVIGATING: 'HAPPY' };
-    set({ emotion: STATE_TO_EMOTION[hriState] || 'CALM', emotionSource: 'state', _emotionOverride: null });
+    set({ emotion: resolveEmotionFromState(hriState), emotionSource: 'state', _emotionOverride: null });
   },
 
   // ── Event Log ────────────────────────────────────────────────────────────
@@ -264,8 +268,7 @@ export const useStore = create((set, get) => ({
           });
           // Auto-update emotion from state (only if not overriding)
           if (!get()._emotionOverride) {
-            const STATE_TO_EMOTION = { IDLE: 'CALM', LISTENING: 'ATTENTIVE', RESPONDING: 'THINKING', NAVIGATING: 'HAPPY' };
-            const nextEmotion = STATE_TO_EMOTION[d.state] || 'CALM';
+            const nextEmotion = resolveEmotionFromState(d.state);
             set({ emotion: nextEmotion, emotionSource: 'state' });
           }
           addLog(LOG_TAGS.STATE, `→ ${d.state}  [${(d.state_elapsed_sec ?? 0).toFixed(1)}s]`, rawVal);
@@ -336,13 +339,19 @@ export const useStore = create((set, get) => ({
         }
 
         case '/dori/hri/emotion': {
-          const { _emotionOverride } = get();
-          // Respect manual override from palette
-          if (_emotionOverride) break;
-          const em = parsed?.emotion || 'CALM';
-          const src = parsed?.source || 'state';
-          set({ emotion: em, emotionSource: src });
-          addLog(LOG_TAGS.EXPR, `emotion: ${em} [${src}]`, rawVal);
+          const { _emotionOverride, hriState } = get();
+          // Priority policy:
+          // 1) Manual palette override is highest and blocks ROS emotion updates.
+          // 2) Without override, accept only valid ROS emotion keys.
+          // 3) Invalid/missing ROS emotion falls back to HRI-state derived emotion.
+          if (_emotionOverride) {
+            addLog(LOG_TAGS.EXPR, `emotion ignored (manual override active): ${_emotionOverride}`, rawVal);
+            break;
+          }
+
+          const { emotion, source } = resolveROSOrStateEmotion(parsed, hriState);
+          set({ emotion, emotionSource: source });
+          addLog(LOG_TAGS.EXPR, `emotion: ${emotion} [${source}]`, rawVal);
           break;
         }
 

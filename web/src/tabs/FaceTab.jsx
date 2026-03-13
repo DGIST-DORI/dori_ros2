@@ -17,6 +17,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Panel from '../components/Panel';
 import { useStore } from '../core/store';
+import { DEFAULT_EMOTION } from '../core/emotion';
 import './FaceTab.css';
 
 // ── Single face color (always the same regardless of emotion) ─────────────────
@@ -96,9 +97,95 @@ const EMOTION_CONFIG = {
     transitionEasing: 'overshoot',
     cheeks: true,
   },
+
+  CURIOUS: {
+    label: 'Curious',
+    leftEye:  { type: 'roundedRect', width: 110, height: 86, cornerRadius: 28, tilt: -4, upperLid: 1, lowerLid: 0.96, pupilScale: 1.08, offsetY: -4 },
+    rightEye: { type: 'roundedRect', width: 110, height: 86, cornerRadius: 28, tilt: 4, upperLid: 1, lowerLid: 0.96, pupilScale: 1.08, offsetY: -4 },
+    mouth: { type: 'curve', halfW: 36, startY: 1, endY: -1, curveY: 7 },
+    showMouth: false,
+    blink: true,
+    blinkInterval: 5200,
+    blinkProfile: 'ATTENTIVE',
+    drift: true,
+    scan: true,
+    motionProfile: {
+      x: [{ amp: 7.8, speed: 1.15 }, { amp: 2.4, speed: 2.1 }],
+      y: [{ amp: 1.1, speed: 1.0 }, { amp: 0.45, speed: 1.9 }],
+    },
+    cheeks: false,
+  },
+  SHY: {
+    label: 'Shy',
+    leftEye:  { type: 'roundedRect', width: 96, height: 72, cornerRadius: 24, tilt: -1, upperLid: 0.86, lowerLid: 1, pupilScale: 0.92, offsetY: 5 },
+    rightEye: { type: 'roundedRect', width: 96, height: 72, cornerRadius: 24, tilt: 1, upperLid: 0.86, lowerLid: 1, pupilScale: 0.92, offsetY: 5 },
+    mouth: { type: 'curve', halfW: 26, startY: 5, endY: 5, curveY: 4 },
+    showMouth: false,
+    blink: true,
+    blinkInterval: 3200,
+    blinkProfile: 'CALM',
+    drift: false,
+    scan: false,
+    motionProfile: {
+      x: [{ amp: 0.9, speed: 0.92 }, { amp: 0.5, speed: 1.55 }],
+      y: [{ amp: 0.8, speed: 0.86 }, { amp: 0.42, speed: 1.34 }],
+    },
+    cheeks: true,
+  },
+  SURPRISED: {
+    label: 'Surprised',
+    leftEye:  { type: 'roundedRect', width: 118, height: 96, cornerRadius: 30, tilt: 0, upperLid: 1, lowerLid: 1, pupilScale: 1.14, offsetY: -10 },
+    rightEye: { type: 'roundedRect', width: 118, height: 96, cornerRadius: 30, tilt: 0, upperLid: 1, lowerLid: 1, pupilScale: 1.14, offsetY: -10 },
+    mouth: { type: 'curve', halfW: 20, startY: 3, endY: 3, curveY: 15 },
+    showMouth: false,
+    blink: false,
+    blinkInterval: 0,
+    blinkProfile: 'ATTENTIVE',
+    drift: false,
+    scan: false,
+    motionProfile: {
+      x: [{ amp: 0.55, speed: 1.35 }, { amp: 0.32, speed: 2.2 }],
+      y: [{ amp: 0.45, speed: 1.04 }, { amp: 0.24, speed: 1.76 }],
+    },
+    cheeks: false,
+  },
+  RELIEVED: {
+    label: 'Relieved',
+    leftEye:  { type: 'roundedRect', width: 104, height: 80, cornerRadius: 28, tilt: -2, upperLid: 0.9, lowerLid: 1, pupilScale: 0.98, offsetY: 1 },
+    rightEye: { type: 'roundedRect', width: 104, height: 80, cornerRadius: 28, tilt: 2, upperLid: 0.9, lowerLid: 1, pupilScale: 0.98, offsetY: 1 },
+    mouth: { type: 'smile', halfW: 42, startY: 2, endY: 2, curveY: 14 },
+    showMouth: false,
+    blink: true,
+    blinkInterval: 4300,
+    blinkProfile: 'CALM',
+    drift: true,
+    scan: false,
+    motionProfile: {
+      x: [{ amp: 2.6, speed: 1.06 }, { amp: 1.4, speed: 1.82 }],
+      y: [{ amp: 1.4, speed: 0.8 }, { amp: 0.62, speed: 1.24 }],
+    },
+    cheeks: false,
+  },
+  SLEEPY: {
+    label: 'Sleepy',
+    leftEye:  { type: 'roundedRect', width: 108, height: 62, cornerRadius: 26, tilt: -3, upperLid: 0.66, lowerLid: 0.95, pupilScale: 0.86, offsetY: 8 },
+    rightEye: { type: 'roundedRect', width: 108, height: 62, cornerRadius: 26, tilt: 3, upperLid: 0.66, lowerLid: 0.95, pupilScale: 0.86, offsetY: 8 },
+    mouth: { type: 'flat', halfW: 26, startY: 6, endY: 6, curveY: 0 },
+    showMouth: false,
+    blink: true,
+    blinkInterval: 2500,
+    blinkProfile: 'CALM',
+    drift: false,
+    scan: false,
+    motionProfile: {
+      x: [{ amp: 0.7, speed: 0.58 }, { amp: 0.25, speed: 0.9 }],
+      y: [{ amp: 0.55, speed: 0.5 }, { amp: 0.2, speed: 0.82 }],
+    },
+    cheeks: false,
+  },
 };
 
-const FALLBACK_EMOTION = 'CALM';
+const FALLBACK_EMOTION = DEFAULT_EMOTION;
 
 // ── SVG layout constants ──────────────────────────────────────────────────────
 const W  = 400;
@@ -521,7 +608,7 @@ export default function FaceTab() {
             <div className="face-status-row">
               <span className="face-status-key">Source</span>
               <span className={`face-status-val face-source-${emotionSource}`}>
-                {emotionSource === 'override' ? '⚡ override' : '⟳ state'}
+                {emotionSource === 'override' ? '⚡ override' : emotionSource === 'ros' ? '◎ ros' : '⟳ state'}
               </span>
             </div>
             <div className="face-status-row">
