@@ -31,10 +31,9 @@ function AxisIndicator({ orbitX, orbitY }) {
   const ORIGIN = { x: SIZE / 2, y: SIZE / 2 };
   const LEN    = 20;
 
-  // Convert orbit angles (deg) to radians
-  // Indicator should follow camera orbit direction (inverse of cube rotation).
-  const rx = (-orbitX * Math.PI) / 180;
-  const ry = (-orbitY * Math.PI) / 180;
+  // Convert orbit angles (deg) to radians (match cube transform direction).
+  const rx = (orbitX * Math.PI) / 180;
+  const ry = (orbitY * Math.PI) / 180;
 
   // Rotation matrix: Ry then Rx (same order as CSS transform)
   const project = ([wx, wy, wz]) => {
@@ -188,7 +187,7 @@ function CubeViewerPanel() {
         <div className="vp-zoom-controls" onPointerDown={e => e.stopPropagation()}>
           <button className="vp-zoom-btn" onClick={() => setZoom(z => clampZoom(z + 0.15))} title="확대">＋</button>
           <div className="vp-zoom-track">
-            <div className="vp-zoom-marker" title="100% 기준점">100%</div>
+            <div className="vp-zoom-marker" title="100% 기준점" />
             <input
               type="range"
               className="vp-zoom-slider"

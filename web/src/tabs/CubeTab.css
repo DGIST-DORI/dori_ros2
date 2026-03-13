@@ -187,10 +187,6 @@
   height: 0;
   border-top: 1px dashed color-mix(in srgb, var(--accent) 65%, #fff 35%);
   color: color-mix(in srgb, var(--accent) 78%, #fff 22%);
-  font-size: 8px;
-  font-family: var(--font-mono);
-  text-align: center;
-  line-height: 1;
   pointer-events: none;
 }
 .vp-zoom-marker::after {
