@@ -222,17 +222,62 @@ function parseBoolPayload(value) {
   return false;
 }
 
+const DEFAULT_WS_PORT = '9090';
+const WS_URL_STORAGE_KEY = 'wsUrl';
+const WS_URL_QUERY_KEYS = ['wsUrl', 'ws_url', 'ws'];
+
+function resolveWsUrlOverrideFromQuery(search) {
+  if (!search) return null;
+
+  const params = new URLSearchParams(search);
+  for (const key of WS_URL_QUERY_KEYS) {
+    const candidate = params.get(key)?.trim();
+    if (candidate) return candidate;
+  }
+  return null;
+}
+
+function isValidWsUrl(url) {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return ['ws:', 'wss:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
+function getDefaultWsUrl() {
+  const fallback = `ws://localhost:${DEFAULT_WS_PORT}`;
+  if (typeof window === 'undefined') return fallback;
+
+  const queryOverride = resolveWsUrlOverrideFromQuery(window.location?.search);
+  if (isValidWsUrl(queryOverride)) return queryOverride;
+
+  const localStorageOverride = window.localStorage?.getItem(WS_URL_STORAGE_KEY)?.trim();
+  if (isValidWsUrl(localStorageOverride)) return localStorageOverride;
+
+  const protocol = window.location?.protocol === 'https:' ? 'wss' : 'ws';
+  const hostname = window.location?.hostname || 'localhost';
+  return `${protocol}://${hostname}:${DEFAULT_WS_PORT}`;
+}
+
 // ─── Store ───────────────────────────────────────────────────────────────────
 export const useStore = create((set, get) => ({
 
   // ── Connection ──────────────────────────────────────────────────────────
   connected: false,
   isDemoMode: false,
-  wsUrl: 'ws://localhost:9090',
+  wsUrl: getDefaultWsUrl(),
 
   setConnected: (v) => set({ connected: v }),
   setDemoMode:  (v) => set({ isDemoMode: v }),
-  setWsUrl:     (v) => set({ wsUrl: v }),
+  setWsUrl:     (v) => {
+    if (typeof window !== 'undefined' && typeof v === 'string') {
+      window.localStorage?.setItem(WS_URL_STORAGE_KEY, v);
+    }
+    set({ wsUrl: v });
+  },
 
   // ── Cube Sim ────────────────────────────────────────────────────────────
   cubeState: createSolvedCube(),
