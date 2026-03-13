@@ -131,7 +131,7 @@ export default function EventLog() {
             {expanded === entry.id && entry.raw != null && (
               <div className="el-raw">
                 <pre>{typeof entry.raw === 'string'
-                  ? (() => { try { return JSON.stringify(JSON.parse(entry.raw), null, 2); } catch (_) { return entry.raw; } })()
+                  ? (() => { try { return JSON.stringify(JSON.parse(entry.raw), null, 2); } catch { return entry.raw; } })()
                   : JSON.stringify(entry.raw, null, 2)
                 }</pre>
               </div>
