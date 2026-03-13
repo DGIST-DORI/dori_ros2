@@ -134,10 +134,10 @@ const EMOTION_CONFIG = {
   },
   SURPRISED: {
     label: 'Surprised',
-    leftEye:  { type: 'cross', width: 88, height: 88, cornerRadius: 18, tilt: 0, upperLid: 1, lowerLid: 1, pupilScale: 1, offsetY: -4 },
-    rightEye: { type: 'cross', width: 88, height: 88, cornerRadius: 18, tilt: 0, upperLid: 1, lowerLid: 1, pupilScale: 1, offsetY: -4 },
-    mouth: { type: 'wave', halfW: 30, startY: 8, endY: 8, curveY: 8 },
-    showMouth: true,
+    leftEye:  { type: 'roundedRect', width: 118, height: 96, cornerRadius: 30, tilt: 0, upperLid: 1, lowerLid: 1, pupilScale: 1.14, offsetY: -10 },
+    rightEye: { type: 'roundedRect', width: 118, height: 96, cornerRadius: 30, tilt: 0, upperLid: 1, lowerLid: 1, pupilScale: 1.14, offsetY: -10 },
+    mouth: { type: 'wave', halfW: 68, startY: 7, endY: 7, curveY: 7 },
+    showMouth: false,
     blink: false,
     blinkInterval: 0,
     blinkProfile: 'ATTENTIVE',
@@ -146,6 +146,23 @@ const EMOTION_CONFIG = {
     motionProfile: {
       x: [{ amp: 0.55, speed: 1.35 }, { amp: 0.32, speed: 2.2 }],
       y: [{ amp: 0.45, speed: 1.04 }, { amp: 0.24, speed: 1.76 }],
+    },
+    cheeks: false,
+  },
+  BUMPED: {
+    label: 'Bumped',
+    leftEye:  { type: 'chevronLeft', width: 80, height: 64, cornerRadius: 18, tilt: -4, upperLid: 1, lowerLid: 1, pupilScale: 1, offsetY: -2 },
+    rightEye: { type: 'chevronRight', width: 80, height: 64, cornerRadius: 18, tilt: 4, upperLid: 1, lowerLid: 1, pupilScale: 1, offsetY: -2 },
+    mouth: { type: 'zigzag', halfW: 56, startY: 9, endY: 9, curveY: 10 },
+    showMouth: true,
+    blink: false,
+    blinkInterval: 0,
+    blinkProfile: 'ATTENTIVE',
+    drift: false,
+    scan: false,
+    motionProfile: {
+      x: [{ amp: 0.9, speed: 1.8 }, { amp: 0.35, speed: 3.0 }],
+      y: [{ amp: 0.6, speed: 1.2 }, { amp: 0.25, speed: 2.1 }],
     },
     cheeks: false,
   },
@@ -266,12 +283,15 @@ function EyeShape({ x, eyeY, eye, blinkProgress, driftX, driftY }) {
   const cy = eyeY + driftY;
   const transform = `rotate(${tilt} ${cx} ${cy})`;
 
-  if (type === 'cross') {
-    const size = Math.max(finalWidth, finalHeight) * 0.48;
+  if (type === 'chevronRight' || type === 'chevronLeft') {
+    const chevronW = finalWidth * 0.55;
+    const chevronH = finalHeight * 0.7;
+    const xEdge = type === 'chevronRight' ? cx + chevronW * 0.5 : cx - chevronW * 0.5;
+    const xPoint = type === 'chevronRight' ? cx - chevronW * 0.5 : cx + chevronW * 0.5;
     return (
       <g transform={transform} stroke="currentColor" strokeWidth="8" strokeLinecap="round">
-        <line x1={cx - size} y1={cy - size} x2={cx + size} y2={cy + size} />
-        <line x1={cx - size} y1={cy + size} x2={cx + size} y2={cy - size} />
+        <line x1={xEdge} y1={cy - chevronH / 2} x2={xPoint} y2={cy} />
+        <line x1={xEdge} y1={cy + chevronH / 2} x2={xPoint} y2={cy} />
       </g>
     );
   }
@@ -317,6 +337,31 @@ function MouthShape({ type, halfW, startY, endY, curveY }) {
       />
     );
   }
+  if (type === 'zigzag') {
+    const xStart = CX - halfW;
+    const yBase = MOUTH_Y + startY;
+    const width = halfW * 2;
+    const amp = Math.max(4, curveY);
+    const seg = width / 6;
+    return (
+      <path
+        d={[
+          `M ${xStart} ${yBase}`,
+          `L ${xStart + seg} ${yBase + amp}`,
+          `L ${xStart + seg * 2} ${yBase}`,
+          `L ${xStart + seg * 3} ${yBase + amp}`,
+          `L ${xStart + seg * 4} ${yBase}`,
+          `L ${xStart + seg * 5} ${yBase + amp}`,
+          `L ${xStart + seg * 6} ${MOUTH_Y + endY}`,
+        ].join(' ')}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    );
+  }
   return (
     <path
       d={`M ${x1} ${y1} Q ${CX} ${cy} ${x2} ${y2}`}
@@ -347,8 +392,8 @@ function ThinkingDots() {
 
 function Cheeks() {
   const stroke = 'rgba(255,140,140,0.42)';
-  const leftBaseX = LEFT_EYE_X - 52;
-  const rightBaseX = RIGHT_EYE_X + 46;
+  const leftCenterX = LEFT_EYE_X - 46;
+  const rightCenterX = RIGHT_EYE_X + 46;
   const baseY = EYE_Y + 70;
   const lineGap = 12;
   const slashLen = 18;
@@ -358,18 +403,18 @@ function Cheeks() {
       {[0, 1, 2].map(i => (
         <line
           key={`l-${i}`}
-          x1={leftBaseX + i * lineGap}
+          x1={leftCenterX + (i - 1) * lineGap}
           y1={baseY}
-          x2={leftBaseX + i * lineGap + slashLen}
+          x2={leftCenterX + (i - 1) * lineGap + slashLen}
           y2={baseY - slashLen}
         />
       ))}
       {[0, 1, 2].map(i => (
         <line
           key={`r-${i}`}
-          x1={rightBaseX + i * lineGap}
+          x1={rightCenterX + (i - 1) * lineGap}
           y1={baseY}
-          x2={rightBaseX + i * lineGap + slashLen}
+          x2={rightCenterX + (i - 1) * lineGap + slashLen}
           y2={baseY - slashLen}
         />
       ))}
@@ -529,15 +574,16 @@ function FaceCanvas({ emotion }) {
   const [driftX, setDriftX] = useState(0);
   const [driftY, setDriftY] = useState(0);
   const [motionT, setMotionT] = useState(0);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const driftRef = useRef(null);
-  const emotionStartRef = useRef(performance.now());
+  const emotionStartRef = useRef(0);
 
   useEffect(() => {
     emotionStartRef.current = performance.now();
+    setElapsedMs(0);
   }, [displayEmotion]);
 
   useEffect(() => {
-    if (!cfg.drift && !cfg.scan) { setDriftX(0); setDriftY(0); return; }
     let mounted = true;
     let t = 0;
     const motion = cfg.motionProfile || {
@@ -549,12 +595,13 @@ function FaceCanvas({ emotion }) {
       if (!mounted) return;
       t += 0.013;
       setMotionT(t);
-      if (cfg.scan) {
+      setElapsedMs(performance.now() - emotionStartRef.current);
+      if (cfg.scan || cfg.drift) {
         setDriftX(sumWave(motion.x, t));
         setDriftY(sumWave(motion.y, t));
       } else {
-        setDriftX(sumWave(motion.x, t));
-        setDriftY(sumWave(motion.y, t));
+        setDriftX(0);
+        setDriftY(0);
       }
       driftRef.current = requestAnimationFrame(tick);
     };
@@ -593,6 +640,41 @@ function FaceCanvas({ emotion }) {
     eyeFx.headDrop = drowse * 22 + Math.sin(motionT * 1.2) * 2;
     eyeFx.lHeightMul = 1 - drowse * 0.55;
     eyeFx.rHeightMul = 1 - drowse * 0.55;
+  }
+
+  const eyeFx = {
+    headTilt: 0,
+    headDrop: 0,
+    ldx: 0, ldy: 0, rdx: 0, rdy: 0,
+    lTilt: 0, rTilt: 0,
+    lHeightMul: 1, rHeightMul: 1,
+  };
+
+  if (displayEmotion === 'HAPPY') {
+    eyeFx.ldy = Math.sin(motionT * 2.8) * 2.8;
+    eyeFx.rdy = Math.cos(motionT * 2.8) * 2.8;
+  } else if (displayEmotion === 'SHY') {
+    eyeFx.ldx = Math.sin(motionT * 1.7) * 2.5;
+    eyeFx.rdx = -Math.sin(motionT * 1.7) * 2.5;
+    eyeFx.lTilt = -2;
+    eyeFx.rTilt = 2;
+  } else if (displayEmotion === 'CURIOUS') {
+    eyeFx.headTilt = Math.sin(motionT * 1.4) * 9;
+    eyeFx.ldy = Math.sin(motionT * 2.1) * 2;
+    eyeFx.rdy = -Math.sin(motionT * 2.1) * 2.6;
+    eyeFx.lHeightMul = 0.94 + (Math.sin(motionT * 2.2) + 1) * 0.08;
+    eyeFx.rHeightMul = 1.03;
+  } else if (displayEmotion === 'SLEEPY') {
+    const drowse = Math.min(1, elapsedMs / 7000);
+    eyeFx.headDrop = drowse * 22 + Math.sin(motionT * 1.2) * 2;
+    eyeFx.lHeightMul = 1 - drowse * 0.55;
+    eyeFx.rHeightMul = 1 - drowse * 0.55;
+  } else if (displayEmotion === 'BUMPED') {
+    eyeFx.headTilt = Math.sin(motionT * 10.5) * 6;
+    eyeFx.ldx = Math.sin(motionT * 15) * 2;
+    eyeFx.rdx = -Math.sin(motionT * 15) * 2;
+    eyeFx.ldy = Math.abs(Math.sin(motionT * 12)) * 1.4;
+    eyeFx.rdy = Math.abs(Math.cos(motionT * 12)) * 1.4;
   }
 
   return (
