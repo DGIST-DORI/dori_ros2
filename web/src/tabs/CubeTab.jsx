@@ -149,14 +149,13 @@ function CubeViewerPanel() {
           ))}
         </div>
 
-        {/* 좌측 상단 — 아이콘 토글 버튼들 */}
-        <div className="vp-controls-tl">
+        {/* 우측 상단 — 레이블 / 축 토글 버튼 */}
+        <div className="vp-controls-tr" onPointerDown={e => e.stopPropagation()}>
           <button
             className={`vp-icon-btn ${showLabels ? 'active' : ''}`}
             onClick={() => setShowLabels(v => !v)}
             title="면 레이블 표시/숨기기"
           >
-            {/* Label icon — placeholder text until SVG is provided */}
             <span className="vp-icon-text">F</span>
           </button>
           <button
@@ -170,13 +169,13 @@ function CubeViewerPanel() {
 
         {/* 좌측 하단 — 좌표축 인디케이터 */}
         {showAxes && (
-          <div className="vp-axis-indicator">
+          <div className="vp-axis-indicator" onPointerDown={e => e.stopPropagation()}>
             <AxisIndicator orbitX={orbit.x} orbitY={orbit.y} />
           </div>
         )}
 
-        {/* 우측 — 줌 컨트롤 바 */}
-        <div className="vp-zoom-controls">
+        {/* 우측 하단 — 줌 컨트롤 바 */}
+        <div className="vp-zoom-controls" onPointerDown={e => e.stopPropagation()}>
           <button className="vp-zoom-btn" onClick={() => setZoom(z => clampZoom(z + 0.15))} title="확대">＋</button>
           <div className="vp-zoom-track">
             <input
@@ -239,7 +238,7 @@ function PieceStatePanel() {
         <input className="piece-search-input" placeholder="search…"
           value={search} onChange={e => setSearch(e.target.value)} />
         <button
-          className="piece-mode-btn active"
+          className="piece-mode-btn"
           onClick={() => setCoordMode(v => !v)}
           title="Face&Idx / 좌표 전환"
         >
@@ -249,6 +248,11 @@ function PieceStatePanel() {
 
       <div className="piece-table-wrap">
         <table className="piece-table">
+          <colgroup>
+            <col className="col-face" />
+            <col className="col-mid" />
+            <col className="col-color" />
+          </colgroup>
           <thead>
             <tr>
               <th>Face</th>

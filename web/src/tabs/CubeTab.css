@@ -84,11 +84,11 @@
 
 /* ── Viewport overlay controls ─────────────────────────────────────────────── */
 
-/* Top-left: icon toggles */
-.vp-controls-tl {
+/* Top-right: icon toggles */
+.vp-controls-tr {
   position: absolute;
-  top: 8px; left: 8px;
-  display: flex; flex-direction: column; gap: 4px;
+  top: 8px; right: 8px;
+  display: flex; flex-direction: row; gap: 4px;
   z-index: 10;
 }
 
@@ -125,11 +125,10 @@
 }
 .axis-svg { display: block; }
 
-/* Right side: zoom controls (vertical bar) */
+/* Bottom-right: zoom controls (vertical bar) */
 .vp-zoom-controls {
   position: absolute;
-  top: 50%; right: 8px;
-  transform: translateY(-50%);
+  bottom: 8px; right: 8px;
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   z-index: 10;
   background: rgba(13,17,23,0.72);
@@ -214,20 +213,24 @@
 .piece-search-input:focus { border-color: var(--border-bright); outline: none; }
 .piece-search-input::placeholder { color: var(--text-2); }
 
-/* F&I / xyz 버튼 — 항상 accent 색 유지 */
+/* F&I / xyz 버튼 — 항상 회색 */
 .piece-mode-btn {
   padding: 3px 10px;
-  background: var(--accent-dim);
-  border: 1px solid var(--accent);
+  background: var(--bg-3);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  color: var(--accent);
+  color: var(--text-1);
   font-size: 10px; font-weight: 600; min-width: 36px;
-  transition: background 0.12s;
+  transition: all 0.12s;
 }
-.piece-mode-btn:hover { background: var(--accent); color: var(--bg-0); }
+.piece-mode-btn:hover { border-color: var(--border-bright); color: var(--text-0); }
 
 .piece-table-wrap { flex: 1; overflow-y: auto; min-height: 0; }
-.piece-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.piece-table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; }
+/* 열 너비 고정 — F&I / xyz 전환 시 레이아웃 유지 */
+.piece-table col.col-face  { width: 22%; }
+.piece-table col.col-mid   { width: 38%; }
+.piece-table col.col-color { width: 40%; }
 .piece-table th {
   position: sticky; top: 0; background: var(--bg-2);
   color: var(--text-2); font-weight: 600; letter-spacing: 0.4px;
