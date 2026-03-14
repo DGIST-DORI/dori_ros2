@@ -11,6 +11,10 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  User, Bot, Bell, Volume2, Check, GitCommitHorizontal,
+  Hand, Map, RotateCcw, Navigation, Activity,
+} from 'lucide-react';
 import Panel from '../components/Panel';
 import { LOG_TAGS, useStore } from '../core/store';
 import { publishROS } from '../core/ros';
@@ -51,7 +55,7 @@ function parseSessions(log) {
     if (tag === LOG_TAGS.WAKE) {
       newSession(entry);
       current.rawEntries.push(entry);
-      current.turns.push({ id, type: 'context', text: '⏰ Wake word detected', ts, tag, color: 'wake' });
+      current.turns.push({ id, type: 'context', text: 'Wake word detected', ts, tag, color: 'wake', icon: 'bell' });
       continue;
     }
 
@@ -59,7 +63,7 @@ function parseSessions(log) {
     if (tag === LOG_TAGS.STATE && text.includes('→ IDLE')) {
       if (current) {
         current.rawEntries.push(entry);
-        current.turns.push({ id, type: 'context', text: `◼ ${text}`, ts, tag, color: 'state' });
+        current.turns.push({ id, type: 'context', text, ts, tag, color: 'state', icon: 'commit' });
         flush();
       }
       continue;
@@ -89,24 +93,24 @@ function parseSessions(log) {
           const spoken = m ? m[1] : text.replace(/^speak:\s*"?/, '').replace(/"$/, '');
           current.turns.push({ id, type: 'dori', text: spoken, ts, tag });
         } else if (text === 'TTS speaking…') {
-          current.turns.push({ id, type: 'context', text: '🔊 Speaking…', ts, tag, color: 'tts' });
+          current.turns.push({ id, type: 'context', text: 'Speaking…', ts, tag, color: 'tts', icon: 'volume' });
         } else if (text === 'TTS done') {
-          current.turns.push({ id, type: 'context', text: '✓ TTS done', ts, tag, color: 'tts' });
+          current.turns.push({ id, type: 'context', text: 'TTS done', ts, tag, color: 'tts', icon: 'check' });
         }
         break;
       }
       case LOG_TAGS.STATE:
-        current.turns.push({ id, type: 'context', text: `◆ ${text}`, ts, tag, color: 'state' });
+        current.turns.push({ id, type: 'context', text, ts, tag, color: 'state', icon: 'commit' });
         break;
       case LOG_TAGS.GESTURE:
-        current.turns.push({ id, type: 'context', text: `✋ Gesture: ${text}`, ts, tag, color: 'gesture' });
+        current.turns.push({ id, type: 'context', text: `Gesture: ${text}`, ts, tag, color: 'gesture', icon: 'hand' });
         break;
       case LOG_TAGS.NAV:
-        current.turns.push({ id, type: 'context', text: `🗺 ${text}`, ts, tag, color: 'nav' });
+        current.turns.push({ id, type: 'context', text, ts, tag, color: 'nav', icon: 'map' });
         break;
       case LOG_TAGS.TRACK:
         if (text.startsWith('Target lost')) {
-          current.turns.push({ id, type: 'context', text: `👤 ${text}`, ts, tag, color: 'track' });
+          current.turns.push({ id, type: 'context', text, ts, tag, color: 'track', icon: 'user' });
         }
         break;
       default:
@@ -231,12 +235,25 @@ function SessionItem({ session, active, onClick }) {
       <div className="cr-session-time">{fmtTime(session.startTs)}</div>
       <div className="cr-session-preview">{preview}</div>
       <div className="cr-session-meta">
-        <span>👤 {userTurns.length} · 🤖 {doriTurns.length}</span>
+        <span><User size={9} strokeWidth={2} style={{display:'inline',verticalAlign:'middle'}} /> {userTurns.length} · <Bot size={9} strokeWidth={2} style={{display:'inline',verticalAlign:'middle'}} /> {doriTurns.length}</span>
         <span>{fmtDuration(session.startTs, session.endTs)}</span>
       </div>
     </button>
   );
 }
+
+// ── Context icon map ──────────────────────────────────────────────────────────
+
+const CTX_ICONS = {
+  bell:   <Bell   size={10} strokeWidth={2} />,
+  volume: <Volume2 size={10} strokeWidth={2} />,
+  check:  <Check  size={10} strokeWidth={2.5} />,
+  commit: <GitCommitHorizontal size={10} strokeWidth={2} />,
+  hand:   <Hand   size={10} strokeWidth={2} />,
+  map:    <Map    size={10} strokeWidth={2} />,
+  user:   <User   size={10} strokeWidth={2} />,
+  nav:    <Navigation size={10} strokeWidth={2} />,
+};
 
 // ── Chat Bubble ───────────────────────────────────────────────────────────────
 
@@ -246,6 +263,7 @@ function ChatBubble({ turn, canReplay, onReplay }) {
   if (turn.type === 'context') {
     return (
       <div className={`cr-ctx-event cr-ctx-${turn.color || 'default'}`}>
+        {turn.icon && <span className="cr-ctx-icon">{CTX_ICONS[turn.icon]}</span>}
         <span className="cr-ctx-time">{fmtTime(turn.ts)}</span>
         <span className="cr-ctx-text">{turn.text}</span>
       </div>
@@ -256,7 +274,11 @@ function ChatBubble({ turn, canReplay, onReplay }) {
 
   return (
     <div className={`cr-bubble-wrap ${isUser ? 'user' : 'dori'}`}>
-      <div className="cr-bubble-avatar">{isUser ? '👤' : '🤖'}</div>
+      <div className="cr-bubble-avatar">
+        {isUser
+          ? <User size={14} strokeWidth={1.8} />
+          : <Bot  size={14} strokeWidth={1.8} />}
+      </div>
       <div className="cr-bubble-content">
         <div className="cr-bubble" onClick={() => setShowMeta(m => !m)}>
           <div className="cr-bubble-text">{turn.text}</div>
@@ -273,7 +295,7 @@ function ChatBubble({ turn, canReplay, onReplay }) {
             title="이 발화를 STT로 재주입"
             onClick={() => onReplay(turn)}
           >
-            ↺ Replay
+            <RotateCcw size={10} strokeWidth={2.5} /> Replay
           </button>
         )}
       </div>
@@ -326,7 +348,7 @@ export default function ConversationTab() {
     try {
       publishROS('/dori/stt/result', 'std_msgs/String', { data: JSON.stringify(payload) });
       addLog(LOG_TAGS.STT, `[replay] "${turn.text}"`);
-      setReplayMsg(`↺ "${turn.text.slice(0, 50)}${turn.text.length > 50 ? '…' : ''}"`);
+      setReplayMsg(`Replayed: "${turn.text.slice(0, 50)}${turn.text.length > 50 ? '…' : ''}"`);
       setTimeout(() => setReplayMsg(''), 3000);
     } catch (e) {
       setReplayMsg(`Error: ${e.message}`);

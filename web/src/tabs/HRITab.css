@@ -179,6 +179,14 @@
 }
 .hri-btn.warning:hover:not(:disabled) { background: color-mix(in srgb, var(--yellow) 22%, var(--bg-2)); }
 
+/* Button with inline icon */
+.hri-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.hri-btn-icon svg { flex-shrink: 0; }
+
 /* ── Badge ───────────────────────────────────────────────────────────────── */
 
 .hri-badge {
@@ -328,12 +336,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--text-2);
   font-size: 11px;
 }
 
-.hri-cam-placeholder span:first-child { font-size: 28px; }
+.hri-cam-placeholder svg { opacity: 0.5; }
 
 /* ── LLM/TTS tab row ─────────────────────────────────────────────────────── */
 
@@ -433,6 +441,16 @@
   text-align: right;
   word-break: break-word;
   max-width: 200px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.hri-monitor-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */

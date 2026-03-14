@@ -11,6 +11,10 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Mic, MicOff, Camera, CameraOff, Zap, Volume2, VolumeX,
+  Send, Square, Play, RotateCcw,
+} from 'lucide-react';
 import Panel from '../components/Panel';
 import EventLog from '../panels/EventLog';
 import { LOG_TAGS, useStore } from '../core/store';
@@ -197,15 +201,15 @@ function STTPanel() {
       <div className="hri-row">
         {!micActive ? (
           <button
-            className="hri-btn accent"
+            className="hri-btn accent hri-btn-icon"
             disabled={!micAvail || !canPublish}
             onClick={handleMicStart}
           >
-            ● Start Recording
+            <Mic size={12} /> Start Recording
           </button>
         ) : (
-          <button className="hri-btn danger" onClick={handleMicStopClick}>
-            ■ Stop &amp; Send
+          <button className="hri-btn danger hri-btn-icon" onClick={handleMicStopClick}>
+            <MicOff size={12} /> Stop &amp; Send
           </button>
         )}
         {micActive && (
@@ -245,8 +249,8 @@ function WakeWordPanel() {
         <span className={`hri-state-val hri-state-${hriState}`}>{hriState}</span>
       </div>
       <div className="hri-row">
-        <button className="hri-btn accent" disabled={!canPublish} onClick={fire}>
-          ▶ Trigger Wake Word
+        <button className="hri-btn accent hri-btn-icon" disabled={!canPublish} onClick={fire}>
+          <Zap size={12} /> Trigger Wake Word
         </button>
         {lastTs && <span className="hri-hint-inline">fired at {lastTs}</span>}
       </div>
@@ -357,7 +361,7 @@ function VisionPanel() {
         <canvas ref={canvasRef} className="hri-cam-canvas" />
         {!camActive && (
           <div className="hri-cam-placeholder">
-            <span>📷</span>
+            <Camera size={28} strokeWidth={1.5} />
             <span>카메라 꺼짐</span>
           </div>
         )}
@@ -386,23 +390,23 @@ function VisionPanel() {
 
       <div className="hri-row">
         {!camActive ? (
-          <button className="hri-btn accent" disabled={!camAvail} onClick={startCamera}>
-            📷 Start Preview
+          <button className="hri-btn accent hri-btn-icon" disabled={!camAvail} onClick={startCamera}>
+            <Camera size={12} /> Start Preview
           </button>
         ) : (
-          <button className="hri-btn danger" onClick={stopCamera}>
-            ✕ Stop Camera
+          <button className="hri-btn danger hri-btn-icon" onClick={stopCamera}>
+            <CameraOff size={12} /> Stop Camera
           </button>
         )}
 
         {camActive && !isPublishing && (
-          <button className="hri-btn primary" disabled={!canPublish} onClick={startPublish}>
-            ▶ Publish Frames
+          <button className="hri-btn primary hri-btn-icon" disabled={!canPublish} onClick={startPublish}>
+            <Play size={12} /> Publish Frames
           </button>
         )}
         {isPublishing && (
-          <button className="hri-btn warning" onClick={stopPublish}>
-            ■ Stop Publishing
+          <button className="hri-btn warning hri-btn-icon" onClick={stopPublish}>
+            <Square size={12} /> Stop Publishing
           </button>
         )}
       </div>
@@ -536,11 +540,14 @@ function StateMonitorPanel() {
     NAVIGATING: 'var(--green)',
   };
 
-  function Row({ label, value, color }) {
+  function Row({ label, value, color, icon }) {
     return (
       <div className="hri-monitor-row">
         <span className="hri-monitor-key">{label}</span>
-        <span className="hri-monitor-val" style={color ? { color } : {}}>{value || '—'}</span>
+        <span className="hri-monitor-val" style={color ? { color } : {}}>
+          {icon && <span className="hri-monitor-icon">{icon}</span>}
+          {value || '—'}
+        </span>
       </div>
     );
   }
@@ -559,7 +566,9 @@ function StateMonitorPanel() {
       <Row label="STT result"   value={lastStt} />
       <Row label="LLM response" value={typeof lastLlm === 'string' ? lastLlm.slice(0, 80) + (lastLlm.length > 80 ? '…' : '') : ''} />
       <Row label="TTS text"     value={lastTts} color={ttsActive ? 'var(--orange)' : undefined} />
-      <Row label="TTS active"   value={ttsActive ? '● speaking' : '○ silent'} color={ttsActive ? 'var(--orange)' : 'var(--text-2)'} />
+      <Row label="TTS active"   value={ttsActive ? 'speaking' : 'silent'}
+           icon={ttsActive ? <Volume2 size={10} /> : <VolumeX size={10} />}
+           color={ttsActive ? 'var(--orange)' : 'var(--text-2)'} />
       <Row label="Gesture"      value={gesture} />
       <Row label="Expression"   value={expression} />
       <Row label="Tracking"     value={trackState ? `${trackState.state} (target: ${trackState.target_id ?? '—'}, ${trackState.last_distance_m ?? '?'}m)` : '—'} />
