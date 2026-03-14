@@ -21,13 +21,10 @@ def generate_launch_description():
             f"'{web_dir}'. Build the frontend (web/dist) before installing and launching dashboard_pkg."
         )
 
-    # Resolve repo root (two levels up from this launch file)
-    launch_file_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.abspath(os.path.join(launch_file_dir, '..', '..', '..', '..'))
+    repo_root = os.path.abspath(os.path.join(pkg_dir, '..', '..', '..', '..'))
 
     # Path to knowledge API script (inside dashboard_pkg or project tools)
-    knowledge_api_script = os.path.join(repo_root, 'src', 'dashboard_pkg',
-                                        'dashboard_pkg', 'knowledge_api.py')
+    knowledge_api_script = os.path.join(pkg_dir, 'scripts', 'knowledge_api.py')
 
     return LaunchDescription([
 
