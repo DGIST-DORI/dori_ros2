@@ -1,6 +1,6 @@
 """
 dashboard.launch.py
-Launches: rosbridge WebSocket + static HTTP server (port 3000) + knowledge API (port 3001)
+Launches: rosbridge WebSocket + unified dashboard server (frontend + API on port 3000)
           + Cloudflare Tunnel (port 3000 and 9090, optional)
 
 Cloudflare Tunnel is enabled by default.
@@ -115,18 +115,12 @@ def generate_launch_description():
             parameters=[{'port': 9090}],
         ),
 
-        # ── Static frontend (port 3000) ───────────────────────────────────
-        ExecuteProcess(
-            cmd=['python3', '-m', 'http.server', '3000'],
-            cwd=web_dir,
-            output='screen',
-        ),
-
-        # ── Knowledge Manager REST API (port 3001) ────────────────────────
+        # ── Unified dashboard server (frontend + API on port 3000) ────────
         ExecuteProcess(
             cmd=['python3', knowledge_api_script,
                  '--repo-root', repo_root,
-                 '--port', '3001'],
+                 '--port', '3000',
+                 '--web-dir', web_dir],
             output='screen',
         ),
 
