@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LOG_TAGS, useStore } from '../core/store';
 import { connectROS, disconnectROS } from '../core/ros';
 import { startDemo, stopDemo } from '../core/demo';
@@ -14,6 +14,14 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
 
   const [urlInput, setUrlInput] = useState(wsUrl);
   const [isConnecting, setIsConnecting] = useState(false);
+
+  // 터널 URL 폴링이 완료되면 wsUrl store 가 업데이트됨 → 입력창도 동기화
+  // 단, 사용자가 직접 입력 중이거나 연결된 상태면 덮어쓰지 않음
+  useEffect(() => {
+    if (!connected && !isConnecting) {
+      setUrlInput(wsUrl);
+    }
+  }, [wsUrl]);
 
   function formatConnectError(error, url, source = 'network') {
     const message = String(error?.message || error || 'Unknown error');

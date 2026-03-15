@@ -250,15 +250,21 @@ function isValidWsUrl(url) {
 function getDefaultWsUrl() {
   const fallback = `ws://localhost:${DEFAULT_WS_PORT}`;
   if (typeof window === 'undefined') return fallback;
-
+ 
+  // 1순위: query string (?ws=wss://... 등)
   const queryOverride = resolveWsUrlOverrideFromQuery(window.location?.search);
   if (isValidWsUrl(queryOverride)) return queryOverride;
-
-  const localStorageOverride = window.localStorage?.getItem(WS_URL_STORAGE_KEY)?.trim();
-  if (isValidWsUrl(localStorageOverride)) return localStorageOverride;
-
+ 
+  // 2순위: localStorage (사용자가 직접 입력·저장한 URL)
+  const stored = window.localStorage?.getItem(WS_URL_STORAGE_KEY)?.trim();
+  if (isValidWsUrl(stored)) return stored;
+ 
+  // 3순위: 외부(터널) 접속이면 빈 문자열 → initTunnelWsUrl 폴링이 채워줌
+  const hostname = window.location?.hostname ?? '';
+  if (hostname.endsWith('.trycloudflare.com')) return '';
+ 
+  // 4순위: 로컬 접속 → ws://[현재 hostname]:9090
   const protocol = window.location?.protocol === 'https:' ? 'wss' : 'ws';
-  const hostname = window.location?.hostname || 'localhost';
   return `${protocol}://${hostname}:${DEFAULT_WS_PORT}`;
 }
 
@@ -286,28 +292,30 @@ async function initTunnelWsUrl(setWsUrl) {
   // ── 핵심 조건: 외부(터널) 접속인 경우에만 폴링 ──────────────────
   // Cloudflare Tunnel 도메인: *.trycloudflare.com
   const hostname = window.location?.hostname ?? '';
-  const isExternalAccess = hostname.endsWith('.trycloudflare.com');
-  if (!isExternalAccess) return;   // 로컬 접속 → hostname:9090 그대로 사용
+  if (!hostname.endsWith('.trycloudflare.com')) return;
   // ────────────────────────────────────────────────────────────────
  
   // knowledge_api 는 포트 3001 — origin 의 포트만 교체
-  const apiBase = window.location.origin.replace(/:\d+$/, '') + ':' + TUNNEL_API_PORT;
-  const apiUrl  = `${apiBase}/api/tunnel-url`;
+  const apiOrigin = window.location.origin.replace(/:\d+$/, '') + ':' + TUNNEL_API_PORT;
+  const apiUrl    = `${apiOrigin}/api/tunnel-url`;
  
-  for (let i = 0; i < TUNNEL_POLL_MAX_TRIES; i++) {
+  for (let i = 0; i < TUNNEL_POLL_MAX; i++) {
     await new Promise(r => setTimeout(r, TUNNEL_POLL_INTERVAL));
     try {
       const res = await fetch(apiUrl, { signal: AbortSignal.timeout(2000) });
       if (!res.ok) continue;
       const data = await res.json();
-      if (data.ready && isValidWsUrl(data.ws_url)) {
-        // 터널 URL은 매 실행마다 바뀌므로 localStorage 에는 저장하지 않음
-        setWsUrl(data.ws_url, /* persist= */ false);
-        console.info(`[DORI] Tunnel WS URL auto-detected: ${data.ws_url}`);
+      if (data.ready && data.ws_url) {
+        // 포트 번호 제거 — Cloudflare Tunnel 은 포트 지정 불가
+        const wsUrl = data.ws_url.replace(/:\d+$/, '');
+        if (!isValidWsUrl(wsUrl)) continue;
+        // 터널 URL 은 매번 바뀌므로 localStorage 에는 저장하지 않음
+        setWsUrl(wsUrl, /* persist= */ false);
+        console.info(`[DORI] Tunnel WS URL auto-detected: ${wsUrl}`);
         return;
       }
     } catch {
-      // 네트워크 오류 / timeout — 재시도
+      // network error / timeout — 재시도
     }
   }
   console.warn('[DORI] Tunnel WS URL not ready after 10s. Using fallback.');
