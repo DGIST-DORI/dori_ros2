@@ -270,7 +270,7 @@ function getDefaultWsUrl() {
 
 const TUNNEL_API_PORT       = '3001';
 const TUNNEL_POLL_INTERVAL  = 500;   // ms
-const TUNNEL_POLL_MAX_TRIES = 20;
+const TUNNEL_POLL_MAX = 20;
 
 /**
  * 외부(Cloudflare Tunnel) 접속 시에만 실행.
@@ -332,7 +332,7 @@ export const useStore = create((set, get) => ({
 
   setConnected: (v) => set({ connected: v }),
   setDemoMode:  (v) => set({ isDemoMode: v }),
-  setWsUrl:     (v) => {
+  setWsUrl: (v, persist = true) => {
     if (persist && typeof window !== 'undefined' && typeof v === 'string') {
       window.localStorage?.setItem(WS_URL_STORAGE_KEY, v);
     }
