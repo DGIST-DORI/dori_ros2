@@ -95,7 +95,7 @@ export async function fetchTopicDiagnostics(topics = []) {
 /**
  * Subscribe to a ROS topic.
  * @param {string} topic  - ROS topic name
- * @param {string} msgType - e.g. 'std_msgs/String'
+ * @param {string} msgType - e.g. 'std_msgs/msg/String'
  * @param {function} cb   - called with (parsedPayload)
  * @returns {function} unsubscribe function
  */
@@ -132,8 +132,8 @@ function _inferMsgType(topic) {
   if (topic.includes('offset'))   return 'geometry_msgs/Point';
   if (topic.includes('wake_word') || topic.includes('speaking') ||
       topic.includes('done')      || topic.includes('trigger'))
-    return 'std_msgs/Bool';
-  return 'std_msgs/String';
+    return 'std_msgs/msg/Bool';
+  return 'std_msgs/msg/String';
 }
 
 // ─── Publish ─────────────────────────────────────────────────────────────────

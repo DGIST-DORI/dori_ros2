@@ -88,7 +88,7 @@ function STTPanel() {
       timestamp:  Date.now() / 1000,
       source:     'dashboard_inject',
     };
-    pub('/dori/stt/result', 'std_msgs/String', { data: JSON.stringify(payload) });
+    pub('/dori/stt/result', 'std_msgs/msg/String', { data: JSON.stringify(payload) });
     addLog(LOG_TAGS.STT, `[inject] "${text.trim()}" (${lang}, conf=${conf})`);
     setLastResult(payload);
     setText('');
@@ -138,7 +138,7 @@ function STTPanel() {
     reader.onloadend = () => {
       const b64 = reader.result.split(',')[1];
       // Publish audio blob to a debug topic (ros-side can optionally pipe to Whisper)
-      pub('/dori/debug/audio_blob', 'std_msgs/String', {
+      pub('/dori/debug/audio_blob', 'std_msgs/msg/String', {
         data: JSON.stringify({ audio_b64: b64, mime: 'audio/webm', duration_est_sec: durationEstSec }),
       });
       addLog(LOG_TAGS.STT, `[mic] audio captured ~${durationEstSec.toFixed(1)}s — published to /dori/debug/audio_blob`);
@@ -236,7 +236,7 @@ function WakeWordPanel() {
   const [lastTs, setLastTs] = useState(null);
 
   function fire() {
-    pub('/dori/stt/wake_word_detected', 'std_msgs/Bool', { data: true });
+    pub('/dori/stt/wake_word_detected', 'std_msgs/msg/Bool', { data: true });
     addLog(LOG_TAGS.WAKE, '[test] wake word triggered from dashboard');
     setLastTs(ts());
   }
@@ -443,14 +443,14 @@ function LLMTTSPanel() {
       timestamp:        Date.now() / 1000,
       source:           'dashboard_inject',
     };
-    pub('/dori/llm/query', 'std_msgs/String', { data: JSON.stringify(payload) });
+    pub('/dori/llm/query', 'std_msgs/msg/String', { data: JSON.stringify(payload) });
     addLog(LOG_TAGS.LLM, `[inject] "${llmQuery.trim()}"`);
     setLlmQuery('');
   }
 
   function handleTTS() {
     if (!ttsText.trim()) return;
-    pub('/dori/tts/text', 'std_msgs/String', { data: ttsText.trim() });
+    pub('/dori/tts/text', 'std_msgs/msg/String', { data: ttsText.trim() });
     addLog(LOG_TAGS.TTS, `[inject] "${ttsText.trim()}"`);
     setTtsText('');
   }

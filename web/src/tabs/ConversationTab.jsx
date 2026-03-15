@@ -346,7 +346,7 @@ export default function ConversationTab() {
       source:     'dashboard_replay',
     };
     try {
-      publishROS('/dori/stt/result', 'std_msgs/String', { data: JSON.stringify(payload) });
+      publishROS('/dori/stt/result', 'std_msgs/msg/String', { data: JSON.stringify(payload) });
       addLog(LOG_TAGS.STT, `[replay] "${turn.text}"`);
       setReplayMsg(`Replayed: "${turn.text.slice(0, 50)}${turn.text.length > 50 ? '…' : ''}"`);
       setTimeout(() => setReplayMsg(''), 3000);

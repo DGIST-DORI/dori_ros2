@@ -41,7 +41,7 @@ export default function TopicPublisher() {
 
   const [open,        setOpen]        = useState(false);
   const [topic,       setTopic]       = useState('/dori/nav/command');
-  const [msgType,     setMsgType]     = useState('std_msgs/String');
+  const [msgType,     setMsgType]     = useState('std_msgs/msg/String');
   const [jsonPayload, setJsonPayload] = useState('{"data":"hello"}');
   const [mode,        setMode]        = useState('once');
   const [rateHz,      setRateHz]      = useState('1');
@@ -158,7 +158,7 @@ export default function TopicPublisher() {
               id="tp-type"
               value={msgType}
               onChange={(e) => setMsgType(e.target.value)}
-              placeholder="std_msgs/String"
+              placeholder="std_msgs/msg/String"
             />
           </div>
 
