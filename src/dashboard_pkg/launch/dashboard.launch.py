@@ -121,7 +121,9 @@ def generate_launch_description():
                  '--repo-root', repo_root,
                  '--port', '3000',
                  '--web-dir', web_dir],
-            output='screen',
+            output='both',
+            name='knowledge_api_server',
+            emulate_tty=True,
         ),
 
         # ── Cloudflare Tunnel (optional, default: enabled) ────────────────

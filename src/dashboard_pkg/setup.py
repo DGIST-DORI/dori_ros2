@@ -39,7 +39,7 @@ setup(
         (os.path.join('share', package_name, 'scripts'),
             ['dashboard_pkg/knowledge_api.py']),
     ] + collect_web_data_files(),
-    install_requires=['setuptools'],
+    install_requires=['setuptools', 'fastapi', 'uvicorn', 'python-multipart'],
     zip_safe=True,
     maintainer='ofbt',
     maintainer_email='jaewon1627@gmail.com',

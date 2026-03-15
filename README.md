@@ -243,6 +243,9 @@ http://localhost:3000
 http://[Robot IP]:3000
 ```
 
+> Note: Port `3000` is now served directly by `knowledge_api.py` (unified frontend + API server).
+> If dashboard launch fails on startup, first verify runtime dependencies are installed (`fastapi`, `uvicorn`, `python-multipart`).
+
 ### Common Launch Options
 
 ```bash
