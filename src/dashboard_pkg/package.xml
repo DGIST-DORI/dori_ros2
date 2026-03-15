@@ -11,6 +11,9 @@
   
   <exec_depend>rosbridge_server</exec_depend>
   <exec_depend>rclpy</exec_depend>
+  <exec_depend>python3-fastapi</exec_depend>
+  <exec_depend>python3-uvicorn</exec_depend>
+  <exec_depend>python3-multipart</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>
