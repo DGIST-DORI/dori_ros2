@@ -262,6 +262,58 @@ function getDefaultWsUrl() {
   return `${protocol}://${hostname}:${DEFAULT_WS_PORT}`;
 }
 
+const TUNNEL_API_PORT       = '3001';
+const TUNNEL_POLL_INTERVAL  = 500;   // ms
+const TUNNEL_POLL_MAX_TRIES = 20;
+
+/**
+ * 외부(Cloudflare Tunnel) 접속 시에만 실행.
+ * knowledge_api 의 /api/tunnel-url 을 폴링해서
+ * WS URL이 준비되면 store 에 주입한다.
+ *
+ * 로컬 접속(IP / localhost)이면 즉시 반환 — 기존 hostname:9090 동작 유지.
+ */
+async function initTunnelWsUrl(setWsUrl) {
+  if (typeof window === 'undefined') return;
+ 
+  // 1순위·2순위 override 가 있으면 건너뜀
+  const queryOverride = resolveWsUrlOverrideFromQuery(window.location?.search);
+  if (isValidWsUrl(queryOverride)) return;
+ 
+  const stored = window.localStorage?.getItem(WS_URL_STORAGE_KEY)?.trim();
+  if (isValidWsUrl(stored)) return;
+ 
+  // ── 핵심 조건: 외부(터널) 접속인 경우에만 폴링 ──────────────────
+  // Cloudflare Tunnel 도메인: *.trycloudflare.com
+  const hostname = window.location?.hostname ?? '';
+  const isExternalAccess = hostname.endsWith('.trycloudflare.com');
+  if (!isExternalAccess) return;   // 로컬 접속 → hostname:9090 그대로 사용
+  // ────────────────────────────────────────────────────────────────
+ 
+  // knowledge_api 는 포트 3001 — origin 의 포트만 교체
+  const apiBase = window.location.origin.replace(/:\d+$/, '') + ':' + TUNNEL_API_PORT;
+  const apiUrl  = `${apiBase}/api/tunnel-url`;
+ 
+  for (let i = 0; i < TUNNEL_POLL_MAX_TRIES; i++) {
+    await new Promise(r => setTimeout(r, TUNNEL_POLL_INTERVAL));
+    try {
+      const res = await fetch(apiUrl, { signal: AbortSignal.timeout(2000) });
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data.ready && isValidWsUrl(data.ws_url)) {
+        // 터널 URL은 매 실행마다 바뀌므로 localStorage 에는 저장하지 않음
+        setWsUrl(data.ws_url, /* persist= */ false);
+        console.info(`[DORI] Tunnel WS URL auto-detected: ${data.ws_url}`);
+        return;
+      }
+    } catch {
+      // 네트워크 오류 / timeout — 재시도
+    }
+  }
+  console.warn('[DORI] Tunnel WS URL not ready after 10s. Using fallback.');
+}
+
+
 // ─── Store ───────────────────────────────────────────────────────────────────
 export const useStore = create((set, get) => ({
 
@@ -273,7 +325,7 @@ export const useStore = create((set, get) => ({
   setConnected: (v) => set({ connected: v }),
   setDemoMode:  (v) => set({ isDemoMode: v }),
   setWsUrl:     (v) => {
-    if (typeof window !== 'undefined' && typeof v === 'string') {
+    if (persist && typeof window !== 'undefined' && typeof v === 'string') {
       window.localStorage?.setItem(WS_URL_STORAGE_KEY, v);
     }
     set({ wsUrl: v });
@@ -335,6 +387,13 @@ export const useStore = create((set, get) => ({
     const { hriState } = get();
     set({ emotion: resolveEmotionFromState(hriState), emotionSource: 'state', _emotionOverride: null });
   },
+
+  // ── Tunnel WS URL auto-detection (external access only) ───────────
+  // Auto-detect Cloudflare Tunnel WS URL when accessed externally
+  ...(typeof window !== 'undefined' && (() => {
+    setTimeout(() => initTunnelWsUrl(get().setWsUrl), 0);
+    return {};
+  })()),
 
   // ── Event Log ────────────────────────────────────────────────────────────
   // Each entry: { id, ts, tag, text, raw? }
