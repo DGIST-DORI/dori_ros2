@@ -31,8 +31,13 @@ const CAM_FPS       = 10;      // publish rate when camera is running
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function pub(topic, msgType, data) {
-  try { publishROS(topic, msgType, data); return true; }
-  catch (e) { return false; }
+  try {
+    publishROS(topic, msgType, data);
+    return true;
+  } catch (e) {
+    console.error('[pub] failed:', topic, e);
+    return false;
+  }
 }
 
 function ts() { return new Date().toLocaleTimeString(); }
@@ -236,9 +241,13 @@ function WakeWordPanel() {
   const [lastTs, setLastTs] = useState(null);
 
   function fire() {
-    pub('/dori/stt/wake_word_detected', 'std_msgs/msg/Bool', { data: true });
-    addLog(LOG_TAGS.WAKE, '[test] wake word triggered from dashboard');
-    setLastTs(ts());
+    const ok = pub('/dori/stt/wake_word_detected', 'std_msgs/msg/Bool', { data: true });
+    if (ok) {
+      addLog(LOG_TAGS.WAKE, '[test] wake word triggered from dashboard');
+      setLastTs(ts());
+    } else {
+      addLog(LOG_TAGS.ERROR, '[test] wake word publish failed — ROS not connected?');
+    }
   }
 
   return (
