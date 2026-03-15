@@ -14,7 +14,7 @@ Endpoints:
 
 Usage:
   pip install fastapi uvicorn python-multipart
-  python3 knowledge_api.py [--port 3001] [--repo-root /path/to/dori]
+  python3 knowledge_api.py [--port 3000] [--repo-root /path/to/dori] [--web-dir /path/to/web]
 """
 
 import argparse
@@ -33,6 +33,7 @@ from pathlib import Path
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 # ── Path resolution ────────────────────────────────────────────────────────────
 
@@ -48,7 +49,8 @@ DEFAULT_REPO = find_repo_root(Path(__file__).resolve().parent)
 
 parser_arg = argparse.ArgumentParser(add_help=False)
 parser_arg.add_argument('--repo-root', default=str(DEFAULT_REPO))
-parser_arg.add_argument('--port', type=int, default=3001)
+parser_arg.add_argument('--port', type=int, default=3000)
+parser_arg.add_argument('--web-dir', default='')
 args, _ = parser_arg.parse_known_args()
 
 REPO_ROOT   = Path(args.repo_root)
@@ -74,6 +76,20 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*'],
 )
+
+
+def _resolve_web_dir() -> Path | None:
+    if args.web_dir:
+        candidate = Path(args.web_dir).expanduser().resolve()
+        if candidate.is_dir():
+            return candidate
+
+    fallback = Path(__file__).resolve().parents[2] / 'web'
+    if fallback.is_dir():
+        return fallback
+
+    return None
+
 
 
 # ── /api/knowledge/parse-menu ─────────────────────────────────────────────────
@@ -336,6 +352,12 @@ async def get_tunnel_url():
         'ready':         ws_url is not None,
     }
  
+
+
+WEB_DIR = _resolve_web_dir()
+if WEB_DIR:
+    app.mount('/', StaticFiles(directory=str(WEB_DIR), html=True), name='dashboard_web')
+
 # ── Entrypoint ─────────────────────────────────────────────────────────────────
 
 if __name__ == '__main__':

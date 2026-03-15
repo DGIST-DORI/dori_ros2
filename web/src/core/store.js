@@ -268,7 +268,6 @@ function getDefaultWsUrl() {
   return `${protocol}://${hostname}:${DEFAULT_WS_PORT}`;
 }
 
-const TUNNEL_API_PORT       = '3001';
 const TUNNEL_POLL_INTERVAL  = 500;   // ms
 const TUNNEL_POLL_MAX = 20;
 
@@ -295,9 +294,7 @@ async function initTunnelWsUrl(setWsUrl) {
   if (!hostname.endsWith('.trycloudflare.com')) return;
   // ────────────────────────────────────────────────────────────────
  
-  // knowledge_api 는 포트 3001 — origin 의 포트만 교체
-  const apiOrigin = window.location.origin.replace(/:\d+$/, '') + ':' + TUNNEL_API_PORT;
-  const apiUrl    = `${apiOrigin}/api/tunnel-url`;
+  const apiUrl = `${window.location.origin}/api/tunnel-url`;
  
   for (let i = 0; i < TUNNEL_POLL_MAX; i++) {
     await new Promise(r => setTimeout(r, TUNNEL_POLL_INTERVAL));
