@@ -351,12 +351,25 @@ async def get_tunnel_url():
         'ws_url':        ws_url,
         'ready':         ws_url is not None,
     }
- 
 
+# ── Static file serving (catch-all — MUST be registered AFTER all /api routes) ──
 
 WEB_DIR = _resolve_web_dir()
+
 if WEB_DIR:
-    app.mount('/', StaticFiles(directory=str(WEB_DIR), html=True), name='dashboard_web')
+    from fastapi.responses import FileResponse
+    from starlette.staticfiles import StaticFiles as _StaticFiles
+
+    # /assets/* 등 실제 정적 파일은 StaticFiles sub-app 으로
+    app.mount('/assets', _StaticFiles(directory=str(WEB_DIR / 'assets')), name='assets')
+
+    @app.get('/{full_path:path}', include_in_schema=False)
+    async def serve_spa(full_path: str):
+        """SPA catch-all: /api/* 는 위의 라우터가 먼저 잡고, 나머지는 index.html"""
+        file = WEB_DIR / full_path
+        if file.is_file():
+            return FileResponse(str(file))
+        return FileResponse(str(WEB_DIR / 'index.html'))
 
 # ── Entrypoint ─────────────────────────────────────────────────────────────────
 

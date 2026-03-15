@@ -124,6 +124,8 @@ def generate_launch_description():
             output='both',
             name='knowledge_api_server',
             emulate_tty=True,
+            respawn=True,
+            respawn_delay=2.0,
         ),
 
         # ── Cloudflare Tunnel (optional, default: enabled) ────────────────
