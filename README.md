@@ -218,6 +218,31 @@ source install/setup.bash
 ros2 launch bringup robot.launch.py
 ```
 
+### Full Robot (with Dashboard)
+ 
+Launches the full robot stack together with the web dashboard (rosbridge + HTTP server + knowledge API).
+The dashboard frontend must be built before the first run.
+ 
+```bash
+# First time only — build the frontend assets
+cd web && npm ci && npm run build && cd ..
+colcon build --symlink-install
+source install/setup.bash
+ 
+# Launch
+ros2 launch bringup robot.launch.py enable_dashboard:=true
+```
+ 
+Dashboard access:
+ 
+```text
+# Same machine
+http://localhost:3000
+ 
+# Remote (another device on the same network)
+http://[Robot IP]:3000
+```
+
 ### Common Launch Options
 
 ```bash

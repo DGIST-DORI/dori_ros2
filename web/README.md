@@ -2,9 +2,9 @@
 
 This directory contains the Vite/React frontend for the DORI dashboard.
 
-## Build (Required before ROS launch)
+## Build (Required before first launch)
 
-Build frontend assets before launching `dashboard_pkg` from the ROS workspace root.
+Build frontend assets before launching the dashboard.
 
 ```bash
 cd web
@@ -18,15 +18,26 @@ After the build completes, continue from the ROS workspace root:
 cd ..
 colcon build --symlink-install
 source install/setup.bash
-ros2 launch dashboard_pkg dashboard.launch.py
 ```
 
+## Launch
+ 
+The dashboard is launched as part of the main robot stack via the `enable_dashboard` flag:
+ 
+```bash
+ros2 launch bringup robot.launch.py enable_dashboard:=true
+```
+ 
+If you need to run the dashboard standalone (without the full robot stack):
+ 
+```bash
+ros2 launch dashboard_pkg dashboard.launch.py
+```
+ 
 ## Access
 
 - Dashboard: `http://[Robot IP]:3000`
 - ROS WebSocket bridge: `ws://[Robot IP]:9090`
-
-Examples:
 
 ```text
 # Same machine (robot/local)
