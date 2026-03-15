@@ -294,7 +294,48 @@ async def update_building(key: str, body: dict):
         raise HTTPException(500, str(e))
     return {'ok': True, 'key': key}
 
-
+# ── /api/tunnel-url ───────────────────────────────────────────────────────────
+# Cloudflared log 파일을 읽어 터널 URL을 반환.
+# 프론트엔드가 외부 접속 시 폴링해서 WS URL 기본값을 자동 설정하는 데 사용.
+ 
+import re as _re
+ 
+_CF_LOG_DASHBOARD = Path('/tmp/cloudflared_dashboard.log')
+_CF_LOG_WS        = Path('/tmp/cloudflared_ws.log')
+_CF_URL_RE        = _re.compile(r'https://[a-z0-9\-]+\.trycloudflare\.com')
+ 
+ 
+def _parse_tunnel_url(log_path: Path) -> str | None:
+    """Read a cloudflared log file and return the first tunnel URL found."""
+    try:
+        text = log_path.read_text(encoding='utf-8', errors='ignore')
+        match = _CF_URL_RE.search(text)
+        return match.group(0) if match else None
+    except Exception:
+        return None
+ 
+ 
+@app.get('/api/tunnel-url')
+async def get_tunnel_url():
+    """
+    Return Cloudflare Tunnel public URLs for the dashboard and rosbridge.
+ 
+    Response:
+      { "dashboard_url": str|null, "ws_url": str|null, "ready": bool }
+ 
+    ws_url uses wss:// — Cloudflare Tunnel always terminates TLS.
+    Tunnel not running → ready: false, both fields null.
+    """
+    dashboard_url = _parse_tunnel_url(_CF_LOG_DASHBOARD)
+    ws_http_url   = _parse_tunnel_url(_CF_LOG_WS)
+    ws_url = ws_http_url.replace('https://', 'wss://', 1) if ws_http_url else None
+ 
+    return {
+        'dashboard_url': dashboard_url,
+        'ws_url':        ws_url,
+        'ready':         ws_url is not None,
+    }
+ 
 # ── Entrypoint ─────────────────────────────────────────────────────────────────
 
 if __name__ == '__main__':
