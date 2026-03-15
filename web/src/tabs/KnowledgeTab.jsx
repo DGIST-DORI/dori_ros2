@@ -8,7 +8,7 @@
  *   3. Document Browser — list indexed .txt chunks with source info
  *   4. Building Editor — inline edit campus_knowledge.json entries
  *
- * Requires: dashboard_api server running on port 3001
+ * Requires: dashboard_api server running on port 3000
  *   POST /api/knowledge/parse-menu        multipart file upload
  *   POST /api/knowledge/build-index       trigger build_index.py
  *   GET  /api/knowledge/documents         list indexed docs
@@ -21,7 +21,7 @@ import { Check, X, AlertCircle, Upload, RefreshCw } from 'lucide-react';
 import Panel from '../components/Panel';
 import './KnowledgeTab.css';
 
-const API = 'http://localhost:3001/api/knowledge';
+const API = '/api/knowledge';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
