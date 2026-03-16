@@ -260,8 +260,11 @@ function getDefaultWsUrl() {
   if (isValidWsUrl(stored)) return stored;
  
   // 3순위: 외부(터널) 접속이면 빈 문자열 → initTunnelWsUrl 폴링이 채워줌
+  //   - *.trycloudflare.com : 임시 터널
+  //   - 커스텀 도메인 (EXTERNAL_DOMAINS) : 고정 도메인
   const hostname = window.location?.hostname ?? '';
-  if (hostname.endsWith('.trycloudflare.com')) return '';
+  const EXTERNAL_DOMAINS = ['.trycloudflare.com', '.dgist-dori.xyz'];
+  if (EXTERNAL_DOMAINS.some(d => hostname.endsWith(d))) return '';
  
   // 4순위: 로컬 접속 → ws://[현재 hostname]:9090
   const protocol = window.location?.protocol === 'https:' ? 'wss' : 'ws';
@@ -288,10 +291,12 @@ async function initTunnelWsUrl(setWsUrl) {
   const stored = window.localStorage?.getItem(WS_URL_STORAGE_KEY)?.trim();
   if (isValidWsUrl(stored)) return;
  
-  // ── 핵심 조건: 외부(터널) 접속인 경우에만 폴링 ──────────────────
-  // Cloudflare Tunnel 도메인: *.trycloudflare.com
+  // ── 핵심 조건: 외부 접속인 경우에만 폴링 ──────────────────────────
+  // 1) *.trycloudflare.com : 임시 터널 (후순위)
+  // 2) 커스텀 도메인 (EXTERNAL_DOMAINS) : 고정 도메인 (1순위로 서버가 응답)
   const hostname = window.location?.hostname ?? '';
-  if (!hostname.endsWith('.trycloudflare.com')) return;
+  const EXTERNAL_DOMAINS = ['.trycloudflare.com', '.dgist-dori.xyz'];
+  if (!EXTERNAL_DOMAINS.some(d => hostname.endsWith(d))) return;
   // ────────────────────────────────────────────────────────────────
  
   const apiUrl = `${window.location.origin}/api/tunnel-url`;

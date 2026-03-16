@@ -311,41 +311,63 @@ async def update_building(key: str, body: dict):
     return {'ok': True, 'key': key}
 
 # ── /api/tunnel-url ───────────────────────────────────────────────────────────
-# Cloudflared log 파일을 읽어 터널 URL을 반환.
-# 프론트엔드가 외부 접속 시 폴링해서 WS URL 기본값을 자동 설정하는 데 사용.
- 
+# 터널 WS URL을 반환. 프론트엔드가 외부 접속 시 폴링해서 WS URL 기본값 자동 설정.
+#
+# 우선순위:
+#   1) 환경변수 DORI_WS_URL 이 설정되어 있으면 그 값을 사용 (고정 도메인용)
+#   2) cloudflared 로그 파싱 (trycloudflare.com 임시 터널용, 후순위)
+
 import re as _re
- 
+import os as _os
+
 _CF_LOG_DASHBOARD = Path('/tmp/cloudflared_dashboard.log')
 _CF_LOG_WS        = Path('/tmp/cloudflared_ws.log')
 _CF_URL_RE        = _re.compile(r'https://[a-z0-9\-]+\.trycloudflare\.com')
- 
- 
+
+# 고정 도메인 환경변수 (dashboard.launch.py 또는 systemd 에서 주입)
+# 예: DORI_DASHBOARD_URL=https://dash.dgist-dori.xyz
+#     DORI_WS_URL=wss://ws.dgist-dori.xyz
+_FIXED_DASHBOARD_URL = _os.environ.get('DORI_DASHBOARD_URL', '').strip()
+_FIXED_WS_URL        = _os.environ.get('DORI_WS_URL', '').strip()
+
+
 def _parse_tunnel_url(log_path: Path) -> str | None:
-    """Read a cloudflared log file and return the first tunnel URL found."""
+    """Read a cloudflared log file and return the first trycloudflare URL found."""
     try:
         text = log_path.read_text(encoding='utf-8', errors='ignore')
         match = _CF_URL_RE.search(text)
         return match.group(0) if match else None
     except Exception:
         return None
- 
- 
+
+
 @app.get('/api/tunnel-url')
 async def get_tunnel_url():
     """
     Return Cloudflare Tunnel public URLs for the dashboard and rosbridge.
- 
+
     Response:
       { "dashboard_url": str|null, "ws_url": str|null, "ready": bool }
- 
-    ws_url uses wss:// — Cloudflare Tunnel always terminates TLS.
-    Tunnel not running → ready: false, both fields null.
+
+    Priority:
+      1) DORI_WS_URL / DORI_DASHBOARD_URL env vars (fixed custom domain)
+      2) cloudflared log parsing (trycloudflare.com quick tunnel, fallback)
+
+    ws_url must use wss:// — Cloudflare Tunnel always terminates TLS.
     """
+    # 1순위: 고정 도메인 환경변수
+    if _FIXED_WS_URL:
+        return {
+            'dashboard_url': _FIXED_DASHBOARD_URL or None,
+            'ws_url':        _FIXED_WS_URL,
+            'ready':         True,
+        }
+
+    # 2순위: trycloudflare.com 임시 터널 로그 파싱
     dashboard_url = _parse_tunnel_url(_CF_LOG_DASHBOARD)
     ws_http_url   = _parse_tunnel_url(_CF_LOG_WS)
     ws_url = ws_http_url.replace('https://', 'wss://', 1) if ws_http_url else None
- 
+
     return {
         'dashboard_url': dashboard_url,
         'ws_url':        ws_url,

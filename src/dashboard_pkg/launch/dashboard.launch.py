@@ -85,6 +85,36 @@ def _make_tunnel_actions(context, *args, **kwargs):
     return [dashboard_tunnel, ws_tunnel]
 
 
+def _make_api_server_action(context, *args, **kwargs):
+    """OpaqueFunction: knowledge_api 를 환경변수와 함께 실행."""
+    pkg_dir   = get_package_share_directory('dashboard_pkg')
+    web_dir   = os.path.join(pkg_dir, 'web')
+    repo_root = os.path.abspath(os.path.join(pkg_dir, '..', '..', '..', '..'))
+    knowledge_api_script = os.path.join(pkg_dir, 'scripts', 'knowledge_api.py')
+
+    dashboard_url = LaunchConfiguration('dashboard_url').perform(context)
+    ws_url        = LaunchConfiguration('ws_url').perform(context)
+
+    additional_env = {}
+    if dashboard_url:
+        additional_env['DORI_DASHBOARD_URL'] = dashboard_url
+    if ws_url:
+        additional_env['DORI_WS_URL'] = ws_url
+
+    return [ExecuteProcess(
+        cmd=['python3', knowledge_api_script,
+             '--repo-root', repo_root,
+             '--port', '3000',
+             '--web-dir', web_dir],
+        output='both',
+        name='knowledge_api_server',
+        emulate_tty=True,
+        respawn=True,
+        respawn_delay=2.0,
+        additional_env=additional_env,
+    )]
+
+
 def generate_launch_description():
     pkg_dir = get_package_share_directory('dashboard_pkg')
     web_dir = os.path.join(pkg_dir, 'web')
@@ -100,11 +130,23 @@ def generate_launch_description():
 
     return LaunchDescription([
 
-        # ── Launch argument ───────────────────────────────────────────────
+        # ── Launch arguments ──────────────────────────────────────────────
         DeclareLaunchArgument(
             'tunnel',
             default_value='true',
             description='Enable Cloudflare Tunnel for external access (true/false)',
+        ),
+        # 고정 도메인 설정 (Cloudflare 커스텀 도메인 사용 시)
+        # 기본값을 비워두면 trycloudflare.com 임시 터널 로그 파싱으로 fallback
+        DeclareLaunchArgument(
+            'dashboard_url',
+            default_value='https://dash.dgist-dori.xyz',
+            description='Fixed public dashboard URL (custom Cloudflare domain)',
+        ),
+        DeclareLaunchArgument(
+            'ws_url',
+            default_value='wss://ws.dgist-dori.xyz',
+            description='Fixed public WebSocket URL (custom Cloudflare domain)',
         ),
 
         # ── rosbridge WebSocket (port 9090) ───────────────────────────────
@@ -116,17 +158,9 @@ def generate_launch_description():
         ),
 
         # ── Unified dashboard server (frontend + API on port 3000) ────────
-        ExecuteProcess(
-            cmd=['python3', knowledge_api_script,
-                 '--repo-root', repo_root,
-                 '--port', '3000',
-                 '--web-dir', web_dir],
-            output='both',
-            name='knowledge_api_server',
-            emulate_tty=True,
-            respawn=True,
-            respawn_delay=2.0,
-        ),
+        # DORI_DASHBOARD_URL / DORI_WS_URL 환경변수로 고정 도메인 주입
+        # knowledge_api 의 /api/tunnel-url 이 이 값을 1순위로 반환
+        OpaqueFunction(function=_make_api_server_action),
 
         # ── Cloudflare Tunnel (optional, default: enabled) ────────────────
         OpaqueFunction(function=_make_tunnel_actions),
