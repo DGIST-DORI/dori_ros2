@@ -20,7 +20,7 @@ import SystemTab       from './tabs/SystemTab';
 
 // ── Category icons ────────────────────────────────────────────────────────────
 import HriIcon        from './assets/icons/icon-hri.svg?react';
-import CubeIcon       from './assets/icons/icon-cube.svg?react';
+import ControlIcon       from './assets/icons/icon-control.svg?react';
 import SystemIcon     from './assets/icons/icon-system.svg?react';
 import NavigationIcon from './assets/icons/icon-navigation.svg?react';
 import PerceptionIcon from './assets/icons/icon-perception.svg?react';
@@ -29,13 +29,13 @@ import PerceptionIcon from './assets/icons/icon-perception.svg?react';
 // Add svg to assets/icons/ and uncomment the import when ready.
 import FaceIcon      from './assets/icons/icon-face.svg?react';
 import KnowledgeIcon from './assets/icons/icon-knowledge.svg?react';
-// import VoiceIcon         from './assets/icons/icon-voice.svg?react';
-// import StateIcon         from './assets/icons/icon-state.svg?react';
-// import ConversationIcon  from './assets/icons/icon-conversation.svg?react';
-// import MapIcon           from './assets/icons/icon-map.svg?react';
-// import CtrlCubeIcon      from './assets/icons/icon-ctrl-cube.svg?react';
-// import VisionIcon        from './assets/icons/icon-vision.svg?react';
-// import LLMIcon           from './assets/icons/icon-llm.svg?react';
+import VoiceIcon         from './assets/icons/icon-voice.svg?react';
+import StateIcon         from './assets/icons/icon-state.svg?react';
+import ConversationIcon  from './assets/icons/icon-conversation.svg?react';
+import MapIcon           from './assets/icons/icon-map.svg?react';
+import CubeIcon          from './assets/icons/icon-cube.svg?react';
+import VisionIcon        from './assets/icons/icon-vision.svg?react';
+import LLMIcon           from './assets/icons/icon-llm.svg?react';
 
 // ── Tree ─────────────────────────────────────────────────────────────────────
 
@@ -48,7 +48,7 @@ export const PANEL_TREE = [
       {
         id: 'hri-voice',
         label: 'Voice',
-        // icon: <VoiceIcon />,
+        icon: <VoiceIcon />,
         children: [
           { id: 'stt',      label: 'STT Test',   component: HRITab },
           { id: 'wakeword', label: 'Wake Word',   component: HRITab },
@@ -58,7 +58,7 @@ export const PANEL_TREE = [
       {
         id: 'hri-state',
         label: 'State',
-        // icon: <StateIcon />,
+        icon: <StateIcon />,
         children: [
           { id: 'state-monitor', label: 'State Monitor', component: HRITab },
           { id: 'event-log',     label: 'Event Log',     component: HRITab },
@@ -67,7 +67,7 @@ export const PANEL_TREE = [
       {
         id: 'hri-conversation',
         label: 'Conversation',
-        // icon: <ConversationIcon />,
+        icon: <ConversationIcon />,
         children: [
           { id: 'conversation', label: 'Session List', component: ConversationTab },
           { id: 'timeline',     label: 'Timeline',     component: ConversationTab },
@@ -92,7 +92,7 @@ export const PANEL_TREE = [
       {
         id: 'nav-map',
         label: 'Map',
-        // icon: <MapIcon />,
+        icon: <MapIcon />,
         children: [
           { id: 'campus-map', label: 'Campus Map', placeholder: true },
         ],
@@ -102,12 +102,12 @@ export const PANEL_TREE = [
   {
     id: 'control',
     label: 'Control',
-    icon: <CubeIcon />,
+    icon: <ControlIcon />,
     children: [
       {
         id: 'ctrl-cube',
         label: 'Cube',
-        // icon: <CtrlCubeIcon />,
+        icon: <CubeIcon />,
         children: [
           { id: 'cube-3d',       label: '3D View',          component: CubeTab },
           { id: 'cube-rotation', label: 'Rotation Control', component: CubeTab },
@@ -124,7 +124,7 @@ export const PANEL_TREE = [
       {
         id: 'perc-vision',
         label: 'Vision',
-        // icon: <VisionIcon />,
+        icon: <VisionIcon />,
         children: [
           { id: 'vision-test', label: 'Vision Test', component: HRITab },
         ],
@@ -132,7 +132,7 @@ export const PANEL_TREE = [
       {
         id: 'perc-llm',
         label: 'LLM',
-        // icon: <LLMIcon />,
+        icon: <LLMIcon />,
         children: [
           { id: 'llm-inject', label: 'LLM Inject', component: HRITab },
         ],
