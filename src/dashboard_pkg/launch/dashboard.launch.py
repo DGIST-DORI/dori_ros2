@@ -26,15 +26,6 @@ def _make_tunnel_actions(context, *args, **kwargs):
     enable = LaunchConfiguration('tunnel').perform(context).lower()
     if enable not in ('true', '1', 'yes'):
         return []
-    
-    fixed_ws = LaunchConfiguration('ws_url').perform(context).strip()
-    if fixed_ws:
-        print(
-            f'\n[dashboard.launch] Fixed domain detected ({fixed_ws}).\n'
-            '  Skipping Cloudflare quick tunnel (trycloudflare.com).\n'
-            '  Use your named tunnel (cloudflared tunnel run <name>) separately if needed.\n'
-        )
-        return []
 
     if shutil.which('cloudflared') is None:
         print(
@@ -93,7 +84,7 @@ def _make_tunnel_actions(context, *args, **kwargs):
 
     return [dashboard_tunnel, ws_tunnel]
     
-
+    
 def _make_api_server_action(context, *args, **kwargs):
     """OpaqueFunction: knowledge_api 를 환경변수와 함께 실행."""
     pkg_dir   = get_package_share_directory('dashboard_pkg')
