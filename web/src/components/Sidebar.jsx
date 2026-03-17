@@ -85,16 +85,26 @@ function SubcategoryBlock({ node, onSelect, expanded, searchActive }) {
 }
 
 /** Top-level category block */
-function CategoryBlock({ node, onSelect, expanded, searchActive }) {
+function CategoryBlock({ node, onSelect, expanded, searchActive, onExpandSidebar }) {
   const [open, setOpen] = useState(false);  // default: closed
 
   const isOpen = searchActive ? true : open;
+
+  function handleHeaderClick() {
+    if (!expanded) {
+      // Collapsed: expand sidebar first, then open this category
+      onExpandSidebar();
+      setOpen(true);
+    } else if (!searchActive) {
+      setOpen(o => !o);
+    }
+  }
 
   return (
     <div className={`sb-category ${isOpen ? 'open' : ''}`}>
       <button
         className="sb-cat-header"
-        onClick={() => expanded && !searchActive && setOpen(o => !o)}
+        onClick={handleHeaderClick}
         title={!expanded ? node.label : undefined}
       >
         {node.icon && <span className="sb-cat-icon">{node.icon}</span>}
@@ -210,6 +220,7 @@ export default function Sidebar({
             onSelect={id => { onSelect(id); }}
             expanded={expanded}
             searchActive={searchActive}
+            onExpandSidebar={onExpand}
           />
         ))}
       </nav>
