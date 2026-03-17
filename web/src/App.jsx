@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import Header             from './components/Header';
 import Sidebar            from './components/Sidebar';
 import FloatingWorkspace  from './components/FloatingWorkspace';
-import TopicPublisher     from './components/TopicPublisher';
 import { useStore, TOPIC_META } from './core/store';
 import { fetchTopicDiagnostics, subscribeROS } from './core/ros';
 import { PANEL_TREE, findLeaf } from './panelTree';
@@ -108,7 +107,6 @@ export default function App() {
         <FloatingWorkspace isMobile={isMobile} />
       </main>
 
-      <TopicPublisher />
     </div>
   );
 }

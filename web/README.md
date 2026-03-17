@@ -52,3 +52,22 @@ ws://[Robot IP]:9090
 ```
 
 For broader project context, see the root README: `../README.md`.
+
+## Panel structure convention
+
+패널 구현은 `web/src/panels/<domain>/` 아래에만 둡니다. 각 패널은 **1파일 1컴포넌트** 원칙을 따릅니다 (예: `web/src/panels/hri/STTPanel.jsx`).
+
+- 예시 도메인 폴더: `hri/`, `cube/`, `knowledge/`, `conversation/`, `face/`, `system/`
+- `web/src/panelTree.jsx`는 패널 컴포넌트를 `web/src/panels/...`에서만 import 합니다.
+- `web/src/tabs/`는 신규 구현 위치가 아니며, 기존 코드 호환을 위한 **legacy compatibility layer**로만 유지합니다.
+
+### 새 패널 추가 절차
+
+1. `web/src/panels/<domain>/`에 새 패널 파일을 추가합니다 (한 파일에 한 패널 컴포넌트).
+2. 패널 컴포넌트를 named export로 노출합니다.
+3. `web/src/panelTree.jsx`에 해당 패널 import를 추가합니다.
+4. `PANEL_TREE`의 적절한 leaf 노드에 `component: <YourPanelComponent>`를 등록합니다.
+5. 필요 시에만 `web/src/tabs/`의 레거시 진입점에 re-export를 추가합니다.
+
+
+- System 패널에는 `Topic Publisher`가 포함되며 경로는 `web/src/panels/system/TopicPublisherPanel.jsx`입니다.
