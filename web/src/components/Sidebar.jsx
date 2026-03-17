@@ -9,11 +9,11 @@
  */
 
 import { useMemo, useState } from 'react';
-import { Search } from 'lucide-react';
 import { useStore } from '../core/store';
 import { filterTree } from '../panelTree';
-import SidebarIcon from '../assets/icons/icon-sidebar.svg?react';
-import CloseIcon   from '../assets/icons/icon-close.svg?react';
+import SidebarIcon  from '../assets/icons/icon-sidebar.svg?react';
+import CloseIcon    from '../assets/icons/icon-close.svg?react';
+import SearchIcon   from '../assets/icons/icon-search.svg?react';
 import './Sidebar.css';
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -66,20 +66,18 @@ function SubcategoryBlock({ node, onSelect, expanded, searchActive }) {
   }
 
   return (
-    <div className="sb-subcategory">
+    <div className={`sb-subcategory ${isOpen ? 'open' : ''}`}>
       {expanded && (
         <button className="sb-subcat-header" onClick={() => !searchActive && setOpen(o => !o)}>
           <span className="sb-subcat-chevron">{isOpen ? '▾' : '▸'}</span>
           <span className="sb-subcat-label">{node.label}</span>
         </button>
       )}
-      {(isOpen || !expanded) && (
-        <div className="sb-subcat-leaves">
-          {node.children.map(leaf => (
-            <LeafItem key={leaf.id} node={leaf} onSelect={onSelect} expanded={expanded} />
-          ))}
-        </div>
-      )}
+      <div className="sb-subcat-leaves">
+        {node.children.map(leaf => (
+          <LeafItem key={leaf.id} node={leaf} onSelect={onSelect} expanded={expanded} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -117,7 +115,7 @@ function CategoryBlock({ node, onSelect, expanded, searchActive, onExpandSidebar
         {!expanded && <span className="sb-tooltip">{node.label}</span>}
       </button>
 
-      {isOpen && expanded && (
+      {expanded && (
         <div className="sb-cat-body">
           {node.children.map(sub => (
             <SubcategoryBlock
@@ -189,23 +187,33 @@ export default function Sidebar({
         )}
       </div>
 
-      {/* ── Search (expanded only) ── */}
-      {expanded && (
-        <div className="sb-search-wrap">
-          <Search size={12} className="sb-search-icon" />
-          <input
-            className="sb-search-input"
-            type="text"
-            placeholder="Search panels..."
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            onClick={e => e.stopPropagation()}
-          />
-          {searchActive && (
-            <button className="sb-search-clear" onClick={() => setQuery('')}>×</button>
-          )}
-        </div>
-      )}
+      {/* ── Search ── */}
+      <div className="sb-search-cell" onClick={e => e.stopPropagation()}>
+        {expanded ? (
+          <div className="sb-search-wrap">
+            <SearchIcon className="sb-search-icon" />
+            <input
+              className="sb-search-input"
+              type="text"
+              placeholder="Search panels..."
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+            />
+            {searchActive && (
+              <button className="sb-search-clear" onClick={() => setQuery('')}>×</button>
+            )}
+          </div>
+        ) : (
+          <button
+            className="sb-search-btn"
+            onClick={() => { onExpand(); }}
+            title="Search panels"
+          >
+            <SearchIcon className="sb-search-btn-icon" />
+            <span className="sb-tooltip">Search panels</span>
+          </button>
+        )}
+      </div>
 
       {/* ── Nav tree ── */}
       <nav className="sb-nav" onClick={e => e.stopPropagation()}>

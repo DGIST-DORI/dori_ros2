@@ -24,6 +24,8 @@ import ConversationIcon from './assets/icons/icon-conversation.svg?react';
 import CubeIcon         from './assets/icons/icon-cube.svg?react';
 import KnowledgeIcon    from './assets/icons/icon-knowledge.svg?react';
 import SystemIcon       from './assets/icons/icon-system.svg?react';
+import NavigationIcon   from './assets/icons/icon-navigation.svg?react';
+import PerceptionIcon   from './assets/icons/icon-perception.svg?react';
 
 // ── Tree ─────────────────────────────────────────────────────────────────────
 
@@ -71,6 +73,7 @@ export const PANEL_TREE = [
   {
     id: 'navigation',
     label: 'Navigation',
+    icon: <NavigationIcon />,
     children: [
       {
         id: 'nav-map',
@@ -100,6 +103,7 @@ export const PANEL_TREE = [
   {
     id: 'perception',
     label: 'Perception & Intelligence',
+    icon: <PerceptionIcon />,
     children: [
       {
         id: 'perc-vision',
