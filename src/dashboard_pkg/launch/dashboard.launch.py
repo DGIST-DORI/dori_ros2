@@ -3,6 +3,7 @@ dashboard.launch.py
 Launches: rosbridge WebSocket + unified dashboard server (frontend + API on port 3000)
           + Cloudflare Tunnel (port 3000 and 9090, optional)
 
+-----OUTDATED-----
 Cloudflare Tunnel is enabled by default.
 To disable: ros2 launch dashboard_pkg dashboard.launch.py tunnel:=false
 """
@@ -17,12 +18,12 @@ from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
-
+"""
 def _make_tunnel_actions(context, *args, **kwargs):
     """
-    OpaqueFunction: runs at launch time so we can check if cloudflared is
-    installed and read the 'tunnel' LaunchConfiguration value.
-    """
+    # OpaqueFunction: runs at launch time so we can check if cloudflared is
+    # installed and read the 'tunnel' LaunchConfiguration value.
+"""
     enable = LaunchConfiguration('tunnel').perform(context).lower()
     if enable not in ('true', '1', 'yes'):
         return []
@@ -83,7 +84,8 @@ def _make_tunnel_actions(context, *args, **kwargs):
     )
 
     return [dashboard_tunnel, ws_tunnel]
-
+"""
+    
 
 def _make_api_server_action(context, *args, **kwargs):
     """OpaqueFunction: knowledge_api 를 환경변수와 함께 실행."""
@@ -131,11 +133,11 @@ def generate_launch_description():
     return LaunchDescription([
 
         # ── Launch arguments ──────────────────────────────────────────────
-        DeclareLaunchArgument(
-            'tunnel',
-            default_value='true',
-            description='Enable Cloudflare Tunnel for external access (true/false)',
-        ),
+        # DeclareLaunchArgument(
+        #     'tunnel',
+        #     default_value='true',
+        #     description='Enable Cloudflare Tunnel for external access (true/false)',
+        # ),
         # 고정 도메인 설정 (Cloudflare 커스텀 도메인 사용 시)
         # 기본값을 비워두면 trycloudflare.com 임시 터널 로그 파싱으로 fallback
         DeclareLaunchArgument(
@@ -163,5 +165,5 @@ def generate_launch_description():
         OpaqueFunction(function=_make_api_server_action),
 
         # ── Cloudflare Tunnel (optional, default: enabled) ────────────────
-        OpaqueFunction(function=_make_tunnel_actions),
+        # OpaqueFunction(function=_make_tunnel_actions),
     ])
