@@ -18,19 +18,25 @@ import './Sidebar.css';
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-/** Single leaf row */
-function LeafItem({ node, activeId, onSelect, expanded }) {
-  const isActive = activeId === node.id;
-  const icon = isActive && node.iconActive ? node.iconActive : node.icon;
+/** Single leaf row — brief click flash only, no persistent highlight */
+function LeafItem({ node, onSelect, expanded }) {
+  const [flashing, setFlashing] = useState(false);
+
+  function handleClick() {
+    if (node.placeholder) return;
+    setFlashing(true);
+    setTimeout(() => setFlashing(false), 220);
+    onSelect(node.id);
+  }
 
   return (
     <button
-      className={`sb-leaf ${isActive ? 'active' : ''} ${node.placeholder ? 'placeholder' : ''}`}
-      onClick={() => !node.placeholder && onSelect(node.id)}
+      className={`sb-leaf ${node.placeholder ? 'placeholder' : ''} ${flashing ? 'flash' : ''}`}
+      onClick={handleClick}
       title={!expanded ? node.label : undefined}
       disabled={node.placeholder}
     >
-      {icon && <span className="sb-leaf-icon">{icon}</span>}
+      {node.icon && <span className="sb-leaf-icon">{node.icon}</span>}
       {expanded && (
         <span className="sb-leaf-label">
           {node.label}
@@ -38,24 +44,20 @@ function LeafItem({ node, activeId, onSelect, expanded }) {
         </span>
       )}
       {!expanded && <span className="sb-tooltip">{node.label}{node.placeholder ? ' (soon)' : ''}</span>}
-      {isActive && <span className="sb-active-bar" />}
     </button>
   );
 }
 
 /** Subcategory block (label may be null → flat) */
-function SubcategoryBlock({ node, activeId, onSelect, expanded, forceOpen }) {
-  const [open, setOpen] = useState(true);
-
-  // When search is active, respect forceOpen
-  const isOpen = forceOpen !== undefined ? forceOpen : open;
+function SubcategoryBlock({ node, onSelect, expanded }) {
+  const [open, setOpen] = useState(false);  // default: closed
 
   if (!node.label) {
     // Flat — render leaves directly without a header
     return (
       <div className="sb-flat-group">
         {node.children.map(leaf => (
-          <LeafItem key={leaf.id} node={leaf} activeId={activeId} onSelect={onSelect} expanded={expanded} />
+          <LeafItem key={leaf.id} node={leaf} onSelect={onSelect} expanded={expanded} />
         ))}
       </div>
     );
@@ -64,18 +66,15 @@ function SubcategoryBlock({ node, activeId, onSelect, expanded, forceOpen }) {
   return (
     <div className="sb-subcategory">
       {expanded && (
-        <button
-          className="sb-subcat-header"
-          onClick={() => setOpen(o => !o)}
-        >
-          <span className="sb-subcat-chevron">{isOpen ? '▾' : '▸'}</span>
+        <button className="sb-subcat-header" onClick={() => setOpen(o => !o)}>
+          <span className="sb-subcat-chevron">{open ? '▾' : '▸'}</span>
           <span className="sb-subcat-label">{node.label}</span>
         </button>
       )}
-      {(isOpen || !expanded) && (
+      {(open || !expanded) && (
         <div className="sb-subcat-leaves">
           {node.children.map(leaf => (
-            <LeafItem key={leaf.id} node={leaf} activeId={activeId} onSelect={onSelect} expanded={expanded} />
+            <LeafItem key={leaf.id} node={leaf} onSelect={onSelect} expanded={expanded} />
           ))}
         </div>
       )}
@@ -84,22 +83,11 @@ function SubcategoryBlock({ node, activeId, onSelect, expanded, forceOpen }) {
 }
 
 /** Top-level category block */
-function CategoryBlock({ node, activeId, onSelect, expanded, searchActive }) {
-  // Check if category contains the active leaf — auto-open in that case
-  const containsActive = useMemo(() => {
-    function check(nodes) {
-      return nodes.some(n => n.id === activeId || (n.children && check(n.children)));
-    }
-    return check(node.children);
-  }, [node, activeId]);
-
-  const [open, setOpen] = useState(containsActive || node.id === 'hri');
-
-  const isOpen = searchActive ? true : open;
+function CategoryBlock({ node, onSelect, expanded }) {
+  const [open, setOpen] = useState(false);  // default: closed
 
   return (
-    <div className={`sb-category ${isOpen ? 'open' : ''}`}>
-      {/* Category header */}
+    <div className={`sb-category ${open ? 'open' : ''}`}>
       <button
         className="sb-cat-header"
         onClick={() => expanded && setOpen(o => !o)}
@@ -109,23 +97,20 @@ function CategoryBlock({ node, activeId, onSelect, expanded, searchActive }) {
         {expanded && (
           <>
             <span className="sb-cat-label">{node.label}</span>
-            <span className="sb-cat-chevron">{isOpen ? '▾' : '▸'}</span>
+            <span className="sb-cat-chevron">{open ? '▾' : '▸'}</span>
           </>
         )}
         {!expanded && <span className="sb-tooltip">{node.label}</span>}
       </button>
 
-      {/* Children — only render when open and expanded */}
-      {isOpen && expanded && (
+      {open && expanded && (
         <div className="sb-cat-body">
           {node.children.map(sub => (
             <SubcategoryBlock
               key={sub.id}
               node={sub}
-              activeId={activeId}
               onSelect={onSelect}
               expanded={expanded}
-              forceOpen={searchActive ? true : undefined}
             />
           ))}
         </div>
