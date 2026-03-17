@@ -4,17 +4,27 @@
  * Each leaf.component points to a concrete panel component.
  */
 
-import {
-  STTPanel, WakeWordPanel, VisionPanel,
-  LLMTTSPanel, StateMonitorPanel, EventLogPanel,
-} from './tabs/HRITab';
+import { STTPanel } from './panels/hri/STTPanel';
+import { WakeWordPanel } from './panels/hri/WakeWordPanel';
+import { VisionPanel } from './panels/hri/VisionPanel';
+import { LLMTTSPanel } from './panels/hri/LLMTTSPanel';
+import { StateMonitorPanel } from './panels/hri/StateMonitorPanel';
+import { EventLogPanel } from './panels/hri/EventLogPanel';
 
-import { FaceDisplayPanel, EmotionPalettePanel } from './tabs/FaceTab';
-import { CubeViewerPanel, PieceStatePanel, RotationControlPanel } from './tabs/CubeTab';
-import { DocumentBrowserPanel, BuildingEditorPanel } from './tabs/KnowledgeTab';
-import { SessionListPanel, TimelinePanel } from './tabs/ConversationTab';
+import { FaceDisplayPanel } from './panels/face/FaceDisplayPanel';
+import { EmotionPalettePanel } from './panels/face/EmotionPalettePanel';
+import { CubeViewerPanel } from './panels/cube/CubeViewerPanel';
+import { PieceStatePanel } from './panels/cube/PieceStatePanel';
+import { RotationControlPanel } from './panels/cube/RotationControlPanel';
+import { DocumentBrowserPanel } from './panels/knowledge/DocumentBrowserPanel';
+import { BuildingEditorPanel } from './panels/knowledge/BuildingEditorPanel';
+import { SessionListPanel } from './panels/conversation/SessionListPanel';
+import { TimelinePanel } from './panels/conversation/TimelinePanel';
 
-import { TopicDiagnosticsPanel, ConnectionInfoPanel, MetricsPanel } from './tabs/SystemTab';
+import { TopicDiagnosticsPanel } from './panels/system/TopicDiagnosticsPanel';
+import { ConnectionInfoPanel } from './panels/system/ConnectionInfoPanel';
+import { MetricsPanel } from './panels/system/MetricsPanel';
+import TopicPublisherPanel from './panels/system/TopicPublisherPanel';
 
 import HriIcon        from './assets/icons/icon-hri.svg?react';
 import ControlIcon    from './assets/icons/icon-control.svg?react';
@@ -123,6 +133,7 @@ export const PANEL_TREE = [
           { id: 'sys-connection', label: 'Connection',        component: ConnectionInfoPanel },
           { id: 'sys-topics',     label: 'Topic Diagnostics', component: TopicDiagnosticsPanel },
           { id: 'sys-metrics',    label: 'Metrics',           component: MetricsPanel },
+          { id: 'sys-topic-publisher', label: 'Topic Publisher', component: TopicPublisherPanel },
         ],
       },
     ],
