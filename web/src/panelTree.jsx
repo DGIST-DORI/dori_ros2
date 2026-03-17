@@ -1,25 +1,27 @@
 /**
  * panelTree.jsx — Panel tree config
  *
- * Each leaf.component points to a concrete panel component.
+ * Team rule (Option A): panel implementation files follow sidebar categories.
+ * Keep `Control / Perception & Intelligence / System` leaves under matching folders.
  */
 
 import { STTPanel } from './panels/hri/STTPanel';
 import { WakeWordPanel } from './panels/hri/WakeWordPanel';
-import { VisionPanel } from './panels/hri/VisionPanel';
-import { LLMTTSPanel } from './panels/hri/LLMTTSPanel';
 import { StateMonitorPanel } from './panels/hri/StateMonitorPanel';
 import { EventLogPanel } from './panels/hri/EventLogPanel';
 
 import { FaceDisplayPanel } from './panels/face/FaceDisplayPanel';
 import { EmotionPalettePanel } from './panels/face/EmotionPalettePanel';
-import { CubeViewerPanel } from './panels/cube/CubeViewerPanel';
-import { PieceStatePanel } from './panels/cube/PieceStatePanel';
-import { RotationControlPanel } from './panels/cube/RotationControlPanel';
-import { DocumentBrowserPanel } from './panels/knowledge/DocumentBrowserPanel';
-import { BuildingEditorPanel } from './panels/knowledge/BuildingEditorPanel';
 import { SessionListPanel } from './panels/conversation/SessionListPanel';
 import { TimelinePanel } from './panels/conversation/TimelinePanel';
+
+import { CubeViewerPanel } from './panels/control/CubeViewerPanel';
+import { PieceStatePanel } from './panels/control/PieceStatePanel';
+import { RotationControlPanel } from './panels/control/RotationControlPanel';
+import { VisionPanel } from './panels/perception/VisionPanel';
+import { LLMTTSPanel } from './panels/perception/LLMTTSPanel';
+import { DocumentBrowserPanel } from './panels/perception/DocumentBrowserPanel';
+import { BuildingEditorPanel } from './panels/perception/BuildingEditorPanel';
 
 import { TopicDiagnosticsPanel } from './panels/system/TopicDiagnosticsPanel';
 import { ConnectionInfoPanel } from './panels/system/ConnectionInfoPanel';
