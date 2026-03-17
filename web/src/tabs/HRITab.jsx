@@ -1,8 +1,8 @@
-/** Legacy compatibility layer: use panels/hri/* directly for new code. */
+/** Legacy compatibility layer: use category panel folders directly for new code. */
 import { STTPanel } from '../panels/hri/STTPanel';
 import { WakeWordPanel } from '../panels/hri/WakeWordPanel';
-import { VisionPanel } from '../panels/hri/VisionPanel';
-import { LLMTTSPanel } from '../panels/hri/LLMTTSPanel';
+import { VisionPanel } from '../panels/perception/VisionPanel';
+import { LLMTTSPanel } from '../panels/perception/LLMTTSPanel';
 import { StateMonitorPanel } from '../panels/hri/StateMonitorPanel';
 import { EventLogPanel } from '../panels/hri/EventLogPanel';
 
