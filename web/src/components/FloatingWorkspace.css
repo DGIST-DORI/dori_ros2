@@ -1,0 +1,22 @@
+/* ── FloatingWorkspace.css ─────────────────────────────────────────────────── */
+
+.fw-workspace {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.fw-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-2);
+}
+
+.fw-empty-hint {
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}

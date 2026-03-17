@@ -791,3 +791,43 @@ export default function FaceTab() {
     </div>
   );
 }
+
+export function FaceDisplayPanel() {
+  const emotion = useStore(s => s.emotion);
+  const cfg = EMOTION_CONFIG[emotion] || EMOTION_CONFIG[FALLBACK_EMOTION];
+  return (
+    <div style={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="face-canvas-inner">
+        <FaceCanvas emotion={emotion} />
+      </div>
+      <div className="face-emotion-label">{cfg.label}</div>
+    </div>
+  );
+}
+ 
+export function EmotionPalettePanel() {
+  const emotion       = useStore(s => s.emotion);
+  const emotionSource = useStore(s => s.emotionSource);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'auto' }}>
+      <div className="face-palette">
+        {Object.entries(EMOTION_CONFIG).map(([key, ecfg]) => (
+          <button
+            key={key}
+            className={`face-palette-btn ${emotion === key ? 'active' : ''}`}
+            onClick={() => useStore.getState().setEmotionOverride(key)}
+          >
+            <span className="face-palette-dot" />
+            <span className="face-palette-name">{ecfg.label}</span>
+            {emotion === key && <span className="face-palette-active-mark"><Circle size={6} fill="currentColor" strokeWidth={0} /></span>}
+          </button>
+        ))}
+      </div>
+      {emotionSource === 'override' && (
+        <button className="face-clear-override" onClick={() => useStore.getState().clearEmotionOverride()}>
+          Clear Override
+        </button>
+      )}
+    </div>
+  );
+}

@@ -559,3 +559,5 @@ export default function KnowledgeTab() {
     </div>
   );
 }
+
+export { DocumentBrowserPanel, BuildingEditorPanel };

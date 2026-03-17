@@ -305,7 +305,7 @@ function ChatBubble({ turn, canReplay, onReplay }) {
 
 // ── Main Tab ──────────────────────────────────────────────────────────────────
 
-export default function ConversationTab() {
+function ConversationTabContent() {
   const log        = useStore(s => s.log);
   const connected  = useStore(s => s.connected);
   const isDemoMode = useStore(s => s.isDemoMode);
@@ -496,4 +496,16 @@ export default function ConversationTab() {
       </div>
     </div>
   );
+}
+
+export default function ConversationTab() {
+  return <ConversationTabContent />;
+}
+
+export function SessionListPanel() {
+  return <ConversationTabContent />;
+}
+ 
+export function TimelinePanel() {
+  return <ConversationTabContent />;
 }

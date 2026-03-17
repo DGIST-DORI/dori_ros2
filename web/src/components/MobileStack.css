@@ -1,0 +1,75 @@
+/* ── MobileStack.css ───────────────────────────────────────────────────────── */
+
+.ms-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  overflow-y: auto;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.ms-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 8px);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.ms-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 6px 0 12px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+
+.ms-panel.minimized .ms-titlebar {
+  border-bottom: none;
+}
+
+.ms-title {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--text-1);
+}
+
+.ms-controls {
+  display: flex;
+  gap: 2px;
+}
+
+.ms-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius, 4px);
+  color: var(--text-2);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.ms-btn:hover { background: var(--bg-3); color: var(--text-0); }
+.ms-btn-close:hover {
+  background: var(--red-dim, rgba(214,107,102,0.15));
+  color: var(--red, #d66b66);
+}
+
+.ms-body {
+  min-height: 200px;
+  max-height: 60vh;
+  overflow: auto;
+}

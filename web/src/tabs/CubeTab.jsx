@@ -335,3 +335,5 @@ export default function CubeTab() {
     </div>
   );
 }
+
+export { CubeViewerPanel, PieceStatePanel, RotationControlPanel };

@@ -626,3 +626,9 @@ export default function HRITab() {
     </div>
   );
 }
+
+export { STTPanel, WakeWordPanel, VisionPanel, LLMTTSPanel, StateMonitorPanel };
+ 
+export function EventLogPanel() {
+  return <EventLog />;
+}
