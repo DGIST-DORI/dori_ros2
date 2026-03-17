@@ -1,8 +1,7 @@
 /**
  * panelTree.jsx — Panel tree config
  *
- * Temporary: tabs that haven't been split yet use the whole tab component.
- * TODO: replace with individual panel components after panels/ refactor.
+ * Each leaf.component points to a concrete panel component.
  */
 
 import {
@@ -15,9 +14,7 @@ import { CubeViewerPanel, PieceStatePanel, RotationControlPanel } from './tabs/C
 import { DocumentBrowserPanel, BuildingEditorPanel } from './tabs/KnowledgeTab';
 import { SessionListPanel, TimelinePanel } from './tabs/ConversationTab';
 
-// SystemTab not yet split — use whole tab as fallback
-// TODO: replace after panels/system/ refactor
-import SystemTab from './tabs/SystemTab';
+import { TopicDiagnosticsPanel, ConnectionInfoPanel, MetricsPanel } from './tabs/SystemTab';
 
 import HriIcon        from './assets/icons/icon-hri.svg?react';
 import ControlIcon    from './assets/icons/icon-control.svg?react';
@@ -123,10 +120,9 @@ export const PANEL_TREE = [
       {
         id: 'sys-flat', label: null,
         children: [
-          // TODO: replace with split panel components after refactor
-          { id: 'sys-connection', label: 'Connection',        component: SystemTab },
-          { id: 'sys-topics',     label: 'Topic Diagnostics', component: SystemTab },
-          { id: 'sys-metrics',    label: 'Metrics',           component: SystemTab },
+          { id: 'sys-connection', label: 'Connection',        component: ConnectionInfoPanel },
+          { id: 'sys-topics',     label: 'Topic Diagnostics', component: TopicDiagnosticsPanel },
+          { id: 'sys-metrics',    label: 'Metrics',           component: MetricsPanel },
         ],
       },
     ],
