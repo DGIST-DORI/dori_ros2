@@ -17,7 +17,7 @@ export default function FloatingWorkspace({ isMobile }) {
   if (openPanels.length === 0) {
     return (
       <div className="fw-empty">
-        <span className="fw-empty-hint">← 사이드바에서 패널을 선택하세요</span>
+        <span className="fw-empty-hint">← Select a panel in the sidebar</span>
       </div>
     );
   }
