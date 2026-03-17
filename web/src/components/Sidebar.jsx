@@ -69,14 +69,16 @@ function SubcategoryBlock({ node, onSelect, expanded, searchActive }) {
     <div className={`sb-subcategory ${isOpen ? 'open' : ''}`}>
       {expanded && (
         <button className="sb-subcat-header" onClick={() => !searchActive && setOpen(o => !o)}>
-          <span className="sb-subcat-chevron">{isOpen ? '▾' : '▸'}</span>
+          <span className="sb-subcat-chevron">▾</span>
           <span className="sb-subcat-label">{node.label}</span>
         </button>
       )}
       <div className="sb-subcat-leaves">
-        {node.children.map(leaf => (
-          <LeafItem key={leaf.id} node={leaf} onSelect={onSelect} expanded={expanded} />
-        ))}
+        <div className="sb-subcat-leaves-inner">
+          {node.children.map(leaf => (
+            <LeafItem key={leaf.id} node={leaf} onSelect={onSelect} expanded={expanded} />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -109,7 +111,7 @@ function CategoryBlock({ node, onSelect, expanded, searchActive, onExpandSidebar
         {expanded && (
           <>
             <span className="sb-cat-label">{node.label}</span>
-            <span className="sb-cat-chevron">{isOpen ? '▾' : '▸'}</span>
+            <span className="sb-cat-chevron">▾</span>
           </>
         )}
         {!expanded && <span className="sb-tooltip">{node.label}</span>}
@@ -117,15 +119,17 @@ function CategoryBlock({ node, onSelect, expanded, searchActive, onExpandSidebar
 
       {expanded && (
         <div className="sb-cat-body">
-          {node.children.map(sub => (
-            <SubcategoryBlock
-              key={sub.id}
-              node={sub}
-              onSelect={onSelect}
-              expanded={expanded}
-              searchActive={searchActive}
-            />
-          ))}
+          <div className="sb-cat-body-inner">
+            {node.children.map(sub => (
+              <SubcategoryBlock
+                key={sub.id}
+                node={sub}
+                onSelect={onSelect}
+                expanded={expanded}
+                searchActive={searchActive}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>
