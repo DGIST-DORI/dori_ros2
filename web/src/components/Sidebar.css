@@ -6,12 +6,11 @@
   flex-direction: column;
   overflow: visible;
   height: 100%;
-  /* width is driven by the grid column in App.css — no width here */
 }
 .sidebar.collapsed { cursor: pointer; }
 .sidebar.expanded  { cursor: default; }
 
-/* ── Top cell: same height as Header (44px) ── */
+/* ── Top cell ── */
 .sb-top {
   height: 44px;
   flex-shrink: 0;
@@ -21,7 +20,6 @@
   overflow: visible;
 }
 
-/* Collapsed: ☰ open button fills the cell */
 .sb-open {
   position: relative;
   display: flex;
@@ -37,7 +35,6 @@
 }
 .sb-open:hover { background: var(--bg-2); color: var(--text-0); }
 
-/* Expanded: logo + close */
 .sb-logo {
   display: flex;
   align-items: center;
@@ -58,67 +55,254 @@
   margin-right: 4px;
   background: transparent;
   color: var(--text-2);
-  font-size: 12px;
   border-radius: var(--radius);
   flex-shrink: 0;
   transition: background 0.12s, color 0.12s;
 }
 .sb-close:hover { background: var(--red-dim); color: var(--red); }
+.sb-open svg  { width: 18px; height: 18px; }
+.sb-close svg { width: 13px; height: 13px; }
 
-/* ── Nav ── */
+/* ── Search bar ── */
+.sb-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 8px 8px 4px;
+  flex-shrink: 0;
+}
+
+.sb-search-icon {
+  position: absolute;
+  left: 8px;
+  color: var(--text-2);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.sb-search-input {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-0);
+  font-size: 11px;
+  padding: 5px 24px 5px 26px;
+  transition: border-color 0.12s;
+  font-family: var(--font-sans);
+}
+.sb-search-input:focus {
+  outline: none;
+  border-color: var(--border-bright);
+}
+.sb-search-input::placeholder { color: var(--text-2); }
+
+.sb-search-clear {
+  position: absolute;
+  right: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color 0.1s;
+}
+.sb-search-clear:hover { color: var(--text-0); }
+
+/* ── Nav tree ── */
 .sb-nav {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 8px 0;
-  gap: 2px;
-  overflow: visible;
+  padding: 4px 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
 }
 
-/* ── Nav item ── */
-.sb-item {
+.sb-empty {
+  font-size: 11px;
+  color: var(--text-2);
+  text-align: center;
+  padding: 20px 12px;
+  animation: sb-fade-in 0.15s ease;
+}
+
+/* ── Category (top level) ── */
+.sb-category {
+  display: flex;
+  flex-direction: column;
+}
+
+.sb-cat-header {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 0 10px 14px;
-  background: transparent;
-  color: var(--text-1);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.3px;
-  border-radius: 0;
-  transition: background 0.12s, color 0.12s;
-  text-align: left;
+  gap: 8px;
   width: 100%;
+  padding: 6px 10px 6px 14px;
+  background: transparent;
+  border: none;
+  color: var(--text-2);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: left;
   overflow: visible;
+  transition: color 0.12s, background 0.12s;
 }
-.sb-item:hover  { background: var(--bg-2); color: var(--text-0); }
-.sb-item.active { background: var(--accent-dim); color: var(--accent); }
+.sb-cat-header:hover { color: var(--text-0); background: var(--bg-2); }
 
-.sb-icon {
-  font-size: 15px;
-  flex-shrink: 0;
+/* collapsed: treat category header as nav item (icon + tooltip) */
+.sidebar.collapsed .sb-cat-header {
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.sb-cat-icon {
   width: 20px;
   height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
-.sb-icon svg { width: 18px; height: 18px; }
+.sb-cat-icon svg { width: 16px; height: 16px; }
 
-.sb-open svg  { width: 18px; height: 18px; }
-.sb-close svg { width: 13px; height: 13px; }
+.sb-cat-label { flex: 1; }
 
-.sb-label {
+.sb-cat-chevron {
+  font-size: 10px;
+  color: var(--text-2);
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.sb-cat-body {
+  display: flex;
+  flex-direction: column;
+  animation: sb-fade-in 0.15s ease;
+}
+
+/* ── Subcategory ── */
+.sb-subcategory {
+  display: flex;
+  flex-direction: column;
+}
+
+.sb-subcat-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 10px 4px 22px;
+  background: transparent;
+  border: none;
+  color: var(--text-2);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.12s;
+}
+.sb-subcat-header:hover { color: var(--text-1); }
+
+.sb-subcat-chevron {
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.sb-subcat-label { flex: 1; }
+
+.sb-subcat-leaves {
+  display: flex;
+  flex-direction: column;
+  animation: sb-fade-in 0.12s ease;
+}
+
+.sb-flat-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Leaf item ── */
+.sb-leaf {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 10px 5px 30px;
+  background: transparent;
+  border: none;
+  color: var(--text-1);
+  font-size: 11px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  overflow: visible;
+  transition: background 0.1s, color 0.1s;
+}
+.sb-leaf:hover:not(:disabled)  { background: var(--bg-2); color: var(--text-0); }
+.sb-leaf.active { background: var(--accent-dim); color: var(--accent); }
+.sb-leaf.placeholder { opacity: 0.45; cursor: default; }
+
+/* collapsed: center icon, remove indent */
+.sidebar.collapsed .sb-leaf {
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.sb-leaf-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sb-leaf-icon svg { width: 14px; height: 14px; }
+
+.sb-leaf-label {
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  animation: sb-fade-in 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* ── Tooltip ── */
+.sb-placeholder-tag {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-2);
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 4px;
+  text-transform: uppercase;
+}
+
+/* ── Active bar ── */
+.sb-active-bar {
+  position: absolute;
+  left: 0;
+  top: 20%;
+  height: 60%;
+  width: 2px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 6px var(--accent-glow);
+}
+
+/* ── Tooltip (collapsed mode) ── */
 .sb-tooltip {
   pointer-events: none;
   position: absolute;
@@ -136,6 +320,9 @@
   transition: opacity 0.12s, transform 0.12s;
   z-index: 100;
   box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
 }
 .sb-tooltip::before {
   content: '';
@@ -154,21 +341,12 @@
   border-right-color: var(--bg-3);
 }
 
-/* Show tooltip on hover — collapsed only */
-.sidebar.collapsed .sb-open:hover  .sb-tooltip,
-.sidebar.collapsed .sb-item:hover  .sb-tooltip,
+.sidebar.collapsed .sb-open:hover .sb-tooltip,
+.sidebar.collapsed .sb-cat-header:hover .sb-tooltip,
+.sidebar.collapsed .sb-leaf:hover .sb-tooltip,
 .sidebar.collapsed .sb-status:hover .sb-tooltip {
   opacity: 1;
   transform: translateY(-50%) translateX(0);
-}
-
-/* ── Active bar ── */
-.sb-active-bar {
-  position: absolute;
-  left: 0; top: 20%; height: 60%; width: 2px;
-  background: var(--accent);
-  border-radius: 0 2px 2px 0;
-  box-shadow: 0 0 6px var(--accent-glow);
 }
 
 /* ── Bottom status ── */
@@ -181,29 +359,35 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 40px;          /* 고정 높이 — collapsed/expanded 동일 */
-  padding: 0 0 0 21px; /* dot center aligns with .sb-icon center: 14px padding + 10px (half of 20px) = 24px */
+  height: 40px;
+  padding: 0 0 0 21px;
   overflow: visible;
   cursor: default;
 }
 .sb-status-dot {
-  width: 6px; height: 6px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--text-2);
   flex-shrink: 0;
   transition: background 0.3s, box-shadow 0.3s;
 }
 .sb-status.connected .sb-status-dot {
-  background: var(--green); box-shadow: 0 0 6px var(--green);
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
   animation: sb-pulse-green 2s ease-in-out infinite;
 }
 .sb-status.demo .sb-status-dot {
-  background: var(--yellow); box-shadow: 0 0 6px var(--yellow);
+  background: var(--yellow);
+  box-shadow: 0 0 6px var(--yellow);
   animation: sb-pulse-yellow 1.5s ease-in-out infinite;
 }
 .sb-status-label {
-  font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
-  color: var(--text-2); transition: color 0.3s;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--text-2);
+  transition: color 0.3s;
   animation: sb-fade-in 0.15s ease;
 }
 .sb-status.connected .sb-status-label { color: var(--green); }
