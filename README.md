@@ -40,7 +40,9 @@ Last updated: March 10, 2026.
 
 **Total Estimated Cost:** ₩4,387,816  
 **Total Weight (major components):** ~2,632 g
-
+<details>
+    <summary>Component list</summary>
+    
 | Component | Spec | Weight (g) | Power (W) | Voltage (V) | Price (₩) | Stock | Notes |
 |---|---|---|---|---|---|---|---|
 | Compute | NVIDIA Jetson Orin Nano Super | 176 | 7–25 | 9–20 (19V nominal) | 480,000 | 1 | Main onboard computer |
@@ -72,6 +74,8 @@ Last updated: March 10, 2026.
 | Bearing | C-E6004ZZ Bearing | – | – | – | 1,903 | 8 | Mechanical support |
 | Bearing | C-E6701ZZ Bearing | – | – | – | 1,276 | 8 | Mechanical support |
 | Tool | Pipe Cutter | – | – | – | 17,500 | 1 | Assembly tool |
+
+</details>
 
 #### Robot Infomation
 |||
