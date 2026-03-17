@@ -49,8 +49,10 @@ function LeafItem({ node, onSelect, expanded }) {
 }
 
 /** Subcategory block (label may be null → flat) */
-function SubcategoryBlock({ node, onSelect, expanded }) {
+function SubcategoryBlock({ node, onSelect, expanded, searchActive }) {
   const [open, setOpen] = useState(false);  // default: closed
+
+  const isOpen = searchActive ? true : open;
 
   if (!node.label) {
     // Flat — render leaves directly without a header
@@ -66,12 +68,12 @@ function SubcategoryBlock({ node, onSelect, expanded }) {
   return (
     <div className="sb-subcategory">
       {expanded && (
-        <button className="sb-subcat-header" onClick={() => setOpen(o => !o)}>
-          <span className="sb-subcat-chevron">{open ? '▾' : '▸'}</span>
+        <button className="sb-subcat-header" onClick={() => !searchActive && setOpen(o => !o)}>
+          <span className="sb-subcat-chevron">{isOpen ? '▾' : '▸'}</span>
           <span className="sb-subcat-label">{node.label}</span>
         </button>
       )}
-      {(open || !expanded) && (
+      {(isOpen || !expanded) && (
         <div className="sb-subcat-leaves">
           {node.children.map(leaf => (
             <LeafItem key={leaf.id} node={leaf} onSelect={onSelect} expanded={expanded} />
@@ -83,27 +85,29 @@ function SubcategoryBlock({ node, onSelect, expanded }) {
 }
 
 /** Top-level category block */
-function CategoryBlock({ node, onSelect, expanded }) {
+function CategoryBlock({ node, onSelect, expanded, searchActive }) {
   const [open, setOpen] = useState(false);  // default: closed
 
+  const isOpen = searchActive ? true : open;
+
   return (
-    <div className={`sb-category ${open ? 'open' : ''}`}>
+    <div className={`sb-category ${isOpen ? 'open' : ''}`}>
       <button
         className="sb-cat-header"
-        onClick={() => expanded && setOpen(o => !o)}
+        onClick={() => expanded && !searchActive && setOpen(o => !o)}
         title={!expanded ? node.label : undefined}
       >
         {node.icon && <span className="sb-cat-icon">{node.icon}</span>}
         {expanded && (
           <>
             <span className="sb-cat-label">{node.label}</span>
-            <span className="sb-cat-chevron">{open ? '▾' : '▸'}</span>
+            <span className="sb-cat-chevron">{isOpen ? '▾' : '▸'}</span>
           </>
         )}
         {!expanded && <span className="sb-tooltip">{node.label}</span>}
       </button>
 
-      {open && expanded && (
+      {isOpen && expanded && (
         <div className="sb-cat-body">
           {node.children.map(sub => (
             <SubcategoryBlock
@@ -111,6 +115,7 @@ function CategoryBlock({ node, onSelect, expanded }) {
               node={sub}
               onSelect={onSelect}
               expanded={expanded}
+              searchActive={searchActive}
             />
           ))}
         </div>
