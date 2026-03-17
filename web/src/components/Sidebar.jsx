@@ -36,7 +36,6 @@ function LeafItem({ node, onSelect, expanded }) {
       title={!expanded ? node.label : undefined}
       disabled={node.placeholder}
     >
-      {node.icon && <span className="sb-leaf-icon">{node.icon}</span>}
       {expanded && (
         <span className="sb-leaf-label">
           {node.label}
@@ -69,8 +68,9 @@ function SubcategoryBlock({ node, onSelect, expanded, searchActive }) {
     <div className={`sb-subcategory ${isOpen ? 'open' : ''}`}>
       {expanded && (
         <button className="sb-subcat-header" onClick={() => !searchActive && setOpen(o => !o)}>
-          <span className="sb-subcat-chevron">▾</span>
+          {node.icon && <span className="sb-subcat-icon">{node.icon}</span>}
           <span className="sb-subcat-label">{node.label}</span>
+          <span className="sb-subcat-chevron">▾</span>
         </button>
       )}
       <div className="sb-subcat-leaves">

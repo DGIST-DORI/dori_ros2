@@ -2,10 +2,11 @@
  * panelTree.jsx — Panel tree config (replaces flat TABS array)
  *
  * Structure:
- *   category  { id, label, icon, children: [ subcategory | leaf ] }
- *   subcategory { id, label, children: [ leaf ] }
- *   leaf        { id, label, icon, component }
+ *   category    { id, label, icon, children: [ subcategory ] }
+ *   subcategory { id, label, icon, children: [ leaf ] }
+ *   leaf        { id, label, component }
  *
+ * icon on subcategory: optional. Add svg file to assets/icons/ and import below.
  * Sidebar reads this tree recursively.
  * App.jsx resolves the active component by leaf id.
  */
@@ -17,15 +18,24 @@ import CubeTab         from './tabs/CubeTab';
 import KnowledgeTab    from './tabs/KnowledgeTab';
 import SystemTab       from './tabs/SystemTab';
 
-import HriIcon          from './assets/icons/icon-hri.svg?react';
-import FaceIcon         from './assets/icons/icon-face.svg?react';
-import FaceActiveIcon   from './assets/icons/icon-face-active.svg?react';
-import ConversationIcon from './assets/icons/icon-conversation.svg?react';
-import CubeIcon         from './assets/icons/icon-cube.svg?react';
-import KnowledgeIcon    from './assets/icons/icon-knowledge.svg?react';
-import SystemIcon       from './assets/icons/icon-system.svg?react';
-import NavigationIcon   from './assets/icons/icon-navigation.svg?react';
-import PerceptionIcon   from './assets/icons/icon-perception.svg?react';
+// ── Category icons ────────────────────────────────────────────────────────────
+import HriIcon        from './assets/icons/icon-hri.svg?react';
+import CubeIcon       from './assets/icons/icon-cube.svg?react';
+import SystemIcon     from './assets/icons/icon-system.svg?react';
+import NavigationIcon from './assets/icons/icon-navigation.svg?react';
+import PerceptionIcon from './assets/icons/icon-perception.svg?react';
+
+// ── Subcategory icons ─────────────────────────────────────────────────────────
+// Add svg to assets/icons/ and uncomment the import when ready.
+import FaceIcon      from './assets/icons/icon-face.svg?react';
+import KnowledgeIcon from './assets/icons/icon-knowledge.svg?react';
+// import VoiceIcon         from './assets/icons/icon-voice.svg?react';
+// import StateIcon         from './assets/icons/icon-state.svg?react';
+// import ConversationIcon  from './assets/icons/icon-conversation.svg?react';
+// import MapIcon           from './assets/icons/icon-map.svg?react';
+// import CtrlCubeIcon      from './assets/icons/icon-ctrl-cube.svg?react';
+// import VisionIcon        from './assets/icons/icon-vision.svg?react';
+// import LLMIcon           from './assets/icons/icon-llm.svg?react';
 
 // ── Tree ─────────────────────────────────────────────────────────────────────
 
@@ -38,15 +48,17 @@ export const PANEL_TREE = [
       {
         id: 'hri-voice',
         label: 'Voice',
+        // icon: <VoiceIcon />,
         children: [
-          { id: 'stt',      label: 'STT Test',    component: HRITab },
-          { id: 'wakeword', label: 'Wake Word',    component: HRITab },
+          { id: 'stt',      label: 'STT Test',   component: HRITab },
+          { id: 'wakeword', label: 'Wake Word',   component: HRITab },
           { id: 'tts',      label: 'TTS Inject',  component: HRITab },
         ],
       },
       {
         id: 'hri-state',
         label: 'State',
+        // icon: <StateIcon />,
         children: [
           { id: 'state-monitor', label: 'State Monitor', component: HRITab },
           { id: 'event-log',     label: 'Event Log',     component: HRITab },
@@ -55,17 +67,19 @@ export const PANEL_TREE = [
       {
         id: 'hri-conversation',
         label: 'Conversation',
+        // icon: <ConversationIcon />,
         children: [
-          { id: 'conversation', label: 'Session List', icon: <ConversationIcon />, component: ConversationTab },
-          { id: 'timeline',     label: 'Timeline',                                 component: ConversationTab },
+          { id: 'conversation', label: 'Session List', component: ConversationTab },
+          { id: 'timeline',     label: 'Timeline',     component: ConversationTab },
         ],
       },
       {
         id: 'hri-face',
         label: 'Face',
+        icon: <FaceIcon />,
         children: [
-          { id: 'face-display', label: 'Face Display', icon: <FaceIcon />, iconActive: <FaceActiveIcon />, component: FaceTab },
-          { id: 'face-palette', label: 'Emotion Palette',                  component: FaceTab },
+          { id: 'face-display', label: 'Face Display',   component: FaceTab },
+          { id: 'face-palette', label: 'Emotion Palette', component: FaceTab },
         ],
       },
     ],
@@ -78,8 +92,9 @@ export const PANEL_TREE = [
       {
         id: 'nav-map',
         label: 'Map',
+        // icon: <MapIcon />,
         children: [
-          { id: 'campus-map', label: 'Campus Map', placeholder: true },  // not yet implemented
+          { id: 'campus-map', label: 'Campus Map', placeholder: true },
         ],
       },
     ],
@@ -92,6 +107,7 @@ export const PANEL_TREE = [
       {
         id: 'ctrl-cube',
         label: 'Cube',
+        // icon: <CtrlCubeIcon />,
         children: [
           { id: 'cube-3d',       label: '3D View',          component: CubeTab },
           { id: 'cube-rotation', label: 'Rotation Control', component: CubeTab },
@@ -108,6 +124,7 @@ export const PANEL_TREE = [
       {
         id: 'perc-vision',
         label: 'Vision',
+        // icon: <VisionIcon />,
         children: [
           { id: 'vision-test', label: 'Vision Test', component: HRITab },
         ],
@@ -115,6 +132,7 @@ export const PANEL_TREE = [
       {
         id: 'perc-llm',
         label: 'LLM',
+        // icon: <LLMIcon />,
         children: [
           { id: 'llm-inject', label: 'LLM Inject', component: HRITab },
         ],
@@ -139,7 +157,7 @@ export const PANEL_TREE = [
         id: 'sys-flat',
         label: null,  // flat — no visible subcategory header
         children: [
-          { id: 'sys-connection', label: 'Connection',       component: SystemTab },
+          { id: 'sys-connection', label: 'Connection',        component: SystemTab },
           { id: 'sys-topics',     label: 'Topic Diagnostics', component: SystemTab },
           { id: 'sys-metrics',    label: 'Metrics',           component: SystemTab },
         ],
