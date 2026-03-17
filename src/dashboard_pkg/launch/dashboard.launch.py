@@ -3,8 +3,8 @@ dashboard.launch.py
 Launches: rosbridge WebSocket + unified dashboard server (frontend + API on port 3000)
           + Cloudflare Tunnel (port 3000 and 9090, optional)
 
-Cloudflare Tunnel is enabled by default.
-To disable: ros2 launch dashboard_pkg dashboard.launch.py tunnel:=false
+Cloudflare Tunnel is disabled by default.
+To enable: ros2 launch dashboard_pkg dashboard.launch.py tunnel:=true
 """
 
 import os
@@ -83,8 +83,8 @@ def _make_tunnel_actions(context, *args, **kwargs):
     )
 
     return [dashboard_tunnel, ws_tunnel]
-
-
+    
+    
 def _make_api_server_action(context, *args, **kwargs):
     """OpaqueFunction: knowledge_api 를 환경변수와 함께 실행."""
     pkg_dir   = get_package_share_directory('dashboard_pkg')
@@ -133,8 +133,9 @@ def generate_launch_description():
         # ── Launch arguments ──────────────────────────────────────────────
         DeclareLaunchArgument(
             'tunnel',
-            default_value='true',
-            description='Enable Cloudflare Tunnel for external access (true/false)',
+            default_value='false',
+            description='Enable Cloudflare Tunnel for external access (true/false). '
+                        'Disabled by default when using a fixed custom domain.',
         ),
         # 고정 도메인 설정 (Cloudflare 커스텀 도메인 사용 시)
         # 기본값을 비워두면 trycloudflare.com 임시 터널 로그 파싱으로 fallback
