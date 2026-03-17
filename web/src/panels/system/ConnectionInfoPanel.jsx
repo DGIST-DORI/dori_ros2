@@ -1,5 +1,13 @@
 /** Panel implementation (standalone file). */
 
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import Panel from '../../components/Panel';
+import { TOPIC_META, useStore } from '../../core/store';
+import { parseWsUrl } from '../../core/url';
+import { fmt, hzClass, isWarn, pct, primaryClass, valueClass } from './shared/formatters';
+import '../../tabs/SystemTab.css';
+
 const COLUMNS = [
   { key: 'topic', label: 'Topic', sortFn: (a, b) => a.topic.localeCompare(b.topic) },
   { key: 'msgType', label: 'Type', sortFn: (a, b) => (a.msgType ?? '').localeCompare(b.msgType ?? '') },

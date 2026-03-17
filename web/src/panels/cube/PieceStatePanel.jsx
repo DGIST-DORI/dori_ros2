@@ -1,5 +1,11 @@
 /** Panel implementation (standalone file). */
 
+import { useCallback, useMemo, useState } from 'react';
+import { ArrowUp, Copy, RotateCcw } from 'lucide-react';
+import Panel from '../../components/Panel';
+import { useStore } from '../../core/store';
+import '../../tabs/CubeTab.css';
+
 // ── Constants ──────────────────────────────────────────────────────────────────
 
 const FACE_ORDER  = ['U', 'R', 'F', 'D', 'L', 'B'];
