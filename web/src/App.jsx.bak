@@ -2,19 +2,39 @@ import { useState, useEffect } from 'react';
 import Header    from './components/Header';
 import Sidebar   from './components/Sidebar';
 import HomeTab   from './tabs/HomeTab';
+import FaceTab   from './tabs/FaceTab';
+import HRITab    from './tabs/HRITab';
+import ConversationTab from './tabs/ConversationTab';
+import CubeTab   from './tabs/CubeTab';
+import KnowledgeTab from './tabs/KnowledgeTab';
+import SystemTab from './tabs/SystemTab';
 import TopicPublisher from './components/TopicPublisher';
 import { useStore, TOPIC_META } from './core/store';
 import { fetchTopicDiagnostics, subscribeROS } from './core/ros';
-import { PANEL_TREE, findLeaf } from './panelTree';
+
+import HriIcon       from './assets/icons/icon-hri.svg?react';
+import FaceIcon      from './assets/icons/icon-face.svg?react';
+import FaceActiveIcon from './assets/icons/icon-face-active.svg?react';
+import ConversationIcon from './assets/icons/icon-conversation.svg?react';
+import CubeIcon      from './assets/icons/icon-cube.svg?react';
+import KnowledgeIcon  from './assets/icons/icon-knowledge.svg?react';
+import SystemIcon    from './assets/icons/icon-system.svg?react';
 
 import './index.css';
 import './App.css';
 
-// Default panel shown on first load
-const DEFAULT_PANEL_ID = 'face-display';
+// icon: 기본 아이콘 / iconActive: 선택됐을 때 아이콘 (없으면 icon 그대로)
+const TABS = [
+  { id: 'face',   label: 'Face Display', icon: <FaceIcon />,  iconActive: <FaceActiveIcon />, component: FaceTab },
+  { id: 'hri',    label: 'HRI Monitor',  icon: <HriIcon />,                                   component: HRITab },
+  { id: 'conversation', label: 'Conversation',    icon: <ConversationIcon />,                 component: ConversationTab },
+  { id: 'cube',   label: 'Cube',     icon: <CubeIcon />,                                  component: CubeTab },
+  { id: 'knowledge', label: 'Knowledge', icon: <KnowledgeIcon />,                             component: KnowledgeTab },
+  { id: 'system', label: 'System',       icon: <SystemIcon />,                                component: SystemTab },
+];
 
 export default function App() {
-  const [activePanelId,   setActivePanelId]   = useState(DEFAULT_PANEL_ID);
+  const [activeTab,       setActiveTab]       = useState('home');
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [isOverlaySidebar, setIsOverlaySidebar] = useState(() =>
     typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
@@ -23,7 +43,7 @@ export default function App() {
 
   const connected        = useStore(s => s.connected);
   const handleROSMessage = useStore(s => s.handleROSMessage);
-  const setTopicMeta     = useStore(s => s.setTopicMeta);
+  const setTopicMeta = useStore(s => s.setTopicMeta);
 
   useEffect(() => {
     if (!connected) return;
@@ -79,13 +99,14 @@ export default function App() {
     return () => mediaQuery.removeEventListener('change', applySidebarMode);
   }, []);
 
-  // Resolve active component from tree
-  const activeLeaf = findLeaf(PANEL_TREE, activePanelId);
-  const ActiveComponent = activeLeaf?.component ?? HomeTab;
+  const ActiveComponent =
+    TABS.find(t => t.id === activeTab)?.component ?? HomeTab;
 
-  function handlePanelSelect(id) {
-    setActivePanelId(id);
-    if (isOverlaySidebar) setSidebarExpanded(false);
+  function handleTabChange(nextTab) {
+    setActiveTab(nextTab);
+    if (isOverlaySidebar) {
+      setSidebarExpanded(false);
+    }
   }
 
   return (
@@ -95,9 +116,9 @@ export default function App() {
           expanded={sidebarExpanded}
           onExpand={() => setSidebarExpanded(true)}
           onCollapse={() => setSidebarExpanded(false)}
-          activeId={activePanelId}
-          onSelect={handlePanelSelect}
-          tree={PANEL_TREE}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          tabs={TABS}
         />
       </div>
 
@@ -112,7 +133,7 @@ export default function App() {
 
       <div className="app-header">
         <Header
-          onLogoClick={() => setActivePanelId(DEFAULT_PANEL_ID)}
+          onLogoClick={() => setActiveTab('home')}
           themeMode={themeMode}
           onThemeModeChange={setThemeMode}
         />

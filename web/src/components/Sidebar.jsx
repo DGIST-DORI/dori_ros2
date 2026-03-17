@@ -1,20 +1,170 @@
+/**
+ * components/Sidebar.jsx — Tree-structured panel navigator
+ *
+ * Collapsed: icon-only rail (48px), tooltip on hover
+ * Expanded:  search bar + 2-level collapsible tree
+ *
+ * Tree depth: category → subcategory → leaf (max 2 visible levels)
+ * Subcategories with label=null are rendered flat (no header row).
+ */
+
+import { useMemo, useState } from 'react';
 import { useStore } from '../core/store';
-import SidebarIcon from '../assets/icons/icon-sidebar.svg?react';
-import CloseIcon   from '../assets/icons/icon-close.svg?react';
+import { filterTree } from '../panelTree';
+import SidebarIcon  from '../assets/icons/icon-sidebar.svg?react';
+import CloseIcon    from '../assets/icons/icon-close.svg?react';
+import SearchIcon   from '../assets/icons/icon-search.svg?react';
 import './Sidebar.css';
 
-export default function Sidebar({ expanded, onExpand, onCollapse, activeTab, onTabChange, tabs }) {
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+/** Single leaf row — brief click flash only, no persistent highlight */
+function LeafItem({ node, onSelect, expanded }) {
+  const [flashing, setFlashing] = useState(false);
+
+  function handleClick() {
+    if (node.placeholder) return;
+    setFlashing(true);
+    setTimeout(() => setFlashing(false), 220);
+    onSelect(node.id);
+  }
+
+  return (
+    <button
+      className={`sb-leaf ${node.placeholder ? 'placeholder' : ''} ${flashing ? 'flash' : ''}`}
+      onClick={handleClick}
+      title={!expanded ? node.label : undefined}
+      disabled={node.placeholder}
+    >
+      {expanded && (
+        <span className="sb-leaf-label">
+          {node.label}
+          {node.placeholder && <span className="sb-placeholder-tag">soon</span>}
+        </span>
+      )}
+      {!expanded && <span className="sb-tooltip">{node.label}{node.placeholder ? ' (soon)' : ''}</span>}
+    </button>
+  );
+}
+
+/** Subcategory block (label may be null → flat) */
+function SubcategoryBlock({ node, onSelect, expanded, searchActive }) {
+  const [open, setOpen] = useState(false);  // default: closed
+
+  const isOpen = searchActive ? true : open;
+
+  if (!node.label) {
+    // Flat — render leaves directly without a header
+    return (
+      <div className="sb-flat-group">
+        {node.children.map(leaf => (
+          <LeafItem key={leaf.id} node={leaf} onSelect={onSelect} expanded={expanded} />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`sb-subcategory ${isOpen ? 'open' : ''}`}>
+      {expanded && (
+        <button className="sb-subcat-header" onClick={() => !searchActive && setOpen(o => !o)}>
+          {node.icon && <span className="sb-subcat-icon">{node.icon}</span>}
+          <span className="sb-subcat-label">{node.label}</span>
+          <span className="sb-subcat-chevron">▾</span>
+        </button>
+      )}
+      <div className="sb-subcat-leaves">
+        <div className="sb-subcat-leaves-inner">
+          {node.children.map(leaf => (
+            <LeafItem key={leaf.id} node={leaf} onSelect={onSelect} expanded={expanded} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Top-level category block */
+function CategoryBlock({ node, onSelect, expanded, searchActive, onExpandSidebar }) {
+  const [open, setOpen] = useState(false);  // default: closed
+
+  const isOpen = searchActive ? true : open;
+
+  function handleHeaderClick() {
+    if (!expanded) {
+      // Collapsed: expand sidebar first, then open this category
+      onExpandSidebar();
+      setOpen(true);
+    } else if (!searchActive) {
+      setOpen(o => !o);
+    }
+  }
+
+  return (
+    <div className={`sb-category ${isOpen ? 'open' : ''}`}>
+      <button
+        className="sb-cat-header"
+        onClick={handleHeaderClick}
+        title={!expanded ? node.label : undefined}
+      >
+        {node.icon && <span className="sb-cat-icon">{node.icon}</span>}
+        {expanded && (
+          <>
+            <span className="sb-cat-label">{node.label}</span>
+            <span className="sb-cat-chevron">▾</span>
+          </>
+        )}
+        {!expanded && <span className="sb-tooltip">{node.label}</span>}
+      </button>
+
+      {expanded && (
+        <div className="sb-cat-body">
+          <div className="sb-cat-body-inner">
+            {node.children.map(sub => (
+              <SubcategoryBlock
+                key={sub.id}
+                node={sub}
+                onSelect={onSelect}
+                expanded={expanded}
+                searchActive={searchActive}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main Sidebar ──────────────────────────────────────────────────────────────
+
+export default function Sidebar({
+  expanded,
+  onExpand,
+  onCollapse,
+  activeId,
+  onSelect,
+  tree,
+}) {
   const connected   = useStore(s => s.connected);
   const isDemoMode  = useStore(s => s.isDemoMode);
   const statusLabel = connected ? 'LIVE' : isDemoMode ? 'DEMO' : 'OFF';
   const statusClass = connected ? 'connected' : isDemoMode ? 'demo' : '';
+
+  const [query, setQuery] = useState('');
+  const searchActive = query.trim().length > 0;
+
+  const visibleTree = useMemo(
+    () => filterTree(tree, query),
+    [tree, query],
+  );
 
   return (
     <aside
       className={`sidebar ${expanded ? 'expanded' : 'collapsed'}`}
       onClick={() => !expanded && onExpand()}
     >
-      {/* ── Top cell ── */}
+      {/* ── Top: logo / toggle ── */}
       <div className="sb-top">
         {expanded ? (
           <>
@@ -41,24 +191,50 @@ export default function Sidebar({ expanded, onExpand, onCollapse, activeTab, onT
         )}
       </div>
 
-      {/* ── Nav items ── */}
-      <nav className="sb-nav">
-        {tabs.map(tab => {
-          const isActive = activeTab === tab.id;
-          const icon = isActive && tab.iconActive ? tab.iconActive : tab.icon;
-          return (
-            <button
-              key={tab.id}
-              className={`sb-item ${isActive ? 'active' : ''}`}
-              onClick={e => { e.stopPropagation(); onTabChange(tab.id); }}
-            >
-              <span className="sb-icon">{icon}</span>
-              {expanded  && <span className="sb-label">{tab.label}</span>}
-              {!expanded && <span className="sb-tooltip">{tab.label}</span>}
-              {isActive && <span className="sb-active-bar" />}
-            </button>
-          );
-        })}
+      {/* ── Search ── */}
+      <div className="sb-search-cell" onClick={e => e.stopPropagation()}>
+        {expanded ? (
+          <div className="sb-search-wrap">
+            <SearchIcon className="sb-search-icon" />
+            <input
+              className="sb-search-input"
+              type="text"
+              placeholder="Search panels..."
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+            />
+            {searchActive && (
+              <button className="sb-search-clear" onClick={() => setQuery('')}>×</button>
+            )}
+          </div>
+        ) : (
+          <button
+            className="sb-search-btn"
+            onClick={() => { onExpand(); }}
+            title="Search panels"
+          >
+            <SearchIcon className="sb-search-btn-icon" />
+            <span className="sb-tooltip">Search panels</span>
+          </button>
+        )}
+      </div>
+
+      {/* ── Nav tree ── */}
+      <nav className="sb-nav" onClick={e => e.stopPropagation()}>
+        {visibleTree.length === 0 && expanded && (
+          <div className="sb-empty">No panels found</div>
+        )}
+        {visibleTree.map(category => (
+          <CategoryBlock
+            key={category.id}
+            node={category}
+            activeId={activeId}
+            onSelect={id => { onSelect(id); }}
+            expanded={expanded}
+            searchActive={searchActive}
+            onExpandSidebar={onExpand}
+          />
+        ))}
       </nav>
 
       {/* ── Bottom: connection status ── */}
