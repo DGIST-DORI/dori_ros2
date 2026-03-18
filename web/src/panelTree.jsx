@@ -9,7 +9,6 @@ import STTPanel from './panels/hri/STTPanel';
 import WakeWordPanel from './panels/hri/WakeWordPanel';
 import StateMonitorPanel from './panels/hri/StateMonitorPanel';
 import EventLogPanel from './panels/system/EventLogPanel';
-import './panels/system/EventLogPanel.css';
 
 import FaceDisplayPanel from './panels/hri/FaceDisplayPanel';
 import EmotionPalettePanel from './panels/hri/EmotionPalettePanel';
@@ -30,6 +29,7 @@ import TopicDiagnosticsPanel from './panels/system/TopicDiagnosticsPanel';
 import ConnectionInfoPanel from './panels/system/ConnectionInfoPanel';
 import MetricsPanel from './panels/system/MetricsPanel';
 import TopicPublisherPanel from './panels/system/TopicPublisherPanel';
+import DeployStatusPanel from './panels/system/DeployStatusPanel';
 
 import HriIcon        from './assets/icons/icon-hri.svg?react';
 import ControlIcon    from './assets/icons/icon-control.svg?react';
@@ -140,6 +140,7 @@ export const PANEL_TREE = [
           { id: 'sys-metrics',    label: 'Metrics',           component: MetricsPanel },
           { id: 'event-log',      label: 'Event Log',         component: EventLogPanel },
           { id: 'sys-topic-publisher', label: 'Topic Publisher', component: TopicPublisherPanel },
+          { id: 'sys-deploy', label: 'Deploy Status', component: DeployStatusPanel },
         ],
       },
     ],

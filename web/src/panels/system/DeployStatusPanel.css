@@ -1,0 +1,209 @@
+@import "../../styles/shared/systemLayout.css";
+
+/* ── Root ──────────────────────────────────────────────────────────────────── */
+.dp-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Toolbar ───────────────────────────────────────────────────────────────── */
+.dp-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-2);
+  flex-shrink: 0;
+}
+
+.dp-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dp-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-1);
+}
+
+/* ── Status badge ──────────────────────────────────────────────────────────── */
+.dp-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: var(--radius);
+  border: 1px solid currentColor;
+  opacity: 0.9;
+}
+.dp-badge-idle    { opacity: 0.5; }
+.dp-badge-running { animation: dp-pulse 1.2s ease-in-out infinite; }
+
+@keyframes dp-pulse {
+  0%, 100% { opacity: 0.9; }
+  50%       { opacity: 0.4; }
+}
+
+/* ── Trigger button ────────────────────────────────────────────────────────── */
+.dp-trigger-btn {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-1);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.dp-trigger-btn:hover:not(:disabled) {
+  border-color: var(--accent, #00c8ff);
+  color: var(--accent, #00c8ff);
+  background: var(--accent-dim, rgba(0,200,255,0.08));
+}
+.dp-trigger-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Trigger feedback ──────────────────────────────────────────────────────── */
+.dp-feedback {
+  font-size: 10px;
+  padding: 5px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.dp-feedback-ok    { color: var(--green,  #53c87a); background: var(--green-dim,  rgba(83,200,122,0.08)); }
+.dp-feedback-warn  { color: var(--yellow, #ecd85b); background: var(--yellow-dim, rgba(236,216,91,0.08)); }
+.dp-feedback-error { color: var(--red,    #d66b66); background: var(--red-dim,    rgba(214,107,102,0.08)); }
+
+/* ── Meta row ──────────────────────────────────────────────────────────────── */
+.dp-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 5px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-1);
+  flex-shrink: 0;
+}
+
+.dp-meta-item {
+  font-size: 10px;
+  color: var(--text-2);
+}
+.dp-meta-val   { color: var(--text-1); font-variant-numeric: tabular-nums; }
+.dp-meta-error { color: var(--red, #d66b66); font-weight: 600; }
+
+/* ── Steps list ────────────────────────────────────────────────────────────── */
+.dp-steps {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+  min-height: 0;
+}
+
+.dp-empty {
+  text-align: center;
+  color: var(--text-2);
+  font-size: 11px;
+  font-style: italic;
+  padding: 24px 0;
+}
+
+/* ── Individual step ───────────────────────────────────────────────────────── */
+.dp-step {
+  border-bottom: 1px solid var(--border);
+}
+.dp-step:last-child { border-bottom: none; }
+
+.dp-step-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  transition: background 0.08s;
+}
+.dp-step-header:hover { background: var(--bg-2); }
+
+.dp-step-icon {
+  font-size: 12px;
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+.dp-step-icon-idle    { color: var(--text-2); }
+.dp-step-icon-running { color: var(--accent, #00c8ff); }
+.dp-step-icon-done    { color: var(--green,  #53c87a); }
+.dp-step-icon-error   { color: var(--red,    #d66b66); }
+
+.dp-step-name {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-0);
+  flex: 1;
+}
+
+/* Running spinner */
+.dp-step-spinner {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--accent-dim, rgba(0,200,255,0.3));
+  border-top-color: var(--accent, #00c8ff);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: dp-spin 0.8s linear infinite;
+}
+@keyframes dp-spin { to { transform: rotate(360deg); } }
+
+.dp-step-expand {
+  font-size: 9px;
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+/* Step log (collapsible) */
+.dp-step-log {
+  margin: 0;
+  padding: 8px 12px 8px 34px;
+  background: var(--bg-0);
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-1);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+/* Step background tints */
+.dp-step-running { background: rgba(0, 200, 255, 0.03); }
+.dp-step-done    { background: rgba(83, 200, 122, 0.03); }
+.dp-step-error   { background: rgba(214, 107, 102, 0.05); }
+
+/* ── Footer ────────────────────────────────────────────────────────────────── */
+.dp-footer {
+  padding: 6px 12px;
+  font-size: 9px;
+  color: var(--text-2);
+  border-top: 1px solid var(--border);
+  background: var(--bg-2);
+  flex-shrink: 0;
+}
+.dp-footer code {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent, #00c8ff);
+}
