@@ -1,0 +1,103 @@
+@import "../../tabs/KnowledgeTab.css";
+
+.km-toolbar {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.km-toolbar-with-badge {
+  align-items: stretch;
+}
+
+.km-panel-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 0 8px;
+  font-size: 10px;
+  color: var(--text-2);
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+
+.km-search {
+  flex: 1;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-0);
+  font-size: 11px;
+  padding: 4px 8px;
+  transition: border-color 0.12s;
+}
+
+.km-search:focus {
+  outline: none;
+  border-color: var(--border-bright);
+}
+
+.km-search::placeholder { color: var(--text-2); }
+
+.km-btn {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-0);
+  border-radius: var(--radius);
+  font-size: 11px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  white-space: nowrap;
+}
+
+.km-btn:hover:not(:disabled) {
+  background: var(--bg-3);
+  border-color: var(--border-bright);
+}
+
+.km-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.km-doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.km-doc-item {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.km-doc-source {
+  font-size: 11px;
+  color: var(--text-0);
+  font-family: 'JetBrains Mono', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.km-doc-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--text-2);
+}
+
+.km-doc-mtime {
+  margin-left: auto;
+}
