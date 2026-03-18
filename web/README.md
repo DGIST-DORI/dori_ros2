@@ -55,7 +55,7 @@ For broader project context, see the root README: `../README.md`.
 
 ## Panel structure convention
 
-패널 구현은 `web/src/panels/<domain>/` 아래에만 둡니다. 각 패널은 **1파일 1컴포넌트** 원칙을 따릅니다 (예: `web/src/panels/hri/STTPanel.jsx`).
+패널 구현은 `web/src/panels/<domain>/` 아래에만 둡니다. 각 패널은 **1파일 1컴포넌트** 원칙을 따릅니다 (예: `web/src/panels/system/EventLogPanel.jsx`, `web/src/panels/hri/STTPanel.jsx`).
 
 - 예시 도메인 폴더: `hri/`, `cube/`, `knowledge/`, `conversation/`, `face/`, `system/`
 - `web/src/panelTree.jsx`는 패널 컴포넌트를 `web/src/panels/...`에서만 import 합니다.
@@ -70,7 +70,7 @@ For broader project context, see the root README: `../README.md`.
 5. 필요 시에만 `web/src/tabs/`의 레거시 진입점에 re-export를 추가합니다.
 
 
-- System 패널에는 `Topic Publisher`가 포함되며 경로는 `web/src/panels/system/TopicPublisherPanel.jsx`입니다.
+- System 패널에는 `Event Log`와 `Topic Publisher`가 포함되며 경로는 각각 `web/src/panels/system/EventLogPanel.jsx`, `web/src/panels/system/TopicPublisherPanel.jsx`입니다.
 
 ### Header ownership rule
 

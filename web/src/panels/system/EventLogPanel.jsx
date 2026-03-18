@@ -1,5 +1,5 @@
 /**
- * panels/EventLog.jsx
+ * panels/system/EventLogPanel.jsx
  * Real-time event log panel.
  *
  * Toolbar:
@@ -16,8 +16,8 @@
  */
 
 import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
-import { LOG_TAG_ORDER, LOG_TAGS, useStore } from '../core/store';
-import './EventLog.css';
+import { LOG_TAG_ORDER, LOG_TAGS, useStore } from '../../core/store';
+import './EventLogPanel.css';
 
 // ── Presets ───────────────────────────────────────────────────────────────────
 
@@ -78,7 +78,7 @@ function fmtTime(date) {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function EventLog() {
+function EventLogPanel() {
   const log      = useStore(s => s.log);
   const clearLog = useStore(s => s.clearLog);
 
@@ -259,3 +259,6 @@ export default function EventLog() {
     </div>
   );
 }
+
+export default EventLogPanel;
+export { EventLogPanel };
