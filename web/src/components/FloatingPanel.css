@@ -20,6 +20,7 @@
 }
 
 .fp-window.minimized {
+  min-height: unset;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
