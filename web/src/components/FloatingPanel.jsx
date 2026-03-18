@@ -1,16 +1,54 @@
 /**
  * components/FloatingPanel.jsx — Draggable, resizable floating window
  *
- * Renders a single open panel entry from the floatingPanels store.
- * Title bar: drag handle | label | minimize | close
- * Body: the leaf's component, rendered inside a scrollable container
- * Resize: native CSS resize handle (bottom-right corner)
+ * Resize is implemented via a custom se-resize handle (not CSS resize: both)
+ * for consistent cross-browser behavior including Safari.
  */
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useStore } from '../core/store';
 import { useDraggable } from '../hooks/useDraggable';
 import './FloatingPanel.css';
+
+const MIN_W = 240;
+const MIN_H = 80;
+
+function useResizable({ w, h, onResize }) {
+  const origin = useRef(null);
+
+  function onResizeStart(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startX = e.touches ? e.touches[0].clientX : e.clientX;
+    const startY = e.touches ? e.touches[0].clientY : e.clientY;
+    origin.current = { startX, startY, startW: w, startH: h };
+
+    function onMove(ev) {
+      if (!origin.current) return;
+      const cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      const cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
+      const newW = Math.max(MIN_W, origin.current.startW + (cx - origin.current.startX));
+      const newH = Math.max(MIN_H, origin.current.startH + (cy - origin.current.startY));
+      onResize(Math.round(newW), Math.round(newH));
+    }
+
+    function onUp() {
+      origin.current = null;
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup',   onUp);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend',  onUp);
+    }
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup',   onUp);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend',  onUp);
+  }
+
+  return { onResizeStart };
+}
 
 export default function FloatingPanel({ panel }) {
   const { id, label, component: Component, x, y, w, h, minimized, zIndex } = panel;
@@ -21,30 +59,26 @@ export default function FloatingPanel({ panel }) {
   const movePanelTo   = useStore(s => s.movePanelTo);
   const resizePanel   = useStore(s => s.resizePanel);
 
-  const windowRef = useRef(null);
-
   const { onDragStart } = useDraggable({
     x, y,
     onMove:  (nx, ny) => movePanelTo(id, nx, ny),
     onFocus: ()       => focusPanel(id),
   });
 
-  // ResizeObserver — syncs w/h to store whenever the window element is resized
-  // (works with CSS resize: both on fp-window)
-  useEffect(() => {
-    const el = windowRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      resizePanel(id, Math.round(width), Math.round(height));
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [id, resizePanel]);
+  const { onResizeStart } = useResizable({
+    w, h,
+    onResize: (nw, nh) => resizePanel(id, nw, nh),
+  });
+
+  // Snapshot height before minimizing so restore returns to user's resized size
+  const heightBeforeMinimize = useRef(h);
+  function handleMinimize() {
+    if (!minimized) heightBeforeMinimize.current = h;
+    minimizePanel(id);
+  }
 
   return (
     <div
-      ref={windowRef}
       className={`fp-window ${minimized ? 'minimized' : ''}`}
       style={{ left: x, top: y, width: w, height: minimized ? 'auto' : h, zIndex }}
       onMouseDown={() => focusPanel(id)}
@@ -60,7 +94,7 @@ export default function FloatingPanel({ panel }) {
           <button
             className="fp-btn fp-btn-minimize"
             onMouseDown={e => e.stopPropagation()}
-            onClick={() => minimizePanel(id)}
+            onClick={handleMinimize}
             title={minimized ? 'Restore' : 'Minimize'}
           >
             {minimized ? '▲' : '▼'}
@@ -81,6 +115,15 @@ export default function FloatingPanel({ panel }) {
         <div className="fp-body">
           <Component />
         </div>
+      )}
+
+      {/* ── Resize handle ── */}
+      {!minimized && (
+        <div
+          className="fp-resize-handle"
+          onMouseDown={onResizeStart}
+          onTouchStart={onResizeStart}
+        />
       )}
     </div>
   );

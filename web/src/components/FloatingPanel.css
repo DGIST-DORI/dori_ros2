@@ -10,9 +10,9 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
   overflow: hidden;
   min-width: 240px;
-  min-height: 48px;
-  resize: both;
+  min-height: 80px;
   transition: box-shadow 0.15s;
+  /* No CSS resize — handled by custom handle below */
 }
 
 .fp-window:focus-within,
@@ -21,7 +21,6 @@
 }
 
 .fp-window.minimized {
-  resize: none;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
@@ -38,7 +37,6 @@
   user-select: none;
   flex-shrink: 0;
 }
-
 .fp-titlebar:active { cursor: grabbing; }
 
 .fp-title {
@@ -75,9 +73,7 @@
   cursor: pointer;
   transition: background 0.1s, color 0.1s;
 }
-
 .fp-btn:hover { background: var(--bg-3); color: var(--text-0); }
-
 .fp-btn-close:hover {
   background: var(--red-dim, rgba(214,107,102,0.15));
   color: var(--red, #d66b66);
@@ -90,3 +86,28 @@
   min-height: 0;
   position: relative;
 }
+
+/* ── Resize handle ── */
+.fp-resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  cursor: se-resize;
+  z-index: 10;
+  /* subtle visual cue */
+  background:
+    linear-gradient(135deg,
+      transparent 40%,
+      var(--border) 40%, var(--border) 50%,
+      transparent 50%,
+      transparent 65%,
+      var(--border) 65%, var(--border) 75%,
+      transparent 75%
+    );
+  opacity: 0.4;
+  transition: opacity 0.15s;
+  border-radius: 0 0 var(--radius-lg, 8px) 0;
+}
+.fp-window:hover .fp-resize-handle { opacity: 0.8; }
