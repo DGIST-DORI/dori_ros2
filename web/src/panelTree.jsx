@@ -10,10 +10,10 @@ import { WakeWordPanel } from './panels/hri/WakeWordPanel';
 import { StateMonitorPanel } from './panels/hri/StateMonitorPanel';
 import { EventLogPanel } from './panels/hri/EventLogPanel';
 
-import { FaceDisplayPanel } from './panels/face/FaceDisplayPanel';
-import { EmotionPalettePanel } from './panels/face/EmotionPalettePanel';
-import { SessionListPanel } from './panels/conversation/SessionListPanel';
-import { TimelinePanel } from './panels/conversation/TimelinePanel';
+import { FaceDisplayPanel } from './panels/hri/FaceDisplayPanel';
+import { EmotionPalettePanel } from './panels/hri/EmotionPalettePanel';
+import { SessionListPanel } from './panels/hri/SessionListPanel';
+import { TimelinePanel } from './panels/hri/TimelinePanel';
 
 import { CubeViewerPanel } from './panels/control/CubeViewerPanel';
 import { PieceStatePanel } from './panels/control/PieceStatePanel';
