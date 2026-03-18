@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../../core/store';
 import { DEFAULT_EMOTION } from '../../core/emotion';
-import './FaceDisplayPanel.css';
+import '../../tabs/FaceTab.css';
 
 // ── Single face color (always the same regardless of emotion) ─────────────────
 const FACE_COLOR = '#e8eaf0';

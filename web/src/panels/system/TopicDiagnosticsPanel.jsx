@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { TOPIC_META, useStore } from '../../core/store';
 import { fmt, hzClass } from './shared/formatters';
-import './TopicDiagnosticsPanel.css';
+import '../../tabs/SystemTab.css';
 
 const COLUMNS = [
   { key: 'topic', label: 'Topic', sortFn: (a, b) => a.topic.localeCompare(b.topic) },
