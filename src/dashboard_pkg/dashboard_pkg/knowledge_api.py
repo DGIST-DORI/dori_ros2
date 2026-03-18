@@ -545,9 +545,9 @@ def _deploy_pipeline():
     # ── Step 3: install updated packages/assets ───────────────────────────────
     ros_changed = any(p.startswith('src/') for p in changed)
 
-    # The dashboard serves frontend files from the installed dashboard_pkg share
-    # directory, not directly from repo/web/dist. Rebuild dashboard_pkg whenever
-    # web assets change so the installed index/assets stay in sync.
+    # The dashboard is actually served from install/share/dashboard_pkg/web, so
+    # rebuilding only repo/web/dist is not sufficient. Rebuild dashboard_pkg
+    # whenever web assets change so the installed index/assets stay in sync.
     packages_to_build = []
     if web_changed:
         packages_to_build.append('dashboard_pkg')
@@ -566,6 +566,11 @@ def _deploy_pipeline():
     packages_to_build = sorted(set(packages_to_build))
 
     if packages_to_build:
+        _deploy_job['steps'].append({
+            'name': 'colcon build target packages',
+            'status': 'done',
+            'log': 'Packages selected: ' + ', '.join(packages_to_build),
+        })
         package_args = ' '.join(shlex.quote(pkg) for pkg in packages_to_build)
         ok, _ = _run_step(
             'colcon build',
