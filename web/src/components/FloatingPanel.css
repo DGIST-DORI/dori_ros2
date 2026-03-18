@@ -1,0 +1,111 @@
+/* ── FloatingPanel.css ────────────────────────────────────────────────────── */
+
+.fp-window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  min-width: 240px;
+  min-height: 80px;
+  transition: box-shadow 0.15s;
+}
+
+.fp-window:focus-within,
+.fp-window:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+}
+
+.fp-window.minimized {
+  min-height: unset;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Title bar ── */
+.fp-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 6px 0 12px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+}
+.fp-titlebar:active { cursor: grabbing; }
+
+.fp-title {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Window controls ── */
+.fp-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.fp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius, 4px);
+  color: var(--text-2);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.fp-btn:hover { background: var(--bg-3); color: var(--text-0); }
+.fp-btn-close:hover {
+  background: var(--red-dim, rgba(214,107,102,0.15));
+  color: var(--red, #d66b66);
+}
+
+/* ── Body ── */
+.fp-body {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  position: relative;
+}
+
+/* ── Resize handle ── */
+.fp-resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  cursor: se-resize;
+  z-index: 10;
+  background:
+    linear-gradient(135deg,
+      transparent 55%,
+      var(--border) 55%, var(--border) 62%,
+      transparent 62%,
+      transparent 72%,
+      var(--border) 72%, var(--border) 79%,
+      transparent 79%
+    );
+  opacity: 0.4;
+  transition: opacity 0.15s;
+}
+.fp-window:hover .fp-resize-handle { opacity: 0.8; }

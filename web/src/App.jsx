@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import Header    from './components/Header';
-import Sidebar   from './components/Sidebar';
-import HomeTab   from './tabs/HomeTab';
-import TopicPublisher from './components/TopicPublisher';
+import Header             from './components/Header';
+import Sidebar            from './components/Sidebar';
+import FloatingWorkspace  from './components/FloatingWorkspace';
 import { useStore, TOPIC_META } from './core/store';
 import { fetchTopicDiagnostics, subscribeROS } from './core/ros';
 import { PANEL_TREE, findLeaf } from './panelTree';
@@ -10,81 +9,69 @@ import { PANEL_TREE, findLeaf } from './panelTree';
 import './index.css';
 import './App.css';
 
-// Default panel shown on first load
-const DEFAULT_PANEL_ID = 'face-display';
+const MOBILE_BP = 768; // px
 
 export default function App() {
-  const [activePanelId,   setActivePanelId]   = useState(DEFAULT_PANEL_ID);
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [sidebarExpanded,  setSidebarExpanded]  = useState(false);
   const [isOverlaySidebar, setIsOverlaySidebar] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+    typeof window !== 'undefined' && window.matchMedia(`(max-width: ${MOBILE_BP}px)`).matches
   );
-  const [themeMode, setThemeMode] = useState(() => localStorage.getItem('theme-mode') || 'auto');
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia(`(max-width: ${MOBILE_BP}px)`).matches
+  );
+  const [themeMode, setThemeMode] = useState(
+    () => localStorage.getItem('theme-mode') || 'auto'
+  );
 
   const connected        = useStore(s => s.connected);
   const handleROSMessage = useStore(s => s.handleROSMessage);
   const setTopicMeta     = useStore(s => s.setTopicMeta);
+  const openPanel        = useStore(s => s.openPanel);
 
   useEffect(() => {
     if (!connected) return;
-
     let cancelled = false;
     fetchTopicDiagnostics(Object.keys(TOPIC_META))
-      .then((metaMap) => {
+      .then(metaMap => {
         if (cancelled) return;
         Object.entries(metaMap).forEach(([topic, meta]) => setTopicMeta(topic, meta));
       })
-      .catch(() => {
-        // rosapi may be unavailable; diagnostics panel will show N/A for metadata.
-      });
-
+      .catch(() => {});
     const unsubs = Object.keys(TOPIC_META).map(topic =>
       subscribeROS(topic, undefined, (_, rawMsg) => handleROSMessage(topic, rawMsg))
     );
-    return () => {
-      cancelled = true;
-      unsubs.forEach(fn => fn());
-    };
+    return () => { cancelled = true; unsubs.forEach(fn => fn()); };
   }, [connected, handleROSMessage, setTopicMeta]);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    const applyTheme = () => {
-      const resolvedTheme = themeMode === 'auto'
-        ? (mediaQuery.matches ? 'dark' : 'light')
-        : themeMode;
-      document.documentElement.dataset.theme = resolvedTheme;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const apply = () => {
+      document.documentElement.dataset.theme =
+        themeMode === 'auto' ? (mq.matches ? 'dark' : 'light') : themeMode;
     };
-
-    applyTheme();
+    apply();
     localStorage.setItem('theme-mode', themeMode);
-
-    if (themeMode !== 'auto') return undefined;
-
-    mediaQuery.addEventListener('change', applyTheme);
-    return () => mediaQuery.removeEventListener('change', applyTheme);
+    if (themeMode !== 'auto') return;
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
   }, [themeMode]);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 768px)');
-
-    const applySidebarMode = (event) => {
-      const isMobile = typeof event?.matches === 'boolean' ? event.matches : mediaQuery.matches;
-      setIsOverlaySidebar(isMobile);
+    const mq = window.matchMedia(`(max-width: ${MOBILE_BP}px)`);
+    const apply = (e) => {
+      const mobile = typeof e?.matches === 'boolean' ? e.matches : mq.matches;
+      setIsOverlaySidebar(mobile);
+      setIsMobile(mobile);
     };
-
-    applySidebarMode();
-    mediaQuery.addEventListener('change', applySidebarMode);
-    return () => mediaQuery.removeEventListener('change', applySidebarMode);
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
   }, []);
 
-  // Resolve active component from tree
-  const activeLeaf = findLeaf(PANEL_TREE, activePanelId);
-  const ActiveComponent = activeLeaf?.component ?? HomeTab;
-
   function handlePanelSelect(id) {
-    setActivePanelId(id);
+    const leaf = findLeaf(PANEL_TREE, id);
+    if (!leaf || leaf.placeholder) return;
+    openPanel(leaf);
     if (isOverlaySidebar) setSidebarExpanded(false);
   }
 
@@ -95,7 +82,6 @@ export default function App() {
           expanded={sidebarExpanded}
           onExpand={() => setSidebarExpanded(true)}
           onCollapse={() => setSidebarExpanded(false)}
-          activeId={activePanelId}
           onSelect={handlePanelSelect}
           tree={PANEL_TREE}
         />
@@ -112,17 +98,15 @@ export default function App() {
 
       <div className="app-header">
         <Header
-          onLogoClick={() => setActivePanelId(DEFAULT_PANEL_ID)}
           themeMode={themeMode}
           onThemeModeChange={setThemeMode}
         />
       </div>
 
       <main className="app-main">
-        <ActiveComponent />
+        <FloatingWorkspace isMobile={isMobile} />
       </main>
 
-      <TopicPublisher />
     </div>
   );
 }

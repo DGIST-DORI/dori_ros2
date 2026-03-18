@@ -1,6 +1,6 @@
 /**
  * components/Panel.jsx
- * Generic panel wrapper with title bar.
+ * Legacy panel wrapper with title bar for non-floating contexts only.
  * Usage: <Panel title="Event Log" badge={count}> ... </Panel>
  */
 import './Panel.css';

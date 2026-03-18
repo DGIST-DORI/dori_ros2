@@ -8,7 +8,7 @@
  * Subcategories with label=null are rendered flat (no header row).
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../core/store';
 import { filterTree } from '../panelTree';
 import SidebarIcon  from '../assets/icons/icon-sidebar.svg?react';
@@ -152,12 +152,22 @@ export default function Sidebar({
   const statusClass = connected ? 'connected' : isDemoMode ? 'demo' : '';
 
   const [query, setQuery] = useState('');
-  const searchActive = query.trim().length > 0;
+  const searchActive   = query.trim().length > 0;
+  const searchInputRef = useRef(null);
+  const [pendingFocus, setPendingFocus] = useState(false);
 
   const visibleTree = useMemo(
     () => filterTree(tree, query),
     [tree, query],
   );
+
+  // expanded로 전환된 직후 검색창에 포커스 (검색 아이콘 클릭 시)
+  useEffect(() => {
+    if (expanded && pendingFocus) {
+      searchInputRef.current?.focus();
+      setPendingFocus(false);
+    }
+  }, [expanded, pendingFocus]);
 
   return (
     <aside
@@ -197,6 +207,7 @@ export default function Sidebar({
           <div className="sb-search-wrap">
             <SearchIcon className="sb-search-icon" />
             <input
+              ref={searchInputRef}
               className="sb-search-input"
               type="text"
               placeholder="Search panels..."
@@ -210,7 +221,7 @@ export default function Sidebar({
         ) : (
           <button
             className="sb-search-btn"
-            onClick={() => { onExpand(); }}
+            onClick={() => { onExpand(); setPendingFocus(true); }}
             title="Search panels"
           >
             <SearchIcon className="sb-search-btn-icon" />

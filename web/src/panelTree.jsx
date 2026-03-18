@@ -1,98 +1,89 @@
 /**
- * panelTree.jsx — Panel tree config (replaces flat TABS array)
+ * panelTree.jsx — Panel tree config
  *
- * Structure:
- *   category    { id, label, icon, children: [ subcategory ] }
- *   subcategory { id, label, icon, children: [ leaf ] }
- *   leaf        { id, label, component }
- *
- * icon on subcategory: optional. Add svg file to assets/icons/ and import below.
- * Sidebar reads this tree recursively.
- * App.jsx resolves the active component by leaf id.
+ * Team rule (Option A): panel implementation files follow sidebar categories.
+ * Keep `Control / Perception & Intelligence / System` leaves under matching folders.
  */
 
-import FaceTab         from './tabs/FaceTab';
-import HRITab          from './tabs/HRITab';
-import ConversationTab from './tabs/ConversationTab';
-import CubeTab         from './tabs/CubeTab';
-import KnowledgeTab    from './tabs/KnowledgeTab';
-import SystemTab       from './tabs/SystemTab';
+import STTPanel from './panels/hri/STTPanel';
+import WakeWordPanel from './panels/hri/WakeWordPanel';
+import StateMonitorPanel from './panels/hri/StateMonitorPanel';
+import EventLogPanel from './panels/system/EventLogPanel';
+import './panels/system/EventLogPanel.css';
 
-// ── Category icons ────────────────────────────────────────────────────────────
+import FaceDisplayPanel from './panels/hri/FaceDisplayPanel';
+import EmotionPalettePanel from './panels/hri/EmotionPalettePanel';
+import ConversationPanel from './panels/hri/ConversationPanel';
+
+import CubeViewerPanel from './panels/control/CubeViewerPanel';
+import PieceStatePanel from './panels/control/PieceStatePanel';
+import RotationControlPanel from './panels/control/RotationControlPanel';
+
+import VisionPanel from './panels/perception/VisionPanel';
+import LLMTTSPanel from './panels/perception/LLMTTSPanel';
+import MenuParserPanel from './panels/perception/MenuParserPanel';
+import IndexBuilderPanel from './panels/perception/IndexBuilderPanel';
+import DocumentBrowserPanel from './panels/perception/DocumentBrowserPanel';
+import BuildingEditorPanel from './panels/perception/BuildingEditorPanel';
+
+import TopicDiagnosticsPanel from './panels/system/TopicDiagnosticsPanel';
+import ConnectionInfoPanel from './panels/system/ConnectionInfoPanel';
+import MetricsPanel from './panels/system/MetricsPanel';
+import TopicPublisherPanel from './panels/system/TopicPublisherPanel';
+
 import HriIcon        from './assets/icons/icon-hri.svg?react';
-import ControlIcon       from './assets/icons/icon-control.svg?react';
+import ControlIcon    from './assets/icons/icon-control.svg?react';
 import SystemIcon     from './assets/icons/icon-system.svg?react';
 import NavigationIcon from './assets/icons/icon-navigation.svg?react';
 import PerceptionIcon from './assets/icons/icon-perception.svg?react';
-
-// ── Subcategory icons ─────────────────────────────────────────────────────────
-// Add svg to assets/icons/ and uncomment the import when ready.
-import FaceIcon      from './assets/icons/icon-face.svg?react';
-import KnowledgeIcon from './assets/icons/icon-knowledge.svg?react';
-import VoiceIcon         from './assets/icons/icon-voice.svg?react';
-import StateIcon         from './assets/icons/icon-state.svg?react';
-import ConversationIcon  from './assets/icons/icon-conversation.svg?react';
-import MapIcon           from './assets/icons/icon-map.svg?react';
-import CubeIcon          from './assets/icons/icon-cube.svg?react';
-import VisionIcon        from './assets/icons/icon-vision.svg?react';
-import LLMIcon           from './assets/icons/icon-llm.svg?react';
-
-// ── Tree ─────────────────────────────────────────────────────────────────────
+import FaceIcon         from './assets/icons/icon-face.svg?react';
+import KnowledgeIcon    from './assets/icons/icon-knowledge.svg?react';
+import VoiceIcon        from './assets/icons/icon-voice.svg?react';
+import StateIcon        from './assets/icons/icon-state.svg?react';
+import ConversationIcon from './assets/icons/icon-conversation.svg?react';
+import MapIcon          from './assets/icons/icon-map.svg?react';
+import CubeIcon         from './assets/icons/icon-cube.svg?react';
+import VisionIcon       from './assets/icons/icon-vision.svg?react';
+import LLMIcon          from './assets/icons/icon-llm.svg?react';
 
 export const PANEL_TREE = [
   {
-    id: 'hri',
-    label: 'HRI',
-    icon: <HriIcon />,
+    id: 'hri', label: 'HRI', icon: <HriIcon />,
     children: [
       {
-        id: 'hri-voice',
-        label: 'Voice',
-        icon: <VoiceIcon />,
+        id: 'hri-voice', label: 'Voice', icon: <VoiceIcon />,
         children: [
-          { id: 'stt',      label: 'STT Test',   component: HRITab },
-          { id: 'wakeword', label: 'Wake Word',   component: HRITab },
-          { id: 'tts',      label: 'TTS Inject',  component: HRITab },
+          { id: 'stt',      label: 'STT Test',   component: STTPanel },
+          { id: 'wakeword', label: 'Wake Word',   component: WakeWordPanel },
+          { id: 'tts',      label: 'TTS Inject',  component: LLMTTSPanel },
         ],
       },
       {
-        id: 'hri-state',
-        label: 'State',
-        icon: <StateIcon />,
+        id: 'hri-state', label: 'State', icon: <StateIcon />,
         children: [
-          { id: 'state-monitor', label: 'State Monitor', component: HRITab },
-          { id: 'event-log',     label: 'Event Log',     component: HRITab },
+          { id: 'state-monitor', label: 'State Monitor', component: StateMonitorPanel },
         ],
       },
       {
-        id: 'hri-conversation',
-        label: 'Conversation',
-        icon: <ConversationIcon />,
+        id: 'hri-conversation', label: 'Conversation', icon: <ConversationIcon />,
         children: [
-          { id: 'conversation', label: 'Session List', component: ConversationTab },
-          { id: 'timeline',     label: 'Timeline',     component: ConversationTab },
+          { id: 'conversation', label: 'Conversation', component: ConversationPanel },
         ],
       },
       {
-        id: 'hri-face',
-        label: 'Face',
-        icon: <FaceIcon />,
+        id: 'hri-face', label: 'Face', icon: <FaceIcon />,
         children: [
-          { id: 'face-display', label: 'Face Display',   component: FaceTab },
-          { id: 'face-palette', label: 'Emotion Palette', component: FaceTab },
+          { id: 'face-display', label: 'Face Display',    component: FaceDisplayPanel },
+          { id: 'face-palette', label: 'Emotion Palette', component: EmotionPalettePanel },
         ],
       },
     ],
   },
   {
-    id: 'navigation',
-    label: 'Navigation',
-    icon: <NavigationIcon />,
+    id: 'navigation', label: 'Navigation', icon: <NavigationIcon />,
     children: [
       {
-        id: 'nav-map',
-        label: 'Map',
-        icon: <MapIcon />,
+        id: 'nav-map', label: 'Map', icon: <MapIcon />,
         children: [
           { id: 'campus-map', label: 'Campus Map', placeholder: true },
         ],
@@ -100,120 +91,91 @@ export const PANEL_TREE = [
     ],
   },
   {
-    id: 'control',
-    label: 'Control',
-    icon: <ControlIcon />,
+    id: 'control', label: 'Control', icon: <ControlIcon />,
     children: [
       {
-        id: 'ctrl-cube',
-        label: 'Cube',
-        icon: <CubeIcon />,
+        id: 'ctrl-cube', label: 'Cube', icon: <CubeIcon />,
         children: [
-          { id: 'cube-3d',       label: '3D View',          component: CubeTab },
-          { id: 'cube-rotation', label: 'Rotation Control', component: CubeTab },
-          { id: 'cube-pieces',   label: 'Piece Table',      component: CubeTab },
+          { id: 'cube-3d',       label: '3D View',          component: CubeViewerPanel },
+          { id: 'cube-rotation', label: 'Rotation Control', component: RotationControlPanel },
+          { id: 'cube-pieces',   label: 'Piece Table',      component: PieceStatePanel },
         ],
       },
     ],
   },
   {
-    id: 'perception',
-    label: 'Perception & Intelligence',
-    icon: <PerceptionIcon />,
+    id: 'perception', label: 'Perception & Intelligence', icon: <PerceptionIcon />,
     children: [
       {
-        id: 'perc-vision',
-        label: 'Vision',
-        icon: <VisionIcon />,
+        id: 'perc-vision', label: 'Vision', icon: <VisionIcon />,
         children: [
-          { id: 'vision-test', label: 'Vision Test', component: HRITab },
+          { id: 'vision-test', label: 'Vision Test', component: VisionPanel },
         ],
       },
       {
-        id: 'perc-llm',
-        label: 'LLM',
-        icon: <LLMIcon />,
+        id: 'perc-llm', label: 'LLM', icon: <LLMIcon />,
         children: [
-          { id: 'llm-inject', label: 'LLM Inject', component: HRITab },
+          { id: 'llm-inject', label: 'LLM Inject', component: LLMTTSPanel },
         ],
       },
       {
-        id: 'perc-knowledge',
-        label: 'Knowledge',
-        icon: <KnowledgeIcon />,
+        id: 'perc-knowledge', label: 'Knowledge', icon: <KnowledgeIcon />,
         children: [
-          { id: 'knowledge-docs',     label: 'Document Browser', component: KnowledgeTab },
-          { id: 'knowledge-building', label: 'Building Editor',  component: KnowledgeTab },
+          { id: 'menu-parser', label: 'Menu Parser',     component: MenuParserPanel },
+          { id: 'index-builder', label: 'Index Builder',   component: IndexBuilderPanel },
+          { id: 'knowledge-docs',     label: 'Document Browser', component: DocumentBrowserPanel },
+          { id: 'knowledge-building', label: 'Building Editor',  component: BuildingEditorPanel },
         ],
       },
     ],
   },
   {
-    id: 'system',
-    label: 'System',
-    icon: <SystemIcon />,
+    id: 'system', label: 'System', icon: <SystemIcon />,
     children: [
       {
-        id: 'sys-flat',
-        label: null,  // flat — no visible subcategory header
+        id: 'sys-flat', label: null,
         children: [
-          { id: 'sys-connection', label: 'Connection',        component: SystemTab },
-          { id: 'sys-topics',     label: 'Topic Diagnostics', component: SystemTab },
-          { id: 'sys-metrics',    label: 'Metrics',           component: SystemTab },
+          { id: 'sys-connection', label: 'Connection',        component: ConnectionInfoPanel },
+          { id: 'sys-topics',     label: 'Topic Diagnostics', component: TopicDiagnosticsPanel },
+          { id: 'sys-metrics',    label: 'Metrics',           component: MetricsPanel },
+          { id: 'event-log',      label: 'Event Log',         component: EventLogPanel },
+          { id: 'sys-topic-publisher', label: 'Topic Publisher', component: TopicPublisherPanel },
         ],
       },
     ],
   },
 ];
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-/** Flatten tree → array of leaf nodes */
 export function flattenLeaves(tree) {
   const leaves = [];
   function walk(nodes) {
     for (const node of nodes) {
-      if (node.component || node.placeholder) {
-        leaves.push(node);
-      } else if (node.children) {
-        walk(node.children);
-      }
+      if (node.component || node.placeholder) leaves.push(node);
+      else if (node.children) walk(node.children);
     }
   }
   walk(tree);
   return leaves;
 }
 
-/** Find leaf node by id */
 export function findLeaf(tree, id) {
   return flattenLeaves(tree).find(l => l.id === id) ?? null;
 }
 
-/**
- * Filter tree by search query.
- * Returns a new tree with only matching branches.
- * A category/subcategory is kept if any of its leaf descendants match.
- */
 export function filterTree(tree, query) {
   if (!query.trim()) return tree;
   const q = query.trim().toLowerCase();
-
   function filterNodes(nodes) {
     const result = [];
     for (const node of nodes) {
       if (node.component || node.placeholder) {
-        // Leaf: keep if label matches
         if (node.label.toLowerCase().includes(q)) result.push(node);
       } else if (node.children) {
-        // Branch: keep if any descendant matches
-        const filteredChildren = filterNodes(node.children);
-        if (filteredChildren.length > 0) {
-          result.push({ ...node, children: filteredChildren });
-        }
+        const fc = filterNodes(node.children);
+        if (fc.length > 0) result.push({ ...node, children: fc });
       }
     }
     return result;
   }
-
   return filterNodes(tree);
 }

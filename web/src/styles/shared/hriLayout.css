@@ -1,0 +1,52 @@
+/* Shared HRI layout */
+
+.hri-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 320px;
+  gap: 8px;
+  height: 100%;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.hri-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.hri-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.hri-panel-log {
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 1100px) {
+  .hri-layout {
+    grid-template-columns: 1fr 1fr;
+    overflow-y: auto;
+  }
+
+  .hri-col-right {
+    grid-column: 1 / -1;
+    overflow: visible;
+  }
+
+  .hri-panel-log {
+    min-height: 280px;
+  }
+}
+
+@media (max-width: 700px) {
+  .hri-layout {
+    grid-template-columns: 1fr;
+  }
+}

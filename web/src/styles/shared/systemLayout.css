@@ -1,0 +1,40 @@
+/* Shared system layout */
+
+.sys-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 8px;
+  height: 100%;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.sys-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.sys-panel-diag { min-height: 0; }
+.sys-panel-metrics { flex-shrink: 0; }
+
+.sys-panel-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.sys-panel-connection { overflow: auto; }
+
+@media (max-width: 900px) {
+  .sys-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+    overflow-y: auto;
+  }
+
+  .sys-col-right { overflow-y: visible; }
+}

@@ -1,11 +1,11 @@
-/**
+/*
  * tabs/HomeTab.jsx
  * Default landing page shown on startup.
  * Shows quick status overview and getting-started hints.
  */
 
 import { useStore } from '../core/store';
-import './HomeTab.css';
+import '../styles/shared/home.css';
 
 export default function HomeTab() {
   const connected  = useStore(s => s.connected);

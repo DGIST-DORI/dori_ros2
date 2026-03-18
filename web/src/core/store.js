@@ -15,6 +15,7 @@ import {
   resolveEmotionFromState,
   resolveROSOrStateEmotion,
 } from './emotion';
+import { floatingPanelsSlice } from './floatingPanels';
 
 const FACE_KEYS = ['U', 'R', 'F', 'D', 'L', 'B'];
 const FACE_COLORS = Object.freeze({
@@ -632,4 +633,7 @@ export const useStore = create((set, get) => ({
       addLog(LOG_TAGS.ERROR, `Parse error on ${topic}: ${e.message}`);
     }
   },
+
+  // ── Floating Panels ─────────────────────────────────────────────────
+  ...floatingPanelsSlice(set, get),
 }));
