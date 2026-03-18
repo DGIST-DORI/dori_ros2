@@ -11,7 +11,7 @@
   overflow: hidden;
   min-width: 240px;
   min-height: 48px;
-  /* resize is handled manually via the resize handle */
+  resize: both;
   transition: box-shadow 0.15s;
 }
 
@@ -21,6 +21,7 @@
 }
 
 .fp-window.minimized {
+  resize: none;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
@@ -89,29 +90,3 @@
   min-height: 0;
   position: relative;
 }
-
-/* ── Resize handle ── */
-.fp-resize-handle {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 16px;
-  height: 16px;
-  cursor: se-resize;
-  /* visual cue: subtle triangle */
-  background: linear-gradient(
-    135deg,
-    transparent 50%,
-    var(--border) 50%,
-    var(--border) 60%,
-    transparent 60%,
-    transparent 70%,
-    var(--border) 70%,
-    var(--border) 80%,
-    transparent 80%
-  );
-  opacity: 0.5;
-  transition: opacity 0.15s;
-  z-index: 1;
-}
-.fp-window:hover .fp-resize-handle { opacity: 1; }

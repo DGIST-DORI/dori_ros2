@@ -7,7 +7,7 @@
  * Resize: native CSS resize handle (bottom-right corner)
  */
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useStore } from '../core/store';
 import { useDraggable } from '../hooks/useDraggable';
 import './FloatingPanel.css';
@@ -21,7 +21,7 @@ export default function FloatingPanel({ panel }) {
   const movePanelTo   = useStore(s => s.movePanelTo);
   const resizePanel   = useStore(s => s.resizePanel);
 
-  const bodyRef = useRef(null);
+  const windowRef = useRef(null);
 
   const { onDragStart } = useDraggable({
     x, y,
@@ -29,20 +29,22 @@ export default function FloatingPanel({ panel }) {
     onFocus: ()       => focusPanel(id),
   });
 
-  // Resize observer — sync w/h back to store after user drags the resize handle
-  function onResizeMouseDown() {
-    function onUp() {
-      if (bodyRef.current) {
-        const rect = bodyRef.current.closest('.fp-window').getBoundingClientRect();
-        resizePanel(id, Math.round(rect.width), Math.round(rect.height));
-      }
-      window.removeEventListener('mouseup', onUp);
-    }
-    window.addEventListener('mouseup', onUp);
-  }
+  // ResizeObserver — syncs w/h to store whenever the window element is resized
+  // (works with CSS resize: both on fp-window)
+  useEffect(() => {
+    const el = windowRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      resizePanel(id, Math.round(width), Math.round(height));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [id, resizePanel]);
 
   return (
     <div
+      ref={windowRef}
       className={`fp-window ${minimized ? 'minimized' : ''}`}
       style={{ left: x, top: y, width: w, height: minimized ? 'auto' : h, zIndex }}
       onMouseDown={() => focusPanel(id)}
@@ -76,14 +78,9 @@ export default function FloatingPanel({ panel }) {
 
       {/* ── Body ── */}
       {!minimized && (
-        <div className="fp-body" ref={bodyRef}>
+        <div className="fp-body">
           <Component />
         </div>
-      )}
-
-      {/* ── Resize handle (bottom-right) ── */}
-      {!minimized && (
-        <div className="fp-resize-handle" onMouseDown={onResizeMouseDown} />
       )}
     </div>
   );

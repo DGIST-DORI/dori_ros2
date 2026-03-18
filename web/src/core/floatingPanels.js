@@ -20,16 +20,43 @@
 
 const DEFAULT_W = 480;
 const DEFAULT_H = 360;
-const STAGGER   = 28;   // px offset per panel
+const STAGGER   = 28;
+
+// Per-panel default sizes [w, h] in px — unlisted panels use DEFAULT_W x DEFAULT_H
+const PANEL_SIZES = {
+  'stt':                [420, 380],
+  'wakeword':           [340, 200],
+  'tts':                [420, 320],
+  'state-monitor':      [340, 300],
+  'event-log':          [520, 400],
+  'face-display':       [400, 420],
+  'face-palette':       [280, 380],
+  'conversation':       [680, 480],
+  'timeline':           [680, 480],
+  'cube-3d':            [520, 480],
+  'cube-rotation':      [400, 340],
+  'cube-pieces':        [400, 380],
+  'knowledge-docs':     [560, 440],
+  'knowledge-building': [480, 400],
+  'sys-connection':     [360, 280],
+  'sys-topics':         [700, 460],
+  'sys-metrics':        [360, 400],
+  'vision-test':        [480, 420],
+  'llm-inject':         [420, 320],
+};
 
 let zCounter = 10;
-
 function nextZ() { return ++zCounter; }
 
 function defaultPosition(count) {
   const base = 60;
   const offset = (count % 8) * STAGGER;
   return { x: base + offset, y: base + offset };
+}
+
+function defaultSize(id) {
+  const [w, h] = PANEL_SIZES[id] ?? [DEFAULT_W, DEFAULT_H];
+  return { w, h };
 }
 
 export const floatingPanelsSlice = (set, get) => ({
@@ -53,6 +80,7 @@ export const floatingPanelsSlice = (set, get) => ({
     }
 
     const { x, y } = defaultPosition(panels.length);
+    const { w, h } = defaultSize(leaf.id);
     set({
       openPanels: [
         ...panels,
@@ -61,8 +89,7 @@ export const floatingPanelsSlice = (set, get) => ({
           label:     leaf.label,
           component: leaf.component,
           x, y,
-          w: DEFAULT_W,
-          h: DEFAULT_H,
+          w, h,
           minimized: false,
           zIndex:    nextZ(),
         },
