@@ -12,7 +12,6 @@
   min-width: 240px;
   min-height: 80px;
   transition: box-shadow 0.15s;
-  /* No CSS resize — handled by custom handle below */
 }
 
 .fp-window:focus-within,
@@ -96,18 +95,16 @@
   height: 18px;
   cursor: se-resize;
   z-index: 10;
-  /* subtle visual cue */
   background:
     linear-gradient(135deg,
-      transparent 40%,
-      var(--border) 40%, var(--border) 50%,
-      transparent 50%,
-      transparent 65%,
-      var(--border) 65%, var(--border) 75%,
-      transparent 75%
+      transparent 55%,
+      var(--border) 55%, var(--border) 62%,
+      transparent 62%,
+      transparent 72%,
+      var(--border) 72%, var(--border) 79%,
+      transparent 79%
     );
   opacity: 0.4;
   transition: opacity 0.15s;
-  border-radius: 0 0 var(--radius-lg, 8px) 0;
 }
 .fp-window:hover .fp-resize-handle { opacity: 0.8; }
