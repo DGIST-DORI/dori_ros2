@@ -1,6 +1,6 @@
 import { useStore } from '../../core/store';
 import { fmt, isWarn, pct, primaryClass, valueClass } from './shared/formatters';
-import '../../tabs/SystemTab.css';
+import './MetricsPanel.css';
 
 function MetricCard({ title, usagePct, warnAt = 85, primary, details }) {
   const warn = isWarn(usagePct, warnAt);

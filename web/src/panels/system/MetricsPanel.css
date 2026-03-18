@@ -1,0 +1,82 @@
+@import "../../styles/shared/systemLayout.css";
+
+.sys-metrics-body {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sys-metric-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  padding: 9px 11px;
+}
+
+.sys-metric-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.sys-metric-title {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-2);
+}
+
+.sys-metric-primary {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-0);
+  line-height: 1;
+}
+.sys-metric-primary.is-warning { color: var(--red,   #d66b66); }
+.sys-metric-primary.is-ok      { color: var(--green, #53c87a); }
+
+.sys-bar-wrap {
+  height: 3px;
+  background: var(--bg-3);
+  border-radius: 2px;
+  margin-bottom: 7px;
+  overflow: hidden;
+}
+
+.sys-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease, background-color 0.3s;
+  background: var(--accent, #00c8ff);
+}
+
+.sys-bar-fill.warn { background: var(--red, #d66b66); }
+
+.sys-metric-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 10px;
+}
+
+.sys-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 10px;
+  gap: 4px;
+}
+
+.sys-metric-row span:first-child { color: var(--text-2); white-space: nowrap; }
+
+.sys-metric-value {
+  color: var(--text-0);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  text-align: right;
+}
+
+.sys-metric-value.is-warning { color: var(--red, #d66b66); font-weight: 700; }

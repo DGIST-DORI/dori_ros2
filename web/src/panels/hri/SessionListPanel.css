@@ -1,36 +1,4 @@
-/* ── ConversationTab.css ────────────────────────────────────────────────────
- * Layout: 260px session list | flex:1 chat view
- */
-
-/* ── Root ────────────────────────────────────────────────────────────────── */
-
-.cr-layout {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 8px;
-  height: 100%;
-  padding: 8px;
-  overflow: hidden;
-}
-
-.cr-panel-sessions {
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.cr-right {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  min-height: 0;
-  background: var(--bg-1);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-/* ── Session Panel ───────────────────────────────────────────────────────── */
+@import "../../styles/shared/conversationLayout.css";
 
 .cr-session-panel {
   display: flex;
@@ -39,7 +7,6 @@
   min-height: 0;
 }
 
-/* Toolbar */
 .cr-toolbar {
   display: flex;
   flex-direction: column;
@@ -103,7 +70,6 @@
 .cr-action-btn:hover:not(:disabled) { background: var(--bg-3); border-color: var(--border-bright); color: var(--text-0); }
 .cr-action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Session list */
 .cr-session-list {
   flex: 1;
   overflow-y: auto;
@@ -150,8 +116,6 @@
   color: var(--text-2);
 }
 
-/* ── Chat header ─────────────────────────────────────────────────────────── */
-
 .cr-chat-header {
   display: flex;
   align-items: center;
@@ -178,8 +142,6 @@
   font-size: 11px;
   color: var(--text-2);
 }
-
-/* ── Timeline ────────────────────────────────────────────────────────────── */
 
 .cr-timeline {
   padding: 10px 14px 6px;
@@ -237,8 +199,6 @@
   flex-shrink: 0;
 }
 
-/* ── Chat area ───────────────────────────────────────────────────────────── */
-
 .cr-chat-area {
   flex: 1;
   overflow-y: auto;
@@ -248,8 +208,6 @@
   gap: 4px;
   min-height: 0;
 }
-
-/* ── Context events ──────────────────────────────────────────────────────── */
 
 .cr-ctx-event {
   display: flex;
@@ -286,8 +244,6 @@
 .cr-ctx-nav     { color: var(--yellow); background: var(--yellow-dim); border: 1px solid color-mix(in srgb, var(--yellow) 20%, transparent); }
 .cr-ctx-track   { color: var(--text-1); background: var(--bg-2);       border: 1px solid var(--border); }
 .cr-ctx-default { background: var(--bg-2); border: 1px solid var(--border); }
-
-/* ── Chat bubbles ────────────────────────────────────────────────────────── */
 
 .cr-bubble-wrap {
   display: flex;
@@ -388,8 +344,6 @@
   background: var(--accent-dim);
 }
 
-/* ── Toast ───────────────────────────────────────────────────────────────── */
-
 .cr-toast {
   position: absolute;
   bottom: 16px;
@@ -412,8 +366,6 @@
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-/* ── Empty states ────────────────────────────────────────────────────────── */
-
 .cr-empty {
   padding: 24px 16px;
   text-align: center;
@@ -428,16 +380,4 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-/* ── Responsive ──────────────────────────────────────────────────────────── */
-
-@media (max-width: 900px) {
-  .cr-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: 240px 1fr;
-    overflow-y: auto;
-  }
-
-  .cr-right { min-height: 480px; }
 }

@@ -1,6 +1,6 @@
 import { useStore } from '../../core/store';
 import { parseWsUrl } from '../../core/url';
-import '../../tabs/SystemTab.css';
+import './ConnectionInfoPanel.css';
 
 function ConnectionInfoPanel() {
   const connected = useStore((s) => s.connected);
