@@ -30,7 +30,7 @@ const PANEL_SIZES = {
   'state-monitor':      [340, 300],
   'event-log':          [520, 400],
   'face-display':       [400, 420],
-  'face-palette':       [280, 380],
+  'face-palette':       [280, 300],
   'conversation':       [680, 480],
   'timeline':           [680, 480],
   'cube-3d':            [520, 480],

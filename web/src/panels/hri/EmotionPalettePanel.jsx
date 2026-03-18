@@ -1,4 +1,5 @@
 import { useStore } from '../../core/store';
+import { useState, useEffect } from 'react';
 import '../../tabs/FaceTab.css';
 import { Zap, Radio, RefreshCw, Circle } from 'lucide-react';
 
@@ -180,32 +181,143 @@ const EMOTION_CONFIG = {
   },
 };
 
+const STATUS_SECTION_H = 118;
+
 function EmotionPalettePanel() {
   const emotion       = useStore(s => s.emotion);
   const emotionSource = useStore(s => s.emotionSource);
+  const hriState      = useStore(s => s.hriState);
+ 
+  const [statusOpen, setStatusOpen] = useState(emotionSource === 'override');
+  const [search, setSearch]         = useState('');
+ 
+  // Auto-open status when override becomes active
+  useEffect(() => {
+    if (emotionSource === 'override') setStatusOpen(true);
+  }, [emotionSource]);
+ 
+  const filteredEmotions = Object.entries(EMOTION_CONFIG).filter(([key, ecfg]) =>
+    !search.trim() ||
+    ecfg.label.toLowerCase().includes(search.trim().toLowerCase()) ||
+    key.toLowerCase().includes(search.trim().toLowerCase())
+  );
+ 
+  const sourceIcon =
+    emotionSource === 'override' ? <Zap size={10} strokeWidth={2} /> :
+    emotionSource === 'ros'      ? <Radio size={10} strokeWidth={2} /> :
+                                   <RefreshCw size={10} strokeWidth={2} />;
+ 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'auto' }}>
-      <div className="face-palette">
-        {Object.entries(EMOTION_CONFIG).map(([key, ecfg]) => (
-          <button
-            key={key}
-            className={`face-palette-btn ${emotion === key ? 'active' : ''}`}
-            onClick={() => useStore.getState().setEmotionOverride(key)}
-          >
-            <span className="face-palette-dot" />
-            <span className="face-palette-name">{ecfg.label}</span>
-            {emotion === key && <span className="face-palette-active-mark"><Circle size={6} fill="currentColor" strokeWidth={0} /></span>}
-          </button>
-        ))}
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+ 
+      {/* Search */}
+      <div style={{ padding: '6px 8px', flexShrink: 0 }}>
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search emotions..."
+          style={{
+            width: '100%',
+            boxSizing: 'border-box',
+            background: 'var(--bg-2)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            color: 'var(--text-0)',
+            fontSize: '11px',
+            padding: '4px 8px',
+            outline: 'none',
+            fontFamily: 'var(--font-sans)',
+          }}
+          onFocus={e => e.target.style.borderColor = 'var(--border-bright)'}
+          onBlur={e  => e.target.style.borderColor = 'var(--border)'}
+        />
       </div>
-      {emotionSource === 'override' && (
-        <button className="face-clear-override" onClick={() => useStore.getState().clearEmotionOverride()}>
-          Clear Override
+ 
+      {/* Palette — scrollable, fills remaining space */}
+      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+        <div className="face-palette">
+          {filteredEmotions.length === 0 ? (
+            <div style={{ fontSize: '11px', color: 'var(--text-2)', padding: '12px', textAlign: 'center' }}>
+              No results
+            </div>
+          ) : filteredEmotions.map(([key, ecfg]) => (
+            <button
+              key={key}
+              className={`face-palette-btn ${emotion === key ? 'active' : ''}`}
+              onClick={() => useStore.getState().setEmotionOverride(key)}
+            >
+              <span className="face-palette-dot" />
+              <span className="face-palette-name">{ecfg.label}</span>
+              {emotion === key && (
+                <span className="face-palette-active-mark">
+                  <Circle size={6} fill="currentColor" strokeWidth={0} />
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+ 
+      {/* Status — collapsible via max-height, no position change */}
+      <div style={{ borderTop: '1px solid var(--border)', flexShrink: 0 }}>
+        <button
+          onClick={() => setStatusOpen(o => !o)}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '6px 10px',
+            background: 'transparent',
+            border: 'none',
+            color: emotionSource === 'override' ? 'var(--yellow)' : 'var(--text-2)',
+            fontSize: '9px',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.8px',
+            cursor: 'pointer',
+          }}
+        >
+          <span>Status</span>
+          <span style={{ fontSize: '10px' }}>{statusOpen ? '▾' : '▸'}</span>
         </button>
-      )}
+ 
+        <div style={{
+          overflow: 'hidden',
+          maxHeight: statusOpen ? '200px' : '0',
+          transition: 'max-height 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}>
+          <div className="face-status-list">
+            <div className="face-status-row">
+              <span className="face-status-key">Emotion</span>
+              <span className="face-status-val">{emotion}</span>
+            </div>
+            <div className="face-status-row">
+              <span className="face-status-key">Source</span>
+              <span className={`face-status-val face-source-${emotionSource} face-source-icon`}>
+                {sourceIcon} {emotionSource}
+              </span>
+            </div>
+            <div className="face-status-row">
+              <span className="face-status-key">HRI State</span>
+              <span className="face-status-val">{hriState}</span>
+            </div>
+            {emotionSource === 'override' && (
+              <button
+                className="face-clear-override"
+                onClick={() => useStore.getState().clearEmotionOverride()}
+              >
+                Clear Override
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+ 
     </div>
   );
 }
-
+ 
 export default EmotionPalettePanel;
 export { EmotionPalettePanel };
