@@ -1,13 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import Panel from '../../components/Panel';
 import '../../tabs/KnowledgeTab.css';
 
 const API = '/api/knowledge';
 
 function DocumentBrowserPanel() {
-  const [docs,    setDocs]    = useState([]);
+  const [docs, setDocs] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filter,  setFilter]  = useState('');
+  const [filter, setFilter] = useState('');
 
   const fetchDocs = useCallback(async () => {
     setLoading(true);
@@ -18,22 +17,39 @@ function DocumentBrowserPanel() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchDocs(); }, [fetchDocs]);
+  useEffect(() => {
+    let cancelled = false;
 
-  const filtered = docs.filter(d =>
-    d.source.toLowerCase().includes(filter.toLowerCase())
+    async function loadDocs() {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API}/documents`);
+        if (!cancelled && res.ok) setDocs(await res.json());
+      } catch { /* ignore */ }
+      if (!cancelled) setLoading(false);
+    }
+
+    loadDocs();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filtered = docs.filter((d) =>
+    d.source.toLowerCase().includes(filter.toLowerCase()),
   );
 
   return (
-    <Panel title="Indexed Documents" badge={docs.length} className="km-panel">
+    <div className="km-panel-root km-document-browser-panel">
       <div className="km-section">
-        <div className="km-toolbar">
+        <div className="km-toolbar km-toolbar-with-badge">
           <input
             className="km-search"
             placeholder="Filter by filename…"
             value={filter}
-            onChange={e => setFilter(e.target.value)}
+            onChange={(e) => setFilter(e.target.value)}
           />
+          <span className="km-panel-badge">{docs.length}</span>
           <button className="km-btn" onClick={fetchDocs} disabled={loading}>
             {loading ? '…' : '↻'}
           </button>
@@ -55,7 +71,7 @@ function DocumentBrowserPanel() {
           ))}
         </div>
       </div>
-    </Panel>
+    </div>
   );
 }
 

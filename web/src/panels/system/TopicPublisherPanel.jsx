@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Panel from '../../components/Panel';
 import { LOG_TAGS, useStore } from '../../core/store';
 import { publishROS } from '../../core/ros';
 import './TopicPublisherPanel.css';
@@ -135,8 +134,8 @@ export default function TopicPublisherPanel() {
   useEffect(() => () => stopPeriodic(), [stopPeriodic]);
 
   return (
-    <Panel title="Topic Publisher">
-      <div className="tp-body" style={{ padding: 0 }}>
+    <div className="tp-panel-root">
+      <div className="tp-body">
         <div className="tp-row">
           <label htmlFor="tp-topic">Topic</label>
           <select id="tp-topic" value={topic} onChange={(e) => setTopic(e.target.value)}>
@@ -198,6 +197,6 @@ export default function TopicPublisherPanel() {
           </div>
         )}
       </div>
-    </Panel>
+    </div>
   );
 }

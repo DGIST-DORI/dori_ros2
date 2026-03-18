@@ -1,4 +1,3 @@
-import Panel from '../../components/Panel';
 import { useStore } from '../../core/store';
 import { fmt, isWarn, pct, primaryClass, valueClass } from './shared/formatters';
 import '../../tabs/SystemTab.css';
@@ -38,7 +37,7 @@ function MetricsPanel({ className = 'sys-panel-metrics' }) {
   const disk = systemMetrics?.disk;
 
   return (
-    <Panel title="System Metrics" className={className}>
+    <div className={`sys-panel-root sys-panel-metrics-root ${className}`.trim()}>
       <div className="sys-metrics-body">
         <MetricCard
           title="CPU"
@@ -82,7 +81,7 @@ function MetricsPanel({ className = 'sys-panel-metrics' }) {
           ]}
         />
       </div>
-    </Panel>
+    </div>
   );
 }
 

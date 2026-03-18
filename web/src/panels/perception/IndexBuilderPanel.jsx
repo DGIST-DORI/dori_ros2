@@ -1,17 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import Panel from '../../components/Panel';
 import '../../tabs/KnowledgeTab.css';
 
 const API = '/api/knowledge';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function StatusBadge({ status }) {
   const map = {
-    idle:    ['km-badge km-badge-idle',    '—'],
+    idle: ['km-badge km-badge-idle', '—'],
     running: ['km-badge km-badge-running', 'RUNNING'],
-    ok:      ['km-badge km-badge-ok',      'OK'],
-    error:   ['km-badge km-badge-error',   'ERROR'],
+    ok: ['km-badge km-badge-ok', 'OK'],
+    error: ['km-badge km-badge-error', 'ERROR'],
   };
   const [cls, label] = map[status] ?? map.idle;
   return <span className={cls}>{label}</span>;
@@ -26,21 +23,20 @@ function LogPane({ lines }) {
     <div className="km-log" ref={ref}>
       {lines.length === 0
         ? <span className="km-log-empty">No output yet.</span>
-        : lines.map((l, i) => <div key={i} className="km-log-line">{l}</div>)
-      }
+        : lines.map((l, i) => <div key={i} className="km-log-line">{l}</div>)}
     </div>
   );
 }
 
 function IndexBuilderPanel() {
-  const [status,    setStatus]    = useState('idle');
-  const [log,       setLog]       = useState([]);
+  const [status, setStatus] = useState('idle');
+  const [log, setLog] = useState([]);
   const [incremental, setIncremental] = useState(true);
   const [indexInfo, setIndexInfo] = useState(null);
   const pollRef = useRef(null);
 
   function appendLog(msg) {
-    setLog(prev => [...prev, `${new Date().toLocaleTimeString()}  ${msg}`]);
+    setLog((prev) => [...prev, `${new Date().toLocaleTimeString()}  ${msg}`]);
   }
 
   const fetchIndexInfo = useCallback(async () => {
@@ -68,14 +64,13 @@ function IndexBuilderPanel() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail ?? res.statusText);
 
-      // Poll job status
       const jobId = data.job_id;
       appendLog(`Job started: ${jobId}`);
 
       pollRef.current = setInterval(async () => {
         const r = await fetch(`${API}/build-index/status/${jobId}`);
         const d = await r.json();
-        d.new_lines?.forEach(l => appendLog(l));
+        d.new_lines?.forEach((l) => appendLog(l));
         if (d.status === 'done') {
           clearInterval(pollRef.current);
           appendLog(`[OK] Done — ${d.total_chunks} chunks indexed.`);
@@ -96,7 +91,7 @@ function IndexBuilderPanel() {
   useEffect(() => () => clearInterval(pollRef.current), []);
 
   return (
-    <Panel title="Index Builder" className="km-panel">
+    <div className="km-panel-root km-index-builder-panel">
       <div className="km-section">
         <p className="km-hint">
           Embeds <code>data/campus/processed/**/*.txt</code> with
@@ -121,7 +116,7 @@ function IndexBuilderPanel() {
           <input
             type="checkbox"
             checked={incremental}
-            onChange={e => setIncremental(e.target.checked)}
+            onChange={(e) => setIncremental(e.target.checked)}
           />
           <span>Incremental (skip unchanged files)</span>
         </label>
@@ -139,7 +134,7 @@ function IndexBuilderPanel() {
 
         <LogPane lines={log} />
       </div>
-    </Panel>
+    </div>
   );
 }
 
