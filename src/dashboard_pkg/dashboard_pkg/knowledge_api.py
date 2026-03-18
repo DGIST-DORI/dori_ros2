@@ -392,6 +392,222 @@ if WEB_DIR:
         # 없으면 SPA fallback
         return _FileResponse(str(WEB_DIR / 'index.html'))
 
+# ── /api/webhook + /api/deploy/* ──────────────────────────────────────────────
+# GitHub Webhook receiver + async deploy pipeline
+# Pipeline: git pull → npm run build (if web changed) → colcon build
+#
+# Env vars:
+#   DORI_WEBHOOK_SECRET  : GitHub webhook secret (HMAC-SHA256)
+#   DORI_ROS_DISTRO      : ROS distro name (default: humble)
+
+import hashlib
+import hmac
+import shlex
+import threading
+from fastapi import Request
+
+_WEBHOOK_SECRET = _os.environ.get('DORI_WEBHOOK_SECRET', '').encode()
+_ROS_DISTRO     = _os.environ.get('DORI_ROS_DISTRO', 'humble')
+
+# Single shared deploy job (only one deploy runs at a time)
+_deploy_job: dict = {
+    'status': 'idle',   # idle | running | done | error
+    'steps':  [],       # list of { step, status, log }
+    'error':  None,
+    'started_at': None,
+    'finished_at': None,
+}
+_deploy_lock = threading.Lock()
+
+
+# ── Signature verification ────────────────────────────────────────────────────
+
+def _verify_github_signature(body: bytes, sig_header: str | None) -> bool:
+    """Verify X-Hub-Signature-256 against DORI_WEBHOOK_SECRET."""
+    if not _WEBHOOK_SECRET:
+        return True  # Dev mode: skip verification
+    if not sig_header or not sig_header.startswith('sha256='):
+        return False
+    expected = 'sha256=' + hmac.new(_WEBHOOK_SECRET, body, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, sig_header)
+
+
+# ── Deploy pipeline ───────────────────────────────────────────────────────────
+
+def _run_step(step_name: str, cmd: list[str], cwd: str, env: dict | None = None) -> tuple[bool, str]:
+    """Run a shell command, stream output into the deploy job log."""
+    import subprocess
+
+    step = {'step': step_name, 'status': 'running', 'log': ''}
+    _deploy_job['steps'].append(step)
+
+    try:
+        proc = subprocess.Popen(
+            cmd,
+            cwd=cwd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            env={**_os.environ, **(env or {})},
+        )
+        output_lines = []
+        for line in proc.stdout:
+            output_lines.append(line)
+            step['log'] = ''.join(output_lines)   # live update
+
+        proc.wait()
+        step['log'] = ''.join(output_lines)
+
+        if proc.returncode != 0:
+            step['status'] = 'error'
+            return False, step['log']
+
+        step['status'] = 'done'
+        return True, step['log']
+
+    except Exception as e:
+        step['status'] = 'error'
+        step['log'] = str(e)
+        return False, str(e)
+
+
+def _web_dir() -> Path | None:
+    """Return the web/ directory path if it exists."""
+    candidate = REPO_ROOT / 'web'
+    return candidate if candidate.is_dir() else None
+
+
+def _changed_paths(pull_stdout: str) -> list[str]:
+    """Parse 'git pull' stdout to extract list of changed file paths."""
+    # git pull --ff-only output format:
+    #   Updating abc1234..def5678
+    #    path/to/file.py | 3 ++-
+    lines = []
+    for line in pull_stdout.splitlines():
+        stripped = line.strip()
+        if '|' in stripped:
+            path = stripped.split('|')[0].strip()
+            lines.append(path)
+    return lines
+
+
+def _deploy_pipeline():
+    """Full deploy pipeline. Runs in a background thread."""
+    import datetime
+
+    _deploy_job.update({
+        'status':      'running',
+        'steps':       [],
+        'error':       None,
+        'started_at':  datetime.datetime.now().isoformat(),
+        'finished_at': None,
+    })
+
+    repo = str(REPO_ROOT)
+    ros_setup = f'/opt/ros/{_ROS_DISTRO}/setup.bash'
+
+    # ── Step 1: git pull ──────────────────────────────────────────────────────
+    ok, pull_log = _run_step(
+        'git pull',
+        ['git', 'pull', '--ff-only'],
+        cwd=repo,
+    )
+    if not ok:
+        _deploy_job.update({'status': 'error', 'error': 'git pull failed',
+                            'finished_at': datetime.datetime.now().isoformat()})
+        return
+
+    changed = _changed_paths(pull_log)
+    already_up_to_date = 'Already up to date' in pull_log
+
+    if already_up_to_date:
+        _deploy_job.update({'status': 'done',
+                            'finished_at': datetime.datetime.now().isoformat()})
+        return
+
+    # ── Step 2: npm build (only if web/ files changed) ───────────────────────
+    web_changed = any(p.startswith('web/') for p in changed)
+    web = _web_dir()
+
+    if web_changed and web:
+        ok, _ = _run_step('npm ci', ['npm', 'ci'], cwd=str(web))
+        if not ok:
+            _deploy_job.update({'status': 'error', 'error': 'npm ci failed',
+                                'finished_at': datetime.datetime.now().isoformat()})
+            return
+
+        ok, _ = _run_step('npm run build', ['npm', 'run', 'build'], cwd=str(web))
+        if not ok:
+            _deploy_job.update({'status': 'error', 'error': 'npm run build failed',
+                                'finished_at': datetime.datetime.now().isoformat()})
+            return
+
+    # ── Step 3: colcon build ──────────────────────────────────────────────────
+    ros_changed = any(p.startswith('src/') for p in changed)
+
+    if ros_changed:
+        ok, _ = _run_step(
+            'colcon build',
+            ['bash', '-c', f'source {ros_setup} && colcon build --symlink-install'],
+            cwd=repo,
+        )
+        if not ok:
+            _deploy_job.update({'status': 'error', 'error': 'colcon build failed',
+                                'finished_at': datetime.datetime.now().isoformat()})
+            return
+
+    _deploy_job.update({'status': 'done',
+                        'finished_at': datetime.datetime.now().isoformat()})
+
+
+# ── Endpoints ─────────────────────────────────────────────────────────────────
+
+@app.post('/api/webhook')
+async def github_webhook(request: Request):
+    """Receive GitHub push webhook, trigger deploy pipeline on main branch."""
+    body = await request.body()
+    sig  = request.headers.get('X-Hub-Signature-256')
+
+    if not _verify_github_signature(body, sig):
+        return JSONResponse({'error': 'Invalid signature'}, status_code=403)
+
+    event = request.headers.get('X-GitHub-Event', '')
+    if event != 'push':
+        return JSONResponse({'skipped': f'event={event}'})
+
+    try:
+        payload = json.loads(body)
+    except Exception:
+        return JSONResponse({'error': 'Invalid JSON'}, status_code=400)
+
+    if payload.get('ref') != 'refs/heads/main':
+        return JSONResponse({'skipped': f"ref={payload.get('ref')}"})
+
+    with _deploy_lock:
+        if _deploy_job['status'] == 'running':
+            return JSONResponse({'skipped': 'deploy already in progress'}, status_code=409)
+        thread = threading.Thread(target=_deploy_pipeline, daemon=True)
+        thread.start()
+
+    return JSONResponse({'ok': True, 'message': 'Deploy started'})
+
+
+@app.get('/api/deploy/status')
+async def deploy_status():
+    """Poll deploy pipeline progress."""
+    return JSONResponse(_deploy_job)
+
+
+@app.post('/api/deploy/trigger')
+async def deploy_trigger():
+    """Manually trigger the deploy pipeline (no webhook needed, dev use)."""
+    with _deploy_lock:
+        if _deploy_job['status'] == 'running':
+            return JSONResponse({'skipped': 'deploy already in progress'}, status_code=409)
+        thread = threading.Thread(target=_deploy_pipeline, daemon=True)
+        thread.start()
+    return JSONResponse({'ok': True, 'message': 'Deploy started'})
+
 # ── Entrypoint ─────────────────────────────────────────────────────────────────
 
 if __name__ == '__main__':
