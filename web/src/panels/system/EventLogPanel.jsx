@@ -17,6 +17,7 @@
 
 import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { LOG_TAG_ORDER, LOG_TAGS, useStore } from '../../core/store';
+import './EventLogPanel.css';
 
 // ── Presets ───────────────────────────────────────────────────────────────────
 

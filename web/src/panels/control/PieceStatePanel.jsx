@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '../../core/store';
-import './PieceStatePanel.css';
+import '../../tabs/CubeTab.css';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 

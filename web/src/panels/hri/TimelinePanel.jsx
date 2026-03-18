@@ -6,7 +6,7 @@ import {
 import Panel from '../../components/Panel';
 import { LOG_TAGS, useStore } from '../../core/store';
 import { publishROS } from '../../core/ros';
-import './TimelinePanel.css';
+import '../../tabs/ConversationTab.css';
 
 // ── Session parsing ───────────────────────────────────────────────────────────
 

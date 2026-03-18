@@ -1,6 +1,6 @@
 import { useStore } from '../../core/store';
 import { useState, useEffect } from 'react';
-import './EmotionPalettePanel.css';
+import '../../tabs/FaceTab.css';
 import { Zap, Radio, RefreshCw, Circle } from 'lucide-react';
 
 // ── Emotion configuration ─────────────────────────────────────────────────────

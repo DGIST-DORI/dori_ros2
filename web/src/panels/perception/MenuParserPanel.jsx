@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import './MenuParserPanel.css';
+import '../../tabs/KnowledgeTab.css';
 
 const API = '/api/knowledge';
 
