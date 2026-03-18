@@ -1,7 +1,4 @@
-/** Panel implementation (standalone file). */
-
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Check, X, AlertCircle, Upload, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 import Panel from '../../components/Panel';
 import '../../tabs/KnowledgeTab.css';
 
@@ -19,23 +16,6 @@ function StatusBadge({ status }) {
   const [cls, label] = map[status] ?? map.idle;
   return <span className={cls}>{label}</span>;
 }
-
-function LogPane({ lines }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
-  }, [lines]);
-  return (
-    <div className="km-log" ref={ref}>
-      {lines.length === 0
-        ? <span className="km-log-empty">No output yet.</span>
-        : lines.map((l, i) => <div key={i} className="km-log-line">{l}</div>)
-      }
-    </div>
-  );
-}
-
-// ── Section 4: Building Editor ────────────────────────────────────────────────
 
 const EMPTY_BUILDING = {
   bldg_no: '', name_ko: '', name_en: '',
@@ -238,23 +218,6 @@ function BuildingEditorPanel() {
         </div>
       </div>
     </Panel>
-  );
-}
-
-// ── Root tab ──────────────────────────────────────────────────────────────────
-
-function KnowledgeTab() {
-  return (
-    <div className="km-layout">
-      <div className="km-col km-col-left">
-        <MenuParserPanel />
-        <IndexBuilderPanel />
-      </div>
-      <div className="km-col km-col-right">
-        <DocumentBrowserPanel />
-        <BuildingEditorPanel />
-      </div>
-    </div>
   );
 }
 

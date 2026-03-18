@@ -1,11 +1,7 @@
-/** Panel implementation (standalone file). */
-
 import { useEffect, useRef, useState } from 'react';
-import Panel from '../../components/Panel';
 import { useStore } from '../../core/store';
 import { DEFAULT_EMOTION } from '../../core/emotion';
 import '../../tabs/FaceTab.css';
-import { Zap, Radio, RefreshCw, Circle } from 'lucide-react';
 
 // ── Single face color (always the same regardless of emotion) ─────────────────
 const FACE_COLOR = '#e8eaf0';
@@ -696,88 +692,6 @@ function FaceCanvas({ emotion }) {
   );
 }
 
-// ── Main Tab ──────────────────────────────────────────────────────────────────
-function FaceTab() {
-  const emotion       = useStore(s => s.emotion);
-  const hriState      = useStore(s => s.hriState);
-  const emotionSource = useStore(s => s.emotionSource);
-  const cfg = EMOTION_CONFIG[emotion] || EMOTION_CONFIG[FALLBACK_EMOTION];
-
-  return (
-    <div className="face-layout">
-
-      {/* ── Main display ── */}
-      <div className="face-main">
-        <Panel title="DORI Face" className="face-panel-main">
-          <div className="face-canvas-wrap">
-            <div className="face-canvas-inner">
-              <FaceCanvas emotion={emotion} />
-            </div>
-            <div className="face-emotion-label">{cfg.label}</div>
-          </div>
-        </Panel>
-      </div>
-
-      {/* ── Side info ── */}
-      <div className="face-side">
-
-        <Panel title="Emotion Palette">
-          <div className="face-palette">
-            {Object.entries(EMOTION_CONFIG).map(([key, ecfg]) => (
-              <button
-                key={key}
-                className={`face-palette-btn ${emotion === key ? 'active' : ''}`}
-                onClick={() => useStore.getState().setEmotionOverride(key)}
-                title={ecfg.label}
-              >
-                <span className="face-palette-dot" />
-                <span className="face-palette-name">{ecfg.label}</span>
-                {emotion === key && (
-                  <span className="face-palette-active-mark">
-                    <Circle size={6} fill="currentColor" strokeWidth={0} />
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </Panel>
-
-        <Panel title="Status">
-          <div className="face-status-list">
-            <div className="face-status-row">
-              <span className="face-status-key">Emotion</span>
-              <span className="face-status-val">{emotion}</span>
-            </div>
-            <div className="face-status-row">
-              <span className="face-status-key">Source</span>
-              <span className={`face-status-val face-source-${emotionSource} face-source-icon`}>
-                {emotionSource === 'override'
-                 ? <><Zap size={10} strokeWidth={2} /> override</>
-                 : emotionSource === 'ros'
-                 ? <><Radio size={10} strokeWidth={2} /> ros</>
-                 : <><RefreshCw size={10} strokeWidth={2} /> state</>}
-              </span>
-            </div>
-            <div className="face-status-row">
-              <span className="face-status-key">HRI State</span>
-              <span className="face-status-val">{hriState}</span>
-            </div>
-          </div>
-          {emotionSource === 'override' && (
-            <button
-              className="face-clear-override"
-              onClick={() => useStore.getState().clearEmotionOverride()}
-            >
-              Clear Override
-            </button>
-          )}
-        </Panel>
-
-      </div>
-    </div>
-  );
-}
-
 function FaceDisplayPanel() {
   const emotion = useStore(s => s.emotion);
   const cfg = EMOTION_CONFIG[emotion] || EMOTION_CONFIG[FALLBACK_EMOTION];
@@ -787,33 +701,6 @@ function FaceDisplayPanel() {
         <FaceCanvas emotion={emotion} />
       </div>
       <div className="face-emotion-label">{cfg.label}</div>
-    </div>
-  );
-}
- 
-function EmotionPalettePanel() {
-  const emotion       = useStore(s => s.emotion);
-  const emotionSource = useStore(s => s.emotionSource);
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'auto' }}>
-      <div className="face-palette">
-        {Object.entries(EMOTION_CONFIG).map(([key, ecfg]) => (
-          <button
-            key={key}
-            className={`face-palette-btn ${emotion === key ? 'active' : ''}`}
-            onClick={() => useStore.getState().setEmotionOverride(key)}
-          >
-            <span className="face-palette-dot" />
-            <span className="face-palette-name">{ecfg.label}</span>
-            {emotion === key && <span className="face-palette-active-mark"><Circle size={6} fill="currentColor" strokeWidth={0} /></span>}
-          </button>
-        ))}
-      </div>
-      {emotionSource === 'override' && (
-        <button className="face-clear-override" onClick={() => useStore.getState().clearEmotionOverride()}>
-          Clear Override
-        </button>
-      )}
     </div>
   );
 }

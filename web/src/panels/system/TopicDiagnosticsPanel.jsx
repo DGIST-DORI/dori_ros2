@@ -1,11 +1,8 @@
-/** Panel implementation (standalone file). */
-
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import Panel from '../../components/Panel';
 import { TOPIC_META, useStore } from '../../core/store';
-import { parseWsUrl } from '../../core/url';
-import { fmt, hzClass, isWarn, pct, primaryClass, valueClass } from './shared/formatters';
+import { fmt, hzClass } from './shared/formatters';
 import '../../tabs/SystemTab.css';
 
 const COLUMNS = [
@@ -19,32 +16,6 @@ const COLUMNS = [
   { key: 'qosSummary', label: 'QoS', sortFn: null },
   { key: 'lastSeen', label: 'Last seen', sortFn: (a, b) => (b.lastSeenMs ?? 0) - (a.lastSeenMs ?? 0) },
 ];
-
-function MetricCard({ title, usagePct, warnAt = 85, primary, details }) {
-  const warn = isWarn(usagePct, warnAt);
-
-  return (
-    <div className="sys-metric-card">
-      <div className="sys-metric-card-header">
-        <span className="sys-metric-title">{title}</span>
-        <span className={primaryClass(usagePct, warnAt)}>{primary}</span>
-      </div>
-      {usagePct != null && (
-        <div className="sys-bar-wrap">
-          <div className={`sys-bar-fill ${warn ? 'warn' : ''}`} style={{ width: pct(usagePct) }} />
-        </div>
-      )}
-      <div className="sys-metric-details">
-        {details.map(([label, value, extraCls]) => (
-          <div key={label} className="sys-metric-row">
-            <span>{label}</span>
-            <span className={`sys-metric-value ${extraCls ?? ''}`}>{value}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function TopicDiagnosticsPanel({ className = 'sys-panel-diag' }) {
   const topicStats = useStore((s) => s.topicStats);
@@ -166,119 +137,6 @@ function TopicDiagnosticsPanel({ className = 'sys-panel-diag' }) {
         </div>
       </div>
     </Panel>
-  );
-}
-
-function ConnectionInfoPanel() {
-  const connected = useStore((s) => s.connected);
-  const isDemoMode = useStore((s) => s.isDemoMode);
-  const wsUrl = useStore((s) => s.wsUrl);
-
-  const parsedWsUrl = parseWsUrl(wsUrl);
-
-  return (
-    <Panel title="Connection Info">
-      <div className="sys-info">
-        <div className="sys-info-row">
-          <span>Status</span>
-          <span
-            style={{
-              color: connected ? 'var(--green)'
-                : isDemoMode ? 'var(--yellow)'
-                : 'var(--text-2)',
-            }}
-          >
-            {connected ? 'ROS Connected' : isDemoMode ? 'Demo Mode' : 'Disconnected'}
-          </span>
-        </div>
-        <div className="sys-info-row">
-          <span>{connected ? 'Current URL' : 'Configured URL'}</span>
-          <span>{wsUrl}</span>
-        </div>
-        {parsedWsUrl ? (
-          <>
-            <div className="sys-info-row"><span>Transport</span><span>{parsedWsUrl.protocol.toUpperCase()}</span></div>
-            <div className="sys-info-row"><span>Host</span><span>{parsedWsUrl.host}</span></div>
-            <div className="sys-info-row"><span>Port</span><span>{parsedWsUrl.port}</span></div>
-            <div className="sys-info-row"><span>Path</span><span>{parsedWsUrl.path || '/'}</span></div>
-          </>
-        ) : (
-          <div className="sys-info-row">
-            <span>Transport</span>
-            <span style={{ color: 'var(--red)' }}>Invalid URL</span>
-          </div>
-        )}
-      </div>
-    </Panel>
-  );
-}
-
-function MetricsPanel({ className = 'sys-panel-metrics' }) {
-  const systemMetrics = useStore((s) => s.systemMetrics);
-
-  const cpu = systemMetrics?.cpu;
-  const gpu = systemMetrics?.gpu;
-  const ram = systemMetrics?.ram;
-  const disk = systemMetrics?.disk;
-
-  return (
-    <Panel title="System Metrics" className={className}>
-      <div className="sys-metrics-body">
-        <MetricCard
-          title="CPU"
-          usagePct={cpu?.usage_pct}
-          warnAt={85}
-          primary={fmt(cpu?.usage_pct, '%')}
-          details={[
-            ['Logical', fmt(cpu?.count_logical)],
-            ['Physical', fmt(cpu?.count_physical)],
-            ['Load avg', cpu?.load_avg_1_5_15?.join(' / ') ?? 'N/A'],
-          ]}
-        />
-        <MetricCard
-          title="RAM"
-          usagePct={ram?.usage_pct}
-          warnAt={85}
-          primary={`${fmt(ram?.used_mb)} / ${fmt(ram?.total_mb)} MB`}
-          details={[
-            ['Usage', fmt(ram?.usage_pct, '%'), valueClass(ram?.usage_pct, 85).replace('sys-metric-value', '').trim()],
-            ['Available', fmt(ram?.available_mb, ' MB')],
-          ]}
-        />
-        <MetricCard
-          title="GPU"
-          usagePct={gpu?.utilization_pct}
-          warnAt={90}
-          primary={fmt(gpu?.utilization_pct, '%')}
-          details={[
-            ['Provider', fmt(gpu?.provider)],
-            ['VRAM', gpu?.memory_used_mb != null ? `${gpu.memory_used_mb} / ${gpu.memory_total_mb} MB` : 'N/A'],
-            ['Temp', fmt(gpu?.temperature_c, '°C'), valueClass(gpu?.temperature_c, 80).replace('sys-metric-value', '').trim()],
-          ]}
-        />
-        <MetricCard
-          title="Disk"
-          usagePct={disk?.usage_pct}
-          warnAt={90}
-          primary={`${fmt(disk?.used_gb)} / ${fmt(disk?.total_gb)} GB`}
-          details={[
-            ['Usage', fmt(disk?.usage_pct, '%'), valueClass(disk?.usage_pct, 90).replace('sys-metric-value', '').trim()],
-          ]}
-        />
-      </div>
-    </Panel>
-  );
-}
-
-function SystemTab() {
-  return (
-    <div className="sys-layout">
-      <TopicDiagnosticsPanel />
-      <div className="sys-col-right">
-        <ConnectionInfoPanel />
-        <MetricsPanel />
-      </div>
-    </div>
   );
 }
 

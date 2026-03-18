@@ -1,7 +1,5 @@
-/** Panel implementation (standalone file). */
-
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Check, X, AlertCircle, Upload, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X } from 'lucide-react';
 import Panel from '../../components/Panel';
 import '../../tabs/KnowledgeTab.css';
 
@@ -146,23 +144,6 @@ function MenuParserPanel() {
         <LogPane lines={log} />
       </div>
     </Panel>
-  );
-}
-
-// ── Root tab ──────────────────────────────────────────────────────────────────
-
-function KnowledgeTab() {
-  return (
-    <div className="km-layout">
-      <div className="km-col km-col-left">
-        <MenuParserPanel />
-        <IndexBuilderPanel />
-      </div>
-      <div className="km-col km-col-right">
-        <DocumentBrowserPanel />
-        <BuildingEditorPanel />
-      </div>
-    </div>
   );
 }
 

@@ -1,9 +1,7 @@
-/** Panel implementation (standalone file). */
-
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   User, Bot, Bell, Volume2, Check, GitCommitHorizontal,
-  Hand, Map, RotateCcw, Navigation, Activity,
+  Hand, Map, RotateCcw, Navigation,
 } from 'lucide-react';
 import Panel from '../../components/Panel';
 import { LOG_TAGS, useStore } from '../../core/store';
@@ -488,15 +486,7 @@ function ConversationTabContent() {
   );
 }
 
-function ConversationTab() {
-  return <ConversationTabContent />;
-}
-
 function SessionListPanel() {
-  return <ConversationTabContent />;
-}
- 
-function TimelinePanel() {
   return <ConversationTabContent />;
 }
 
