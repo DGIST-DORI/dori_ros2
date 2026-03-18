@@ -8,7 +8,7 @@
 import STTPanel from './panels/hri/STTPanel';
 import WakeWordPanel from './panels/hri/WakeWordPanel';
 import StateMonitorPanel from './panels/hri/StateMonitorPanel';
-import EventLogPanel from './panels/hri/EventLogPanel';
+import EventLogPanel from './panels/system/EventLogPanel';
 
 import FaceDisplayPanel from './panels/hri/FaceDisplayPanel';
 import EmotionPalettePanel from './panels/hri/EmotionPalettePanel';
@@ -62,7 +62,6 @@ export const PANEL_TREE = [
         id: 'hri-state', label: 'State', icon: <StateIcon />,
         children: [
           { id: 'state-monitor', label: 'State Monitor', component: StateMonitorPanel },
-          { id: 'event-log',     label: 'Event Log',     component: EventLogPanel },
         ],
       },
       {
@@ -140,6 +139,7 @@ export const PANEL_TREE = [
           { id: 'sys-connection', label: 'Connection',        component: ConnectionInfoPanel },
           { id: 'sys-topics',     label: 'Topic Diagnostics', component: TopicDiagnosticsPanel },
           { id: 'sys-metrics',    label: 'Metrics',           component: MetricsPanel },
+          { id: 'event-log',      label: 'Event Log',         component: EventLogPanel },
           { id: 'sys-topic-publisher', label: 'Topic Publisher', component: TopicPublisherPanel },
         ],
       },
