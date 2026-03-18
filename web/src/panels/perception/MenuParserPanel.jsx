@@ -1,18 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import Panel from '../../components/Panel';
 import '../../tabs/KnowledgeTab.css';
 
 const API = '/api/knowledge';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function StatusBadge({ status }) {
   const map = {
-    idle:    ['km-badge km-badge-idle',    '—'],
+    idle: ['km-badge km-badge-idle', '—'],
     running: ['km-badge km-badge-running', 'RUNNING'],
-    ok:      ['km-badge km-badge-ok',      'OK'],
-    error:   ['km-badge km-badge-error',   'ERROR'],
+    ok: ['km-badge km-badge-ok', 'OK'],
+    error: ['km-badge km-badge-error', 'ERROR'],
   };
   const [cls, label] = map[status] ?? map.idle;
   return <span className={cls}>{label}</span>;
@@ -27,20 +24,19 @@ function LogPane({ lines }) {
     <div className="km-log" ref={ref}>
       {lines.length === 0
         ? <span className="km-log-empty">No output yet.</span>
-        : lines.map((l, i) => <div key={i} className="km-log-line">{l}</div>)
-      }
+        : lines.map((l, i) => <div key={i} className="km-log-line">{l}</div>)}
     </div>
   );
 }
 
 function MenuParserPanel() {
-  const [files,   setFiles]   = useState([]);
-  const [status,  setStatus]  = useState('idle');
-  const [log,     setLog]     = useState([]);
+  const [files, setFiles] = useState([]);
+  const [status, setStatus] = useState('idle');
+  const [log, setLog] = useState([]);
   const inputRef = useRef(null);
 
   function appendLog(msg) {
-    setLog(prev => [...prev, `${new Date().toLocaleTimeString()}  ${msg}`]);
+    setLog((prev) => [...prev, `${new Date().toLocaleTimeString()}  ${msg}`]);
   }
 
   async function handleUpload() {
@@ -50,14 +46,14 @@ function MenuParserPanel() {
     appendLog(`Uploading ${files.length} file(s)…`);
 
     const fd = new FormData();
-    files.forEach(f => fd.append('files', f));
+    files.forEach((f) => fd.append('files', f));
 
     try {
       const res = await fetch(`${API}/parse-menu`, { method: 'POST', body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail ?? res.statusText);
 
-      data.results.forEach(r => {
+      data.results.forEach((r) => {
         if (r.ok) {
           appendLog(`[OK] ${r.filename}  →  ${r.out_json}`);
           appendLog(`  └ ${r.out_txt}`);
@@ -65,7 +61,7 @@ function MenuParserPanel() {
           appendLog(`[ERR] ${r.filename}  —  ${r.error}`);
         }
       });
-      setStatus(data.results.every(r => r.ok) ? 'ok' : 'error');
+      setStatus(data.results.every((r) => r.ok) ? 'ok' : 'error');
     } catch (e) {
       appendLog(`ERROR: ${e.message}`);
       setStatus('error');
@@ -75,27 +71,26 @@ function MenuParserPanel() {
   function handleDrop(e) {
     e.preventDefault();
     const dropped = [...e.dataTransfer.files].filter(
-      f => f.name.endsWith('.xlsx') || f.name.endsWith('.pdf')
+      (f) => f.name.endsWith('.xlsx') || f.name.endsWith('.pdf'),
     );
-    setFiles(prev => [...prev, ...dropped]);
+    setFiles((prev) => [...prev, ...dropped]);
   }
 
   function removeFile(idx) {
-    setFiles(prev => prev.filter((_, i) => i !== idx));
+    setFiles((prev) => prev.filter((_, i) => i !== idx));
   }
 
   return (
-    <Panel title="Menu Parser" className="km-panel">
+    <div className="km-panel-root km-menu-parser-panel">
       <div className="km-section">
         <p className="km-hint">
           Upload weekly menu files (<code>.xlsx</code> / <code>.pdf</code>).
           Parsed output is saved to <code>data/campus/processed/cafeteria/</code>.
         </p>
 
-        {/* Drop zone */}
         <div
           className={`km-dropzone ${files.length > 0 ? 'has-files' : ''}`}
-          onDragOver={e => e.preventDefault()}
+          onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
           onClick={() => inputRef.current?.click()}
         >
@@ -105,12 +100,12 @@ function MenuParserPanel() {
             accept=".xlsx,.pdf"
             multiple
             style={{ display: 'none' }}
-            onChange={e => setFiles(prev => [...prev, ...[...e.target.files]])}
+            onChange={(e) => setFiles((prev) => [...prev, ...[...e.target.files]])}
           />
           {files.length === 0
             ? <span className="km-dropzone-hint">Drop .xlsx / .pdf here or click to browse</span>
             : (
-              <ul className="km-file-list" onClick={e => e.stopPropagation()}>
+              <ul className="km-file-list" onClick={(e) => e.stopPropagation()}>
                 {files.map((f, i) => (
                   <li key={i} className="km-file-item">
                     <span className="km-file-name">{f.name}</span>
@@ -121,8 +116,7 @@ function MenuParserPanel() {
                   </li>
                 ))}
               </ul>
-            )
-          }
+            )}
         </div>
 
         <div className="km-actions">
@@ -143,7 +137,7 @@ function MenuParserPanel() {
 
         <LogPane lines={log} />
       </div>
-    </Panel>
+    </div>
   );
 }
 

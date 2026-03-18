@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
-import Panel from '../../components/Panel';
 import { TOPIC_META, useStore } from '../../core/store';
 import { fmt, hzClass } from './shared/formatters';
 import '../../tabs/SystemTab.css';
@@ -62,7 +61,7 @@ function TopicDiagnosticsPanel({ className = 'sys-panel-diag' }) {
   }, [allRows, search, sortKey, sortDir]);
 
   return (
-    <Panel title="Topic Diagnostics" className={className}>
+    <div className={`sys-panel-root sys-panel-diag-root ${className}`.trim()}>
       <div className="sys-topic-diag">
         <div className="sys-diag-toolbar">
           <input
@@ -136,7 +135,7 @@ function TopicDiagnosticsPanel({ className = 'sys-panel-diag' }) {
           </table>
         </div>
       </div>
-    </Panel>
+    </div>
   );
 }
 

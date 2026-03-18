@@ -71,3 +71,9 @@ For broader project context, see the root README: `../README.md`.
 
 
 - System 패널에는 `Topic Publisher`가 포함되며 경로는 `web/src/panels/system/TopicPublisherPanel.jsx`입니다.
+
+### Header ownership rule
+
+- Floating workspace (`FloatingPanel`) and mobile stack (`MobileStack`) own the window title + minimize/close controls. Panels opened there must render content-only roots and must not recreate an internal `Panel` header.
+- Sidebar or fixed tab layouts may still use `web/src/components/Panel.jsx` when they need a local card header/body shell.
+- When moving a panel between layouts, keep header responsibility in exactly one layer and move any padding, overflow, or badge UI into the panel-specific root/CSS.

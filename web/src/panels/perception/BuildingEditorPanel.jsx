@@ -1,17 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import Panel from '../../components/Panel';
 import '../../tabs/KnowledgeTab.css';
 
 const API = '/api/knowledge';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function StatusBadge({ status }) {
   const map = {
-    idle:    ['km-badge km-badge-idle',    '—'],
+    idle: ['km-badge km-badge-idle', '—'],
     running: ['km-badge km-badge-running', 'RUNNING'],
-    ok:      ['km-badge km-badge-ok',      'OK'],
-    error:   ['km-badge km-badge-error',   'ERROR'],
+    ok: ['km-badge km-badge-ok', 'OK'],
+    error: ['km-badge km-badge-error', 'ERROR'],
   };
   const [cls, label] = map[status] ?? map.idle;
   return <span className={cls}>{label}</span>;
@@ -25,12 +22,12 @@ const EMPTY_BUILDING = {
 };
 
 function BuildingEditorPanel() {
-  const [buildings, setBuildings]   = useState({});
-  const [selected,  setSelected]    = useState(null);
-  const [draft,     setDraft]       = useState(null);
-  const [saving,    setSaving]      = useState(false);
+  const [buildings, setBuildings] = useState({});
+  const [selected, setSelected] = useState(null);
+  const [draft, setDraft] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle');
-  const [filter,    setFilter]      = useState('');
+  const [filter, setFilter] = useState('');
 
   const fetchBuildings = useCallback(async () => {
     try {
@@ -48,7 +45,7 @@ function BuildingEditorPanel() {
   }
 
   function updateDraft(field, value) {
-    setDraft(prev => ({ ...prev, [field]: value }));
+    setDraft((prev) => ({ ...prev, [field]: value }));
   }
 
   async function handleSave() {
@@ -64,33 +61,32 @@ function BuildingEditorPanel() {
       if (!res.ok) throw new Error((await res.json()).detail);
       await fetchBuildings();
       setSaveStatus('ok');
-    } catch (e) {
+    } catch {
       setSaveStatus('error');
     }
     setSaving(false);
   }
 
-  const keys = Object.keys(buildings).filter(k =>
-    k.toLowerCase().includes(filter.toLowerCase()) ||
-    (buildings[k].name_ko ?? '').includes(filter) ||
-    (buildings[k].name_en ?? '').toLowerCase().includes(filter.toLowerCase())
+  const keys = Object.keys(buildings).filter((k) =>
+    k.toLowerCase().includes(filter.toLowerCase())
+    || (buildings[k].name_ko ?? '').includes(filter)
+    || (buildings[k].name_en ?? '').toLowerCase().includes(filter.toLowerCase()),
   );
 
   const isEmpty = (b) => !b.name_ko && !b.name_en;
 
   return (
-    <Panel title="Building Editor" className="km-panel km-panel-wide">
+    <div className="km-panel-root km-building-editor-panel km-panel-wide">
       <div className="km-building-layout">
-        {/* Left: key list */}
         <div className="km-building-list">
           <input
             className="km-search"
             placeholder="Search…"
             value={filter}
-            onChange={e => setFilter(e.target.value)}
+            onChange={(e) => setFilter(e.target.value)}
           />
           <div className="km-building-keys">
-            {keys.map(k => (
+            {keys.map((k) => (
               <button
                 key={k}
                 className={`km-building-key ${selected === k ? 'active' : ''} ${isEmpty(buildings[k]) ? 'empty' : ''}`}
@@ -99,14 +95,12 @@ function BuildingEditorPanel() {
                 <span className="km-key-id">{k}</span>
                 {isEmpty(buildings[k])
                   ? <span className="km-key-empty">unfilled</span>
-                  : <span className="km-key-name">{buildings[k].name_ko}</span>
-                }
+                  : <span className="km-key-name">{buildings[k].name_ko}</span>}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Right: editor */}
         <div className="km-building-editor">
           {!draft
             ? <div className="km-empty km-empty-center">Select a building to edit</div>
@@ -114,11 +108,11 @@ function BuildingEditorPanel() {
               <>
                 <div className="km-field-grid">
                   {[
-                    ['Name (KO)',    'name_ko',          'text'],
-                    ['Name (EN)',    'name_en',          'text'],
-                    ['Hours',        'hours',             'text'],
-                    ['URL',          'url',               'text'],
-                    ['Floor',        'floor',             'number'],
+                    ['Name (KO)', 'name_ko', 'text'],
+                    ['Name (EN)', 'name_en', 'text'],
+                    ['Hours', 'hours', 'text'],
+                    ['URL', 'url', 'text'],
+                    ['Floor', 'floor', 'number'],
                   ].map(([label, field, type]) => (
                     <label key={field} className="km-field">
                       <span className="km-field-label">{label}</span>
@@ -126,8 +120,9 @@ function BuildingEditorPanel() {
                         type={type}
                         className="km-input"
                         value={draft[field] ?? ''}
-                        onChange={e => updateDraft(field,
-                          type === 'number' ? Number(e.target.value) : e.target.value
+                        onChange={(e) => updateDraft(
+                          field,
+                          type === 'number' ? Number(e.target.value) : e.target.value,
                         )}
                       />
                     </label>
@@ -137,7 +132,7 @@ function BuildingEditorPanel() {
                     <textarea
                       className="km-input km-textarea"
                       value={draft.description_ko ?? ''}
-                      onChange={e => updateDraft('description_ko', e.target.value)}
+                      onChange={(e) => updateDraft('description_ko', e.target.value)}
                     />
                   </label>
                   <label className="km-field km-field-full">
@@ -145,7 +140,7 @@ function BuildingEditorPanel() {
                     <textarea
                       className="km-input km-textarea"
                       value={draft.description_en ?? ''}
-                      onChange={e => updateDraft('description_en', e.target.value)}
+                      onChange={(e) => updateDraft('description_en', e.target.value)}
                     />
                   </label>
                   <label className="km-field km-field-full">
@@ -154,8 +149,9 @@ function BuildingEditorPanel() {
                       type="text"
                       className="km-input"
                       value={(draft.keywords ?? []).join(', ')}
-                      onChange={e => updateDraft('keywords',
-                        e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                      onChange={(e) => updateDraft(
+                        'keywords',
+                        e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
                       )}
                     />
                   </label>
@@ -165,8 +161,9 @@ function BuildingEditorPanel() {
                       type="text"
                       className="km-input"
                       value={(draft.facilities ?? []).join(', ')}
-                      onChange={e => updateDraft('facilities',
-                        e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                      onChange={(e) => updateDraft(
+                        'facilities',
+                        e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
                       )}
                     />
                   </label>
@@ -177,8 +174,9 @@ function BuildingEditorPanel() {
                       step="0.0001"
                       className="km-input"
                       value={draft.coordinates?.[0] ?? 0}
-                      onChange={e => updateDraft('coordinates',
-                        [parseFloat(e.target.value), draft.coordinates?.[1] ?? 0]
+                      onChange={(e) => updateDraft(
+                        'coordinates',
+                        [parseFloat(e.target.value), draft.coordinates?.[1] ?? 0],
                       )}
                     />
                   </label>
@@ -189,8 +187,9 @@ function BuildingEditorPanel() {
                       step="0.0001"
                       className="km-input"
                       value={draft.coordinates?.[1] ?? 0}
-                      onChange={e => updateDraft('coordinates',
-                        [draft.coordinates?.[0] ?? 0, parseFloat(e.target.value)]
+                      onChange={(e) => updateDraft(
+                        'coordinates',
+                        [draft.coordinates?.[0] ?? 0, parseFloat(e.target.value)],
                       )}
                     />
                   </label>
@@ -213,11 +212,10 @@ function BuildingEditorPanel() {
                   <StatusBadge status={saveStatus} />
                 </div>
               </>
-            )
-          }
+            )}
         </div>
       </div>
-    </Panel>
+    </div>
   );
 }
 

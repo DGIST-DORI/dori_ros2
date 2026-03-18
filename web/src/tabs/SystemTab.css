@@ -32,6 +32,17 @@
   flex-shrink: 0;
 }
 
+.sys-panel-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.sys-panel-connection {
+  overflow: auto;
+}
+
 /* ── Topic Diagnostics ───────────────────────────────────────────────────── */
 
 .sys-topic-diag {

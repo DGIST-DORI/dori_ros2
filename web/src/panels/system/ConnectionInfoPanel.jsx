@@ -1,4 +1,3 @@
-import Panel from '../../components/Panel';
 import { useStore } from '../../core/store';
 import { parseWsUrl } from '../../core/url';
 import '../../tabs/SystemTab.css';
@@ -11,7 +10,7 @@ function ConnectionInfoPanel() {
   const parsedWsUrl = parseWsUrl(wsUrl);
 
   return (
-    <Panel title="Connection Info">
+    <div className="sys-panel-root sys-panel-connection">
       <div className="sys-info">
         <div className="sys-info-row">
           <span>Status</span>
@@ -43,7 +42,7 @@ function ConnectionInfoPanel() {
           </div>
         )}
       </div>
-    </Panel>
+    </div>
   );
 }
 

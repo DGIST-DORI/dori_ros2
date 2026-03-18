@@ -24,13 +24,21 @@
 .km-col-left  { /* Menu Parser + Index Builder */ }
 .km-col-right { /* Doc Browser + Building Editor */ flex: 1; }
 
-.km-panel {
+.km-panel,
+.km-panel-root {
   flex: 1;
   min-height: 0;
 }
 
 .km-panel-wide {
   flex: 2;
+}
+
+.km-panel-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 /* ── Section wrapper ──────────────────────────────────────────────────────── */
@@ -287,6 +295,24 @@
   display: flex;
   gap: 6px;
   align-items: center;
+}
+
+.km-toolbar-with-badge {
+  align-items: stretch;
+}
+
+.km-panel-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 0 8px;
+  font-size: 10px;
+  color: var(--text-2);
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
 }
 
 .km-search {
