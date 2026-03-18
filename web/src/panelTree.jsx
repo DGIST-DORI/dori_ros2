@@ -5,27 +5,30 @@
  * Keep `Control / Perception & Intelligence / System` leaves under matching folders.
  */
 
-import { STTPanel } from './panels/hri/STTPanel';
-import { WakeWordPanel } from './panels/hri/WakeWordPanel';
-import { StateMonitorPanel } from './panels/hri/StateMonitorPanel';
-import { EventLogPanel } from './panels/hri/EventLogPanel';
+import STTPanel from './panels/hri/STTPanel';
+import WakeWordPanel from './panels/hri/WakeWordPanel';
+import StateMonitorPanel from './panels/hri/StateMonitorPanel';
+import EventLogPanel from './panels/hri/EventLogPanel';
 
-import { FaceDisplayPanel } from './panels/hri/FaceDisplayPanel';
-import { EmotionPalettePanel } from './panels/hri/EmotionPalettePanel';
-import { SessionListPanel } from './panels/hri/SessionListPanel';
-import { TimelinePanel } from './panels/hri/TimelinePanel';
+import FaceDisplayPanel from './panels/hri/FaceDisplayPanel';
+import EmotionPalettePanel from './panels/hri/EmotionPalettePanel';
+import SessionListPanel from './panels/hri/SessionListPanel';
+import TimelinePanel from './panels/hri/TimelinePanel';
 
-import { CubeViewerPanel } from './panels/control/CubeViewerPanel';
-import { PieceStatePanel } from './panels/control/PieceStatePanel';
-import { RotationControlPanel } from './panels/control/RotationControlPanel';
-import { VisionPanel } from './panels/perception/VisionPanel';
-import { LLMTTSPanel } from './panels/perception/LLMTTSPanel';
-import { DocumentBrowserPanel } from './panels/perception/DocumentBrowserPanel';
-import { BuildingEditorPanel } from './panels/perception/BuildingEditorPanel';
+import CubeViewerPanel from './panels/control/CubeViewerPanel';
+import PieceStatePanel from './panels/control/PieceStatePanel';
+import RotationControlPanel from './panels/control/RotationControlPanel';
 
-import { TopicDiagnosticsPanel } from './panels/system/TopicDiagnosticsPanel';
-import { ConnectionInfoPanel } from './panels/system/ConnectionInfoPanel';
-import { MetricsPanel } from './panels/system/MetricsPanel';
+import VisionPanel from './panels/perception/VisionPanel';
+import LLMTTSPanel from './panels/perception/LLMTTSPanel';
+import MenuParserPanel from './panels/perception/MenuParserPanel';
+import IndexBuilderPanel from './panels/perception/IndexBuilderPanel';
+import DocumentBrowserPanel from './panels/perception/DocumentBrowserPanel';
+import BuildingEditorPanel from './panels/perception/BuildingEditorPanel';
+
+import TopicDiagnosticsPanel from './panels/system/TopicDiagnosticsPanel';
+import ConnectionInfoPanel from './panels/system/ConnectionInfoPanel';
+import MetricsPanel from './panels/system/MetricsPanel';
 import TopicPublisherPanel from './panels/system/TopicPublisherPanel';
 
 import HriIcon        from './assets/icons/icon-hri.svg?react';
@@ -120,6 +123,8 @@ export const PANEL_TREE = [
       {
         id: 'perc-knowledge', label: 'Knowledge', icon: <KnowledgeIcon />,
         children: [
+          { id: 'menu-parser', label: 'Menu Parser',     component: MenuParserPanel },
+          { id: 'index-builder', label: 'Index Builder',   component: IndexBuilderPanel },
           { id: 'knowledge-docs',     label: 'Document Browser', component: DocumentBrowserPanel },
           { id: 'knowledge-building', label: 'Building Editor',  component: BuildingEditorPanel },
         ],
