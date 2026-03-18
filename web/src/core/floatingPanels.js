@@ -24,27 +24,26 @@ const STAGGER   = 28;
 
 // Per-panel default sizes [w, h] in px — unlisted panels use DEFAULT_W x DEFAULT_H
 const PANEL_SIZES = {
-  'stt':                [420, 380],
-  'wakeword':           [340, 200],
+  'stt':                [420, 300],
+  'wakeword':           [340, 180],
   'tts':                [420, 320],
-  'state-monitor':      [340, 300],
+  'state-monitor':      [340, 310],
   'event-log':          [520, 400],
   'face-display':       [400, 420],
   'face-palette':       [280, 300],
   'conversation':       [680, 480],
-  'timeline':           [680, 480],
   'cube-3d':            [520, 480],
-  'cube-rotation':      [400, 340],
+  'cube-rotation':      [400, 220],
   'cube-pieces':        [400, 380],
   'menu-parser':        [480, 360],
-  'index-builder':      [480, 360],
-  'knowledge-docs':     [560, 440],
+  'index-builder':      [480, 300],
+  'knowledge-docs':     [560, 420],
   'knowledge-building': [480, 400],
-  'sys-connection':     [360, 280],
+  'sys-connection':     [360, 220],
   'sys-topics':         [700, 460],
-  'sys-metrics':        [360, 400],
-  'vision-test':        [480, 420],
-  'llm-inject':         [420, 320],
+  'sys-metrics':        [360, 340],
+  'vision-test':        [480, 460],
+  'llm-inject':         [420, 250],
 };
 
 let zCounter = 10;

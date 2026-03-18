@@ -1,4 +1,4 @@
-/**
+/*
  * tabs/HomeTab.jsx
  * Default landing page shown on startup.
  * Shows quick status overview and getting-started hints.

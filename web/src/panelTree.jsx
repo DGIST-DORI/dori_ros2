@@ -13,8 +13,7 @@ import './panels/system/EventLogPanel.css';
 
 import FaceDisplayPanel from './panels/hri/FaceDisplayPanel';
 import EmotionPalettePanel from './panels/hri/EmotionPalettePanel';
-import SessionListPanel from './panels/hri/SessionListPanel';
-import TimelinePanel from './panels/hri/TimelinePanel';
+import ConversationPanel from './panels/hri/ConversationPanel';
 
 import CubeViewerPanel from './panels/control/CubeViewerPanel';
 import PieceStatePanel from './panels/control/PieceStatePanel';
@@ -68,8 +67,7 @@ export const PANEL_TREE = [
       {
         id: 'hri-conversation', label: 'Conversation', icon: <ConversationIcon />,
         children: [
-          { id: 'conversation', label: 'Session List', component: SessionListPanel },
-          { id: 'timeline',     label: 'Timeline',     component: TimelinePanel },
+          { id: 'conversation', label: 'Conversation', component: ConversationPanel },
         ],
       },
       {
