@@ -1,8 +1,6 @@
-/* ── SystemTab.css (v3) ──────────────────────────────────────────────────────
- * Layout: Diagnostics (left, flex:1) | Right col (300px, scrollable)
+/* ── SystemTab.css ──────────────────────────────────────────────────────────
+ * Tab layout/shared system panel shells only.
  */
-
-/* ── Root ────────────────────────────────────────────────────────────────── */
 
 .sys-layout {
   display: grid;
@@ -13,7 +11,6 @@
   overflow: hidden;
 }
 
-/* Right column stacks Connection Info + Metrics vertically */
 .sys-col-right {
   display: flex;
   flex-direction: column;
@@ -22,12 +19,10 @@
   min-height: 0;
 }
 
-/* Diagnostics panel fills height */
 .sys-panel-diag {
   min-height: 0;
 }
 
-/* Metrics panel: no fixed height, grows with content */
 .sys-panel-metrics {
   flex-shrink: 0;
 }
@@ -43,246 +38,6 @@
   overflow: auto;
 }
 
-/* ── Topic Diagnostics ───────────────────────────────────────────────────── */
-
-.sys-topic-diag {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-/* Search + count toolbar */
-.sys-diag-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.sys-diag-search {
-  flex: 1;
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text-0);
-  font-size: 11px;
-  padding: 4px 8px;
-  transition: border-color 0.12s;
-}
-.sys-diag-search:focus { outline: none; border-color: var(--border-bright); }
-.sys-diag-search::placeholder { color: var(--text-2); }
-
-.sys-diag-count {
-  font-size: 10px;
-  color: var(--text-2);
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.sys-tooltip {
-  font-size: 12px;
-  color: var(--text-2);
-  cursor: help;
-  flex-shrink: 0;
-}
-
-/* Table wrapper */
-.sys-topic-diag-table-wrap {
-  flex: 1;
-  overflow: auto;
-  min-height: 0;
-}
-
-.sys-topic-diag-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 10px;
-}
-
-.sys-topic-diag-table th,
-.sys-topic-diag-table td {
-  padding: 5px 8px;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-  white-space: nowrap;
-}
-
-.sys-topic-diag-table tr:last-child td { border-bottom: none; }
-.sys-topic-diag-table tr:hover td { background: var(--bg-2); }
-
-/* Header */
-.sys-topic-diag-table th {
-  position: sticky;
-  top: 0;
-  background: var(--bg-2);
-  color: var(--text-2);
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  z-index: 1;
-  user-select: none;
-}
-
-.sys-topic-diag-table th.sortable {
-  cursor: pointer;
-  transition: color 0.12s;
-}
-.sys-topic-diag-table th.sortable:hover { color: var(--text-0); }
-.sys-topic-diag-table th.sorted { color: var(--accent, #00c8ff); }
-
-.sys-sort-arrow {
-  display: inline-flex;
-  align-items: center;
-  margin-left: 3px;
-  opacity: 0.7;
-  vertical-align: middle;
-}
-
-/* Cells */
-.sys-topic-cell {
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--text-0);
-}
-
-.sys-type-cell {
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--text-1);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-}
-
-td.hz-ok   { color: var(--green,  #53c87a); font-weight: 600; }
-td.hz-warn { color: var(--yellow, #ecd85b); font-weight: 600; }
-td.hz-none { color: var(--text-2); }
-
-.sys-diag-empty {
-  text-align: center;
-  color: var(--text-2);
-  font-style: italic;
-  padding: 20px 0 !important;
-}
-
-/* ── Connection Info ─────────────────────────────────────────────────────── */
-
-.sys-info {
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.sys-info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 5px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 11px;
-  gap: 8px;
-}
-.sys-info-row:last-child { border-bottom: none; }
-.sys-info-row span:first-child {
-  color: var(--text-2);
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
-}
-.sys-info-row span:last-child {
-  color: var(--text-0);
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-  word-break: break-all;
-  font-size: 10px;
-}
-
-/* ── System Metrics ──────────────────────────────────────────────────────── */
-
-.sys-metrics-body {
-  padding: 10px 12px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sys-metric-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg-2);
-  padding: 9px 11px;
-}
-
-.sys-metric-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-.sys-metric-title {
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-2);
-}
-
-.sys-metric-primary {
-  font-size: 13px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-0);
-  line-height: 1;
-}
-.sys-metric-primary.is-warning { color: var(--red,   #d66b66); }
-.sys-metric-primary.is-ok      { color: var(--green, #53c87a); }
-
-/* Usage bar */
-.sys-bar-wrap {
-  height: 3px;
-  background: var(--bg-3);
-  border-radius: 2px;
-  margin-bottom: 7px;
-  overflow: hidden;
-}
-.sys-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.4s ease, background-color 0.3s;
-  background: var(--accent, #00c8ff);
-}
-.sys-bar-fill.warn { background: var(--red, #d66b66); }
-
-/* Detail rows */
-.sys-metric-details {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px 10px;
-}
-
-.sys-metric-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-size: 10px;
-  gap: 4px;
-}
-.sys-metric-row span:first-child { color: var(--text-2); white-space: nowrap; }
-
-.sys-metric-value { color: var(--text-0); font-variant-numeric: tabular-nums; font-weight: 500; text-align: right; }
-.sys-metric-value.is-warning { color: var(--red, #d66b66); font-weight: 700; }
-
-/* ── Responsive ──────────────────────────────────────────────────────────── */
-
 @media (max-width: 900px) {
   .sys-layout {
     grid-template-columns: 1fr;
@@ -290,7 +45,7 @@ td.hz-none { color: var(--text-2); }
     overflow-y: auto;
   }
 
-  .sys-col-right { overflow-y: visible; }
-
-  .sys-topic-diag-table-wrap { max-height: 320px; }
+  .sys-col-right {
+    overflow-y: visible;
+  }
 }

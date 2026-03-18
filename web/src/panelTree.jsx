@@ -9,6 +9,7 @@ import STTPanel from './panels/hri/STTPanel';
 import WakeWordPanel from './panels/hri/WakeWordPanel';
 import StateMonitorPanel from './panels/hri/StateMonitorPanel';
 import EventLogPanel from './panels/system/EventLogPanel';
+import './panels/system/EventLogPanel.css';
 
 import FaceDisplayPanel from './panels/hri/FaceDisplayPanel';
 import EmotionPalettePanel from './panels/hri/EmotionPalettePanel';

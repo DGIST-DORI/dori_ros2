@@ -1,0 +1,37 @@
+@import "../../tabs/SystemTab.css";
+
+.sys-info {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sys-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  gap: 8px;
+}
+
+.sys-info-row:last-child { border-bottom: none; }
+
+.sys-info-row span:first-child {
+  color: var(--text-2);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.sys-info-row span:last-child {
+  color: var(--text-0);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  word-break: break-all;
+  font-size: 10px;
+}
