@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useStore } from '../../core/store';
-import '../../tabs/CubeTab.css';
+import './CubeViewerPanel.css';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 

@@ -6,7 +6,7 @@ import {
 import Panel from '../../components/Panel';
 import { LOG_TAGS, useStore } from '../../core/store';
 import { publishROS } from '../../core/ros';
-import '../../tabs/ConversationTab.css';
+import './SessionListPanel.css';
 
 // ── Session parsing ───────────────────────────────────────────────────────────
 

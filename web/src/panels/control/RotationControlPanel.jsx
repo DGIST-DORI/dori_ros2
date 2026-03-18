@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowUp, Copy, RotateCcw } from 'lucide-react';
 import { useStore } from '../../core/store';
-import '../../tabs/CubeTab.css';
+import './RotationControlPanel.css';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 

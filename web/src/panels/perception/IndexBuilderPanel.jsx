@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import '../../tabs/KnowledgeTab.css';
+import './IndexBuilderPanel.css';
 
 const API = '/api/knowledge';
 

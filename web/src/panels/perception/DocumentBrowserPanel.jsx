@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import '../../tabs/KnowledgeTab.css';
+import './DocumentBrowserPanel.css';
 
 const API = '/api/knowledge';
 

@@ -1,6 +1,6 @@
 import { Volume2, VolumeX } from 'lucide-react';
 import { useStore } from '../../core/store';
-import '../../tabs/HRITab.css';
+import './StateMonitorPanel.css';
 
 // ── State Monitor Panel ───────────────────────────────────────────────────────
 

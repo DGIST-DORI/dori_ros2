@@ -60,6 +60,7 @@ For broader project context, see the root README: `../README.md`.
 - 예시 도메인 폴더: `hri/`, `cube/`, `knowledge/`, `conversation/`, `face/`, `system/`
 - `web/src/panelTree.jsx`는 패널 컴포넌트를 `web/src/panels/...`에서만 import 합니다.
 - `web/src/tabs/`는 신규 구현 위치가 아니며, 기존 코드 호환을 위한 **legacy compatibility layer**로만 유지합니다.
+- 신규/이관 스타일은 반드시 패널 인접 CSS(`web/src/panels/<domain>/<PanelName>.css`)에 둡니다. 여러 패널이 공유하는 레이아웃/토큰성 스타일은 `web/src/styles/shared/`에 둡니다.
 
 ### 새 패널 추가 절차
 

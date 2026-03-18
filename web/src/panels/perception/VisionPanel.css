@@ -1,0 +1,37 @@
+@import "../../styles/shared/hriPanelCommon.css";
+
+.hri-cam-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--bg-0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.hri-cam-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hri-cam-canvas {
+  display: none;
+}
+
+.hri-cam-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-2);
+  font-size: 11px;
+}
+
+.hri-cam-placeholder svg { opacity: 0.5; }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { LOG_TAGS, useStore } from '../../core/store';
 import { publishROS } from '../../core/ros';
-import '../../tabs/HRITab.css';
+import './LLMTTSPanel.css';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
