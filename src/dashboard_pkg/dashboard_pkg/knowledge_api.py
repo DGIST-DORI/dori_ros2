@@ -542,13 +542,37 @@ def _deploy_pipeline():
                                 'finished_at': datetime.datetime.now().isoformat()})
             return
 
-    # ── Step 3: colcon build ──────────────────────────────────────────────────
+    # ── Step 3: install updated packages/assets ───────────────────────────────
     ros_changed = any(p.startswith('src/') for p in changed)
 
+    # The dashboard serves frontend files from the installed dashboard_pkg share
+    # directory, not directly from repo/web/dist. Rebuild dashboard_pkg whenever
+    # web assets change so the installed index/assets stay in sync.
+    packages_to_build = []
+    if web_changed:
+        packages_to_build.append('dashboard_pkg')
+
     if ros_changed:
+        packages_to_build.extend([
+            'dashboard_pkg',
+            'navigation_pkg',
+            'hri_pkg',
+            'stt_pkg',
+            'tts_pkg',
+            'llm_pkg',
+            'bringup',
+        ])
+
+    packages_to_build = sorted(set(packages_to_build))
+
+    if packages_to_build:
+        package_args = ' '.join(shlex.quote(pkg) for pkg in packages_to_build)
         ok, _ = _run_step(
             'colcon build',
-            ['bash', '-c', f'source {ros_setup} && colcon build --symlink-install'],
+            [
+                'bash', '-c',
+                f'source {ros_setup} && colcon build --symlink-install --packages-select {package_args}'
+            ],
             cwd=repo,
         )
         if not ok:
