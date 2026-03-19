@@ -384,17 +384,44 @@ if WEB_DIR:
     from fastapi.responses import FileResponse as _FileResponse
 
     _STATIC_FILE_EXTENSIONS = {
-        '.js', '.mjs', '.css', '.map', '.png', '.jpg', '.svg', '.ico', '.woff', '.woff2',
+        '.js', '.mjs', '.css', '.map', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.eot',
     }
+    _IMMUTABLE_ASSET_EXTENSIONS = {
+        '.js', '.mjs', '.css', '.map', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.eot',
+    }
+
+    def _is_versioned_asset(requested_path: Path) -> bool:
+        if 'assets' not in requested_path.parts:
+            return False
+
+        stem_parts = [part for part in requested_path.stem.split('.') if part]
+        return len(stem_parts) > 1
+
+
+    def _static_cache_headers(requested_path: Path) -> dict[str, str]:
+        normalized_parts = tuple(part for part in requested_path.parts if part not in ('', '.'))
+        suffix = requested_path.suffix.lower()
+
+        if normalized_parts == ('index.html',):
+            return {'Cache-Control': 'no-cache, no-store, must-revalidate'}
+
+        if _is_versioned_asset(requested_path) and suffix in _IMMUTABLE_ASSET_EXTENSIONS:
+            return {'Cache-Control': 'public, max-age=31536000, immutable'}
+
+        if suffix in {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.eot'}:
+            return {'Cache-Control': 'public, max-age=3600'}
+
+        return {'Cache-Control': 'public, max-age=300'}
+
 
     @app.get('/{full_path:path}', include_in_schema=False)
     async def serve_spa(full_path: str):
         # 실제 파일이 있으면 그대로 반환 (JS, CSS, 이미지 등)
         target = WEB_DIR / full_path
-        if target.is_file():
-            return _FileResponse(str(target))
-
         requested_path = Path(full_path)
+        if target.is_file():
+            return _FileResponse(str(target), headers=_static_cache_headers(requested_path))
+
         is_asset_request = (
             'assets' in requested_path.parts
             or requested_path.suffix.lower() in _STATIC_FILE_EXTENSIONS
@@ -404,7 +431,8 @@ if WEB_DIR:
 
         # 파일 확장자가 없는 SPA route만 index.html fallback 처리
         if not requested_path.suffix:
-            return _FileResponse(str(WEB_DIR / 'index.html'))
+            index_path = Path('index.html')
+            return _FileResponse(str(WEB_DIR / index_path), headers=_static_cache_headers(index_path))
 
         raise HTTPException(404, 'Not Found')
 
