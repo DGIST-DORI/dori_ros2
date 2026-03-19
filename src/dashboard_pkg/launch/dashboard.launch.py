@@ -88,7 +88,9 @@ def _make_tunnel_actions(context, *args, **kwargs):
 def _make_api_server_action(context, *args, **kwargs):
     """OpaqueFunction: knowledge_api 를 환경변수와 함께 실행."""
     pkg_dir   = get_package_share_directory('dashboard_pkg')
-    web_dir   = os.path.join(pkg_dir, 'web')
+    web_dir   = os.path.join(pkg_dir, 'web_current')
+    if not os.path.isdir(web_dir):
+        web_dir = os.path.join(pkg_dir, 'web')
     repo_root = os.path.abspath(os.path.join(pkg_dir, '..', '..', '..', '..'))
     knowledge_api_script = os.path.join(pkg_dir, 'scripts', 'knowledge_api.py')
 
@@ -117,12 +119,15 @@ def _make_api_server_action(context, *args, **kwargs):
 
 def generate_launch_description():
     pkg_dir = get_package_share_directory('dashboard_pkg')
-    web_dir = os.path.join(pkg_dir, 'web')
+    web_dir = os.path.join(pkg_dir, 'web_current')
+    if not os.path.isdir(web_dir):
+        web_dir = os.path.join(pkg_dir, 'web')
 
     if not os.path.isdir(web_dir):
         raise FileNotFoundError(
             'dashboard_pkg web assets not found. Expected directory: '
-            f"'{web_dir}'. Build the frontend (web/dist) before installing and launching dashboard_pkg."
+            f"'{web_dir}'. Build the frontend (web/dist), install dashboard_pkg, and publish the "
+            'completed static tree before launching the dashboard.'
         )
 
     repo_root = os.path.abspath(os.path.join(pkg_dir, '..', '..', '..', '..'))

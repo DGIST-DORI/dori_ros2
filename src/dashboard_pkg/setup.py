@@ -9,7 +9,13 @@ repo_root = setup_dir.parents[1]
 
 
 def collect_web_data_files():
-    """Collect web build artifacts from the repository-level web/dist directory."""
+    """
+    Collect web build artifacts from the repository-level web/dist directory.
+
+    These files are installed into share/dashboard_pkg/web as a complete static
+    tree. The deploy pipeline validates that installed tree and only then
+    publishes it via share/dashboard_pkg/web_current for public traffic.
+    """
     web_dist_dir = repo_root / 'web' / 'dist'
     if not web_dist_dir.exists():
         return []
