@@ -1,0 +1,92 @@
+/*
+ * tokens.css — DORI Dashboard Design Tokens
+ *
+ * All raw values live in index.css (:root).
+ * This file maps them to semantic names so panels reference intent,
+ * not raw color/size values.
+ *
+ * Usage:  @import "../styles/tokens.css";
+ * Place:  web/src/styles/tokens.css
+ */
+
+/* ── Semantic color tokens ──────────────────────────────────────────────────
+ *
+ * Status    : reflects a system or data state
+ * Interactive: anything the user can click / activate
+ * Surface   : background layering
+ * Text      : foreground hierarchy
+ * Border    : stroke hierarchy
+ */
+
+:root {
+  /* Status */
+  --color-ok:    var(--green);
+  --color-warn:  var(--yellow);
+  --color-error: var(--red);
+  --color-info:  var(--accent);
+
+  /* Status — dim backgrounds (for badges / tinted cards) */
+  --color-ok-bg:    var(--green-dim);
+  --color-warn-bg:  var(--yellow-dim);
+  --color-error-bg: var(--red-dim);
+  --color-info-bg:  var(--accent-dim);
+
+  /* Interactive */
+  --color-interactive:       var(--accent);
+  --color-interactive-bg:    var(--accent-dim);
+  --color-interactive-glow:  var(--accent-glow);
+
+  /* Surface (alias — same as index.css bg-* but semantic names) */
+  --surface-base:    var(--bg-0);
+  --surface-panel:   var(--bg-1);
+  --surface-raised:  var(--bg-2);
+  --surface-overlay: var(--bg-3);
+
+  /* Text hierarchy */
+  --text-primary:   var(--text-0);
+  --text-secondary: var(--text-1);
+  --text-muted:     var(--text-2);
+
+  /* Border hierarchy */
+  --border-default: var(--border);
+  --border-bright:  var(--border-bright);   /* already defined in index.css */
+
+  /* ── Typography ────────────────────────────────────────────────────────
+   *
+   * font-mono : all UI chrome — labels, buttons, inputs, code, log
+   * font-sans : Korean body text, long-form descriptions only
+   *
+   * Size scale (px):
+   *   xs  9   → badge labels, uppercase meta
+   *   sm  10  → secondary UI text, table cells
+   *   md  11  → primary body / panel text   ← default
+   *   lg  13  → section titles, emphasized values
+   *   xl  15  → header logo, big indicators
+   */
+  --font-size-xs: 9px;
+  --font-size-sm: 10px;
+  --font-size-md: 11px;
+  --font-size-lg: 13px;
+  --font-size-xl: 15px;
+
+  /* ── Spacing scale ─────────────────────────────────────────────────────
+   *
+   * Based on values actually used throughout the codebase.
+   * Always prefer these over hard-coded px values in new code.
+   */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* ── Component sizing ──────────────────────────────────────────────────
+   *
+   * Standard heights for interactive elements.
+   */
+  --height-header:  44px;   /* top header bar, sidebar top cell */
+  --height-toolbar: 36px;   /* panel inner toolbars */
+  --height-input:   28px;   /* single-line inputs, selects */
+  --height-btn-sm:  24px;   /* small icon buttons */
+}
