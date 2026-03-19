@@ -43,7 +43,7 @@ def generate_launch_description():
         DeclareLaunchArgument('use_external_llm',  default_value='false'),
         DeclareLaunchArgument('whisper_model',      default_value='small'),
         DeclareLaunchArgument('wake_word',          default_value='porcupine'),
-        DeclareLaunchArgument('wake_word_paths',    default_value='data/porcupine/dori.ppn'),
+        DeclareLaunchArgument('wake_word_paths',    default_value='data/porcupine/doridori_ko_linux_v4_0_0.ppn'),
         DeclareLaunchArgument('tts_engine',         default_value='gtts'),
         DeclareLaunchArgument('tts_language',       default_value='ko'),
     ]

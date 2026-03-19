@@ -53,7 +53,7 @@ def generate_launch_description():
             default_value='porcupine',
             description='Porcupine wake word keyword'),
         DeclareLaunchArgument('wake_word_paths',
-            default_value='data/porcupine/dori.ppn',
+            default_value='data/porcupine/doridori_ko_linux_v4_0_0.ppn',
             description='Path to custom Porcupine wake word .ppn file'),
         DeclareLaunchArgument('tts_engine',
             default_value='gtts',

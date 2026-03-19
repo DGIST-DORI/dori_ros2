@@ -65,7 +65,7 @@ class STTNode(Node):
 
         # Parameters
         self.declare_parameter('wake_word', 'porcupine')
-        self.declare_parameter('wake_word_paths', 'data/porcupine/dori.ppn')
+        self.declare_parameter('wake_word_paths', 'data/porcupine/doridori_ko_linux_v4_0_0.ppn')
         self.declare_parameter('whisper_model', 'small')
         self.declare_parameter('whisper_device', 'cpu')
         self.declare_parameter('vad_threshold', 0.5)
