@@ -1,4 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500&display=swap');
+@import './styles/tokens.css';
+@import './styles/layout.css';
+@import './styles/components.css';
 
 :root {
   --font-mono: 'IBM Plex Mono','Courier New',monospace;

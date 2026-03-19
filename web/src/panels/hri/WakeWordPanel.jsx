@@ -20,7 +20,7 @@ function ts() { return new Date().toLocaleTimeString(); }
 
 // Section divider label
 function SectionLabel({ children }) {
-  return <div className="hri-section-label">{children}</div>;
+  return <div className="panel-section-label">{children}</div>;
 }
 
 // ── Wake Word Panel ───────────────────────────────────────────────────────────
@@ -44,19 +44,19 @@ function WakeWordPanel() {
   }
 
   return (
-    <div className="hri-test-panel">
+    <div className="panel-body">
       <SectionLabel>Wake Word → /dori/stt/wake_word_detected</SectionLabel>
       <div className="hri-state-row">
         <span className="hri-state-key">Current HRI state</span>
         <span className={`hri-state-val hri-state-${hriState}`}>{hriState}</span>
       </div>
-      <div className="hri-row">
-        <button className="hri-btn accent hri-btn-icon" disabled={!canPublish} onClick={fire}>
+      <div className="row">
+        <button className="btn btn-sm btn-ok btn-icon" disabled={!canPublish} onClick={fire}>
           <Zap size={12} /> Trigger Wake Word
         </button>
-        {lastTs && <span className="hri-hint-inline">fired at {lastTs}</span>}
+        {lastTs && <span className="hint-inline">fired at {lastTs}</span>}
       </div>
-      <p className="hri-hint">
+      <p className="hint-text">
         HRI Manager가 IDLE일 때만 반응합니다. LISTENING → RESPONDING → IDLE 사이클을 테스트할 수 있습니다.
       </p>
     </div>

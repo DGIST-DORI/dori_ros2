@@ -1,0 +1,212 @@
+/*
+ * layout.css — DORI Dashboard Shared Layouts
+ *
+ * Replaces the following files (all can be deleted after migration):
+ *   styles/shared/hriLayout.css
+ *   styles/shared/faceLayout.css
+ *   styles/shared/cubeLayout.css
+ *   styles/shared/systemLayout.css
+ *   styles/shared/conversationLayout.css
+ *
+ * Usage:  @import "../styles/layout.css";
+ * Place:  web/src/styles/layout.css
+ *
+ * Naming convention:
+ *   .layout-*        → outer panel grid
+ *   .layout-col-*    → column variants
+ *   .layout-panel-*  → named slots within a layout
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 1. Two-column: main content + fixed-width aside
+ *    Used by: Face, Cube, Conversation
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.layout-main-aside {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: var(--space-2);
+  height: 100%;
+  padding: var(--space-2);
+  overflow: hidden;
+}
+
+/* Narrower aside variant (system panels) */
+.layout-main-aside.aside-300 {
+  grid-template-columns: 1fr 300px;
+}
+
+/* Wider aside variant */
+.layout-main-aside.aside-240 {
+  grid-template-columns: 1fr 240px;
+}
+
+.layout-main-aside > .slot-main {
+  min-height: 0;
+  height: 100%;
+}
+
+.layout-main-aside > .slot-aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 2. Three-column: left + center + right
+ *    Used by: HRI overview
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.layout-3col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 320px;
+  gap: var(--space-2);
+  height: 100%;
+  padding: var(--space-2);
+  overflow: hidden;
+}
+
+.layout-3col > .slot-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Right column: may scroll if content overflows */
+.layout-3col > .slot-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 3. Two-column equal: left + right (knowledge panels)
+ *    Used by: Knowledge tab
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.layout-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  height: 100%;
+  padding: var(--space-2);
+  overflow: hidden;
+}
+
+.layout-2col > .slot-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 4. Conversation: session list + chat area
+ *    Used by: ConversationPanel
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.layout-conversation {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--space-2);
+  height: 100%;
+  padding: var(--space-2);
+  overflow: hidden;
+}
+
+.layout-conversation > .slot-sessions {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-conversation > .slot-chat {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface-panel);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 5. Flex column: single-column scrollable panel body
+ *    Used by: system panels (ConnectionInfo, Metrics, etc.)
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.layout-panel-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Panel slot helpers ──────────────────────────────────────────────────── */
+
+/* Fills remaining height and scrolls */
+.slot-fill {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Fixed height at bottom of a flex column */
+.slot-shrink {
+  flex-shrink: 0;
+}
+
+/* ── Responsive breakpoints ─────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .layout-3col {
+    grid-template-columns: 1fr 1fr;
+    overflow-y: auto;
+  }
+  .layout-3col > .slot-col-right {
+    grid-column: 1 / -1;
+    overflow: visible;
+  }
+  .layout-2col {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .layout-2col > .slot-col {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 900px) {
+  .layout-main-aside,
+  .layout-main-aside.aside-300,
+  .layout-main-aside.aside-240 {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+    overflow-y: auto;
+  }
+  .layout-main-aside > .slot-aside {
+    overflow-y: visible;
+  }
+  .layout-conversation {
+    grid-template-columns: 1fr;
+    grid-template-rows: 240px 1fr;
+    overflow-y: auto;
+  }
+  .layout-conversation > .slot-chat {
+    min-height: 480px;
+  }
+}
+
+@media (max-width: 700px) {
+  .layout-3col {
+    grid-template-columns: 1fr;
+  }
+  .layout-main-aside > .slot-main {
+    min-height: 280px;
+  }
+}

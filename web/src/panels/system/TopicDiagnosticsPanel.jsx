@@ -61,7 +61,7 @@ function TopicDiagnosticsPanel({ className = 'sys-panel-diag' }) {
   }, [allRows, search, sortKey, sortDir]);
 
   return (
-    <div className={`sys-panel-root sys-panel-diag-root ${className}`.trim()}>
+    <div className={`layout-panel-body sys-panel-diag-root ${className}`.trim()}>
       <div className="sys-topic-diag">
         <div className="sys-diag-toolbar">
           <input

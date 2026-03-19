@@ -5,10 +5,10 @@ const API = '/api/knowledge';
 
 function StatusBadge({ status }) {
   const map = {
-    idle: ['km-badge km-badge-idle', '—'],
-    running: ['km-badge km-badge-running', 'RUNNING'],
-    ok: ['km-badge km-badge-ok', 'OK'],
-    error: ['km-badge km-badge-error', 'ERROR'],
+    idle: ['badge', '—'],
+    running: ['badge badge-running', 'RUNNING'],
+    ok: ['badge badge-ok', 'OK'],
+    error: ['badge badge-error', 'ERROR'],
   };
   const [cls, label] = map[status] ?? map.idle;
   return <span className={cls}>{label}</span>;
@@ -76,11 +76,11 @@ function BuildingEditorPanel() {
   const isEmpty = (b) => !b.name_ko && !b.name_en;
 
   return (
-    <div className="km-panel-root km-building-editor-panel km-panel-wide">
+    <div className="layout-panel-body km-building-editor-panel km-panel-wide">
       <div className="km-building-layout">
         <div className="km-building-list">
           <input
-            className="km-search"
+            className="input-search"
             placeholder="Search…"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -114,11 +114,11 @@ function BuildingEditorPanel() {
                     ['URL', 'url', 'text'],
                     ['Floor', 'floor', 'number'],
                   ].map(([label, field, type]) => (
-                    <label key={field} className="km-field">
-                      <span className="km-field-label">{label}</span>
+                    <label key={field} className="field">
+                      <span className="field-label">{label}</span>
                       <input
                         type={type}
-                        className="km-input"
+                        className="input-km"
                         value={draft[field] ?? ''}
                         onChange={(e) => updateDraft(
                           field,
@@ -127,27 +127,27 @@ function BuildingEditorPanel() {
                       />
                     </label>
                   ))}
-                  <label className="km-field km-field-full">
-                    <span className="km-field-label">Description (KO)</span>
+                  <label className="field km-field-full">
+                    <span className="field-label">Description (KO)</span>
                     <textarea
-                      className="km-input km-textarea"
+                      className="input-km textarea"
                       value={draft.description_ko ?? ''}
                       onChange={(e) => updateDraft('description_ko', e.target.value)}
                     />
                   </label>
-                  <label className="km-field km-field-full">
-                    <span className="km-field-label">Description (EN)</span>
+                  <label className="field km-field-full">
+                    <span className="field-label">Description (EN)</span>
                     <textarea
-                      className="km-input km-textarea"
+                      className="input-km textarea"
                       value={draft.description_en ?? ''}
                       onChange={(e) => updateDraft('description_en', e.target.value)}
                     />
                   </label>
-                  <label className="km-field km-field-full">
-                    <span className="km-field-label">Keywords (comma-separated)</span>
+                  <label className="field km-field-full">
+                    <span className="field-label">Keywords (comma-separated)</span>
                     <input
                       type="text"
-                      className="km-input"
+                      className="input-km"
                       value={(draft.keywords ?? []).join(', ')}
                       onChange={(e) => updateDraft(
                         'keywords',
@@ -155,11 +155,11 @@ function BuildingEditorPanel() {
                       )}
                     />
                   </label>
-                  <label className="km-field km-field-full">
-                    <span className="km-field-label">Facilities (comma-separated)</span>
+                  <label className="field km-field-full">
+                    <span className="field-label">Facilities (comma-separated)</span>
                     <input
                       type="text"
-                      className="km-input"
+                      className="input-km"
                       value={(draft.facilities ?? []).join(', ')}
                       onChange={(e) => updateDraft(
                         'facilities',
@@ -167,12 +167,12 @@ function BuildingEditorPanel() {
                       )}
                     />
                   </label>
-                  <label className="km-field">
-                    <span className="km-field-label">Coord lat</span>
+                  <label className="field">
+                    <span className="field-label">Coord lat</span>
                     <input
                       type="number"
                       step="0.0001"
-                      className="km-input"
+                      className="input-km"
                       value={draft.coordinates?.[0] ?? 0}
                       onChange={(e) => updateDraft(
                         'coordinates',
@@ -180,12 +180,12 @@ function BuildingEditorPanel() {
                       )}
                     />
                   </label>
-                  <label className="km-field">
-                    <span className="km-field-label">Coord lng</span>
+                  <label className="field">
+                    <span className="field-label">Coord lng</span>
                     <input
                       type="number"
                       step="0.0001"
-                      className="km-input"
+                      className="input-km"
                       value={draft.coordinates?.[1] ?? 0}
                       onChange={(e) => updateDraft(
                         'coordinates',
@@ -195,16 +195,16 @@ function BuildingEditorPanel() {
                   </label>
                 </div>
 
-                <div className="km-actions">
+                <div className="row row-wrap">
                   <button
-                    className="km-btn km-btn-primary"
+                    className="btn btn-sm btn-primary"
                     disabled={saving}
                     onClick={handleSave}
                   >
                     {saving ? 'Saving…' : 'Save'}
                   </button>
                   <button
-                    className="km-btn"
+                    className="btn btn-sm"
                     onClick={() => { setDraft({ ...EMPTY_BUILDING, ...buildings[selected] }); setSaveStatus('idle'); }}
                   >
                     Reset

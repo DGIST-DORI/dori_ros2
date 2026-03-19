@@ -40,17 +40,17 @@ function DocumentBrowserPanel() {
   );
 
   return (
-    <div className="km-panel-root km-document-browser-panel">
-      <div className="km-section">
+    <div className="layout-panel-body km-document-browser-panel">
+      <div className="panel-section">
         <div className="km-toolbar km-toolbar-with-badge">
           <input
-            className="km-search"
+            className="input-search"
             placeholder="Filter by filename…"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           />
           <span className="km-panel-badge">{docs.length}</span>
-          <button className="km-btn" onClick={fetchDocs} disabled={loading}>
+          <button className="btn btn-sm" onClick={fetchDocs} disabled={loading}>
             {loading ? '…' : '↻'}
           </button>
         </div>

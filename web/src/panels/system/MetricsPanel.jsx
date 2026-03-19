@@ -37,7 +37,7 @@ function MetricsPanel({ className = 'sys-panel-metrics' }) {
   const disk = systemMetrics?.disk;
 
   return (
-    <div className={`sys-panel-root sys-panel-metrics-root ${className}`.trim()}>
+    <div className={`layout-panel-body sys-panel-metrics-root ${className}`.trim()}>
       <div className="sys-metrics-body">
         <MetricCard
           title="CPU"
