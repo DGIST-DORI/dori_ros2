@@ -27,25 +27,73 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
+def _resolve_path(share_relative: str, pkg_name: str, data_relative: str) -> str:
+    """
+    Resolve an asset path at launch time.
+    Tries the installed share directory first, then walks up to the repo root.
+
+    Args:
+        share_relative: path relative to package share dir, e.g. 'config/foo.json'
+        pkg_name:       package that owns the asset in share
+        data_relative:  path relative to repo root, e.g. 'data/campus/indexed/foo.json'
+
+    Returns:
+        Absolute path string, or empty string if neither location exists.
+    """
+    import pathlib
+
+    # Priority 1: ROS2 share directory (installed)
+    try:
+        share_path = pathlib.Path(get_package_share_directory(pkg_name)) / share_relative
+        if share_path.exists():
+            return str(share_path)
+    except Exception:
+        pass
+
+    # Priority 2: repo root (development)
+    this_file = pathlib.Path(__file__).resolve()
+    for parent in this_file.parents:
+        if (parent / 'src').is_dir() and (parent / 'README.md').exists():
+            candidate = parent / data_relative
+            if candidate.exists():
+                return str(candidate)
+            break
+
+    return ''
+
+
 def generate_launch_description():
 
-    # Resolve knowledge file path from llm_pkg if available
-    try:
-        llm_pkg_dir = get_package_share_directory('llm_pkg')
-        knowledge_file_default = os.path.join(
-            llm_pkg_dir, 'config', 'campus_knowledge.json' # TODO: consider moving this to llm_pkg's parameters instead of hardcoding the path here
-        )
-    except Exception:
-        knowledge_file_default = ''
+    # Resolve paths at launch time (not at import time)
+    knowledge_file_path = _resolve_path(
+        share_relative='config/campus_knowledge.json',
+        pkg_name='llm_pkg',
+        data_relative='data/campus/indexed/campus_knowledge.json',
+    )
+
+    rag_index_dir_path = _resolve_path(
+        share_relative='indexed',  # llm_pkg doesn't install the index; dev only
+        pkg_name='llm_pkg',
+        data_relative='data/campus/indexed',
+    )
+
+    wake_word_model_path = _resolve_path(
+        share_relative='models/doridori_ko_linux_v4_0_0.ppn',
+        pkg_name='stt_pkg',
+        data_relative='src/stt_pkg/models/doridori_ko_linux_v4_0_0.ppn',
+    )
 
     # Arguments
     args = [
         DeclareLaunchArgument('use_external_llm',
             default_value='false',
-            description='Use external LLM API (OpenAI / Anthropic)'),
+            description='Use external LLM API (OpenAI / Anthropic / Gemini)'),
         DeclareLaunchArgument('knowledge_file',
-            default_value=knowledge_file_default,
+            default_value=knowledge_file_path,
             description='Path to campus_knowledge.json'),
+        DeclareLaunchArgument('rag_index_dir',
+            default_value=rag_index_dir_path,
+            description='Path to FAISS index directory (data/campus/indexed)'),
         DeclareLaunchArgument('whisper_model',
             default_value='small',
             description='Whisper model size: tiny / base / small / medium / large'),
@@ -53,7 +101,7 @@ def generate_launch_description():
             default_value='porcupine',
             description='Porcupine wake word keyword'),
         DeclareLaunchArgument('wake_word_paths',
-            default_value='data/porcupine/doridori_ko_linux_v4_0_0.ppn',
+            default_value=wake_word_model_path,
             description='Path to custom Porcupine wake word .ppn file'),
         DeclareLaunchArgument('tts_engine',
             default_value='gtts',
@@ -64,10 +112,15 @@ def generate_launch_description():
         DeclareLaunchArgument('idle_timeout_sec',
             default_value='10.0',
             description='Seconds to wait for STT input before returning to IDLE'),
+        DeclareLaunchArgument('llm_model',
+            default_value='gemini-2.0-flash',
+            description='External LLM model name'),
+        DeclareLaunchArgument('rag_top_k',
+            default_value='3',
+            description='Number of RAG chunks to retrieve per query'),
     ]
 
     # HRI Manager Node
-    # Central state machine — bridges perception ↔ voice interface
     hri_manager_node = Node(
         package='hri_pkg',
         executable='hri_manager_node',
@@ -102,12 +155,12 @@ def generate_launch_description():
         name='llm_node',
         output='screen',
         parameters=[{
-            'knowledge_file':   '/path/to/campus_knowledge.json', # TODO
-            'rag_index_dir':    '/path/to/rag_index', # TODO
-            'use_external_llm': True,
-            'model_name':       'gemini-2.5-flash',
-            'rag_top_k':        3,
-        }]
+            'knowledge_file':   LaunchConfiguration('knowledge_file'),
+            'rag_index_dir':    LaunchConfiguration('rag_index_dir'),
+            'use_external_llm': LaunchConfiguration('use_external_llm'),
+            'model_name':       LaunchConfiguration('llm_model'),
+            'rag_top_k':        LaunchConfiguration('rag_top_k'),
+        }],
     )
 
     # TTS Node

@@ -22,6 +22,8 @@ from geometry_msgs.msg import PoseStamped
 from rclpy.node import Node
 from std_msgs.msg import String
 
+from llm_pkg.paths import get_knowledge_file, get_rag_index_dir
+
 
 @dataclass
 class Location:
@@ -41,9 +43,23 @@ class CampusKnowledgeBase:
         self.faqs: Dict[str, str] = {}
         self.logger = logger
 
+        # Resolve knowledge file path
         if knowledge_file and Path(knowledge_file).exists():
-            self._load(knowledge_file)
+            resolved = Path(knowledge_file)
         else:
+            resolved = get_knowledge_file()
+
+        if resolved.exists():
+            self._load(str(resolved))
+            if logger:
+                logger.info(f'Knowledge base loaded from: {resolved}')
+        else:
+            if logger:
+                logger.warn(
+                    f'campus_knowledge.json not found at {resolved}. '
+                    'Using default fallback knowledge. '
+                    'Run tools/crawler/crawl_campus.py to populate data/campus/.'
+                )
             self._init_defaults()
 
     def _init_defaults(self):
@@ -127,7 +143,12 @@ class VectorRetriever:
     """
 
     def __init__(self, index_dir: Optional[str], logger=None):
-        self.index_dir = index_dir
+        # Resolve index directory path
+        if index_dir and Path(index_dir).exists():
+            self.index_dir = index_dir
+        else:
+            resolved = get_rag_index_dir()
+            self.index_dir = str(resolved) if resolved.exists() else index_dir
         self.logger    = logger
         self._retriever = None   # lazy init
 
@@ -136,15 +157,16 @@ class VectorRetriever:
             if self.logger:
                 self.logger.warn(
                     f'RAG index not found at "{self.index_dir}". '
-                    'Vector search disabled. Run build_index.py first.'
+                    'Vector search disabled. '
+                    'Run: python3 src/llm_pkg/llm_pkg/build_index.py '
+                    '--docs data/campus/processed --output data/campus/indexed'
                 )
             return
         try:
             # Import here so missing deps only fail at search time, not import time
             try:
-                from .build_index import Retriever
+                from llm_pkg.build_index import Retriever
             except ImportError:
-                # Fallback when run as a standalone script
                 from build_index import Retriever
             self._retriever = Retriever(self.index_dir)
             if self.logger:
@@ -178,6 +200,14 @@ class VectorRetriever:
             src = Path(r['source']).stem  # filename without extension
             parts.append(f'[{src}]\n{r["text"]}')
         return '\n\n'.join(parts)
+
+    @property
+    def is_available(self) -> bool:
+        """Return True if the FAISS index exists and can be loaded."""
+        if self._retriever is not None:
+            return True
+        index_path = Path(self.index_dir) / 'index.faiss' if self.index_dir else None
+        return index_path is not None and index_path.exists()
 
 
 # Intent Classifier
@@ -222,11 +252,11 @@ class LLMNode(Node):
 
         # Parameters
         self.declare_parameter('knowledge_file',   '')
-        self.declare_parameter('rag_index_dir',    '')   # path to build_index.py output
+        self.declare_parameter('rag_index_dir',    '')
         self.declare_parameter('use_external_llm', False)
         self.declare_parameter('model_name',       'gemini-2.0-flash')
         self.declare_parameter('api_key',          '')
-        self.declare_parameter('rag_top_k',        3)    # chunks to retrieve per query
+        self.declare_parameter('rag_top_k',        3)
 
         knowledge_file   = self.get_parameter('knowledge_file').value
         rag_index_dir    = self.get_parameter('rag_index_dir').value
@@ -240,6 +270,19 @@ class LLMNode(Node):
 
         # Vector retriever (semantic)
         self.retriever = VectorRetriever(rag_index_dir or None, self.get_logger())
+
+        # Log RAG status on startup
+        if self.retriever.is_available:
+            self.get_logger().info(
+                f'RAG vector search ENABLED (index: {self.retriever.index_dir})'
+            )
+        else:
+            self.get_logger().warn(
+                'RAG vector search DISABLED — index not found. '
+                'Structured KB only. '
+                'To enable: python3 src/llm_pkg/llm_pkg/build_index.py '
+                '--docs data/campus/processed --output data/campus/indexed'
+            )
 
         # External LLM client (optional)
         self.llm_client = None
@@ -348,8 +391,8 @@ class LLMNode(Node):
     def _handle_with_rag(self, text: str, intent: str) -> str:
         """
         Two-stage retrieval:
-          1. Structured KB  — fast, exact (JSON)
-          2. Vector search  — semantic, document chunks (FAISS)
+          1. Structured KB  — fast, exact (JSON) from campus_knowledge.json
+          2. Vector search  — semantic, document chunks from data/campus/processed/
         Combine both into LLM context, fall back to rule-based if LLM unavailable.
         """
         # Stage 1: structured KB
@@ -362,9 +405,15 @@ class LLMNode(Node):
             if loc:
                 struct_context = f'{loc.name}: {loc.description}'
 
-        # Stage 2: vector search
+        # Stage 2: vector search over data/campus/processed/**/*.txt
         vec_results = self.retriever.search(text, top_k=self.rag_top_k)
         vec_context = self.retriever.format_context(vec_results)
+
+        if vec_results:
+            self.get_logger().debug(
+                f'RAG retrieved {len(vec_results)} chunks '
+                f'(top score: {vec_results[0]["score"]:.3f})'
+            )
 
         # If no LLM, return best structured result or fallback
         if not self.use_external or not self.llm_client:
@@ -392,7 +441,6 @@ class LLMNode(Node):
         messages      = self._build_messages(user_text)
         try:
             if self.llm_type == 'gemini':
-                # Gemini: prepend system prompt as first user turn
                 full_history = [
                     {'role': 'user',  'parts': [system_prompt + '\n\n' + messages[0]['content']]},
                 ]

@@ -19,6 +19,7 @@ import queue
 import struct
 import threading
 import time
+from pathlib import Path
 
 import numpy as np
 import rclpy
@@ -54,6 +55,39 @@ MAX_BUFFER_SEC  = 10.0
 MIN_SPEECH_SEC  = 0.5
 
 
+def _resolve_ppn_path(ppn_param: str) -> str:
+    """
+    Resolve the Porcupine .ppn model file path.
+
+    Priority:
+      1) Explicit parameter value (if the file exists at that path)
+      2) stt_pkg share directory: share/stt_pkg/models/<basename>
+      3) Return the param value as-is and let Porcupine raise a clear error
+
+    Args:
+        ppn_param: value of the 'wake_word_paths' ROS parameter
+
+    Returns:
+        Resolved absolute path string
+    """
+    # Priority 1: explicit parameter path
+    if ppn_param and Path(ppn_param).exists():
+        return ppn_param
+
+    # Priority 2: share directory (installed via setup.py models/ glob)
+    try:
+        from ament_index_python.packages import get_package_share_directory
+        filename = Path(ppn_param).name if ppn_param else 'doridori_ko_linux_v4_0_0.ppn'
+        share_path = Path(get_package_share_directory('stt_pkg')) / 'models' / filename
+        if share_path.exists():
+            return str(share_path)
+    except Exception:
+        pass
+
+    # Priority 3: return as-is (Porcupine will raise a clear FileNotFoundError)
+    return ppn_param
+
+
 class STTState:
     IDLE      = 'IDLE'       # waiting for wake word
     LISTENING = 'LISTENING'  # recording speech after wake word
@@ -65,17 +99,17 @@ class STTNode(Node):
 
         # Parameters
         self.declare_parameter('wake_word', 'porcupine')
-        self.declare_parameter('wake_word_paths', 'data/porcupine/doridori_ko_linux_v4_0_0.ppn')
+        self.declare_parameter('wake_word_paths', 'doridori_ko_linux_v4_0_0.ppn')
         self.declare_parameter('whisper_model', 'small')
         self.declare_parameter('whisper_device', 'cpu')
         self.declare_parameter('vad_threshold', 0.5)
         self.declare_parameter('silence_duration', 1.2)
 
-        wake_word    = self.get_parameter('wake_word').value
-        wake_word_paths = self.get_parameter('wake_word_paths').value
-        model_size   = self.get_parameter('whisper_model').value
-        device       = self.get_parameter('whisper_device').value
-        self.vad_threshold  = self.get_parameter('vad_threshold').value
+        wake_word        = self.get_parameter('wake_word').value
+        wake_word_paths  = self.get_parameter('wake_word_paths').value
+        model_size       = self.get_parameter('whisper_model').value
+        device           = self.get_parameter('whisper_device').value
+        self.vad_threshold   = self.get_parameter('vad_threshold').value
         self.vad_silence_sec = self.get_parameter('silence_duration').value
 
         # Publishers
@@ -102,17 +136,22 @@ class STTNode(Node):
             return
 
         try:
-            if os.path.isfile(os.path.join(wake_word_paths)): # TODO
-                self.get_logger().info(f'Using custom wake word from: {wake_word_paths}')
+            resolved_ppn = _resolve_ppn_path(wake_word_paths)
+
+            if Path(resolved_ppn).exists():
+                self.get_logger().info(f'Using custom wake word model: {resolved_ppn}')
                 self.porcupine = pvporcupine.create(
                     access_key=os.getenv('PORCUPINE_ACCESS_KEY', ''),
-                    keyword_paths=[wake_word_paths],
+                    keyword_paths=[resolved_ppn],
                 )
             else:
-                self.get_logger().info(f'Using built-in wake word: "{wake_word}"')
+                self.get_logger().info(
+                    f'Wake word model not found at "{resolved_ppn}". '
+                    f'Falling back to built-in keyword: "{wake_word}"'
+                )
                 self.porcupine = pvporcupine.create(
                     access_key=os.getenv('PORCUPINE_ACCESS_KEY', ''),
-                    keywords=[wake_word]
+                    keywords=[wake_word],
                 )
         except Exception as e:
             self.get_logger().error(f'Porcupine init failed: {e}')
@@ -199,7 +238,6 @@ class STTNode(Node):
 
             with self.state_lock:
                 if self.state == STTState.IDLE:
-                    # Feed to Porcupine for wake word detection
                     keyword_index = self.porcupine.process(pcm)
                     if keyword_index >= 0:
                         self.get_logger().info('Wake word detected!')
@@ -208,7 +246,6 @@ class STTNode(Node):
                         self.last_voice_time   = time.time()
                         self.buffer.clear()
 
-                        # Notify HRI Manager
                         wake_msg = Bool()
                         wake_msg.data = True
                         self.wake_word_pub.publish(wake_msg)
@@ -228,7 +265,6 @@ class STTNode(Node):
             if self.state != STTState.LISTENING:
                 return
 
-            # Drain queue (max 10 chunks per tick to avoid blocking)
             chunks = 0
             while not self.audio_queue.empty() and chunks < 10:
                 chunk = self.audio_queue.get()
@@ -242,7 +278,6 @@ class STTNode(Node):
             now = time.time()
             audio_duration = len(self.buffer) * FRAME_LENGTH / SAMPLE_RATE
 
-            # Speech end: silence exceeded
             if (self.last_voice_time
                     and (now - self.last_voice_time) > self.vad_silence_sec):
                 if audio_duration >= MIN_SPEECH_SEC:
@@ -258,7 +293,6 @@ class STTNode(Node):
                 self.buffer.clear()
                 return
 
-            # Max buffer exceeded: force transcribe
             if (self.listen_start_time
                     and (now - self.listen_start_time) > MAX_BUFFER_SEC):
                 self.get_logger().warn('Max buffer exceeded — force transcribing')
@@ -269,7 +303,7 @@ class STTNode(Node):
     def _has_voice(self, audio: np.ndarray) -> bool:
         """Return True if VAD detects speech, or True by default if VAD unavailable."""
         if self.vad_model is None:
-            return True  # No VAD: treat everything as voice
+            return True
         try:
             import torch
             tensor = torch.from_numpy(audio)
@@ -292,14 +326,13 @@ class STTNode(Node):
 
             segments_gen, info = self.whisper.transcribe(
                 audio,
-                language=None,       # auto-detect
-                vad_filter=False,    # already handled by Silero
+                language=None,
+                vad_filter=False,
                 beam_size=5,
             )
             segments = list(segments_gen)
             text = ''.join(seg.text for seg in segments).strip()
 
-            # Confidence from avg log probability
             logprobs = [
                 seg.avg_logprob for seg in segments
                 if hasattr(seg, 'avg_logprob') and seg.avg_logprob is not None

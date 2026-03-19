@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+import os
+from glob import glob
 
 package_name = 'stt_pkg'
 
@@ -10,6 +12,9 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        # Install Porcupine wake word model files
+        (os.path.join('share', package_name, 'models'),
+            glob('models/*.ppn')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
