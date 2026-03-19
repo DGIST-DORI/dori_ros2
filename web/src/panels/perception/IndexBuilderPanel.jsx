@@ -5,10 +5,10 @@ const API = '/api/knowledge';
 
 function StatusBadge({ status }) {
   const map = {
-    idle: ['km-badge km-badge-idle', '—'],
-    running: ['km-badge km-badge-running', 'RUNNING'],
-    ok: ['km-badge km-badge-ok', 'OK'],
-    error: ['km-badge km-badge-error', 'ERROR'],
+    idle: ['badge', '—'],
+    running: ['badge badge-running', 'RUNNING'],
+    ok: ['badge badge-ok', 'OK'],
+    error: ['badge badge-error', 'ERROR'],
   };
   const [cls, label] = map[status] ?? map.idle;
   return <span className={cls}>{label}</span>;
@@ -20,10 +20,10 @@ function LogPane({ lines }) {
     if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
   }, [lines]);
   return (
-    <div className="km-log" ref={ref}>
+    <div className="log-pane" ref={ref}>
       {lines.length === 0
-        ? <span className="km-log-empty">No output yet.</span>
-        : lines.map((l, i) => <div key={i} className="km-log-line">{l}</div>)}
+        ? <span className="log-pane-empty">No output yet.</span>
+        : lines.map((l, i) => <div key={i} className="log-pane-line">{l}</div>)}
     </div>
   );
 }
@@ -91,9 +91,9 @@ function IndexBuilderPanel() {
   useEffect(() => () => clearInterval(pollRef.current), []);
 
   return (
-    <div className="km-panel-root km-index-builder-panel">
-      <div className="km-section">
-        <p className="km-hint">
+    <div className="layout-panel-body km-index-builder-panel">
+      <div className="panel-section">
+        <p className="hint-text">
           Embeds <code>data/campus/processed/**/*.txt</code> with
           MiniLM-L12 and saves a FAISS index for RAG retrieval.
         </p>
@@ -121,9 +121,9 @@ function IndexBuilderPanel() {
           <span>Incremental (skip unchanged files)</span>
         </label>
 
-        <div className="km-actions">
+        <div className="row row-wrap">
           <button
-            className="km-btn km-btn-primary"
+            className="btn btn-sm btn-primary"
             disabled={status === 'running'}
             onClick={handleBuild}
           >

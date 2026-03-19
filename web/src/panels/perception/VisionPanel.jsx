@@ -27,13 +27,13 @@ function pub(topic, msgType, data) {
 // Status badge
 function Badge({ ok, label }) {
   return (
-    <span className={`hri-badge ${ok ? 'ok' : 'off'}`}>{label}</span>
+    <span className={`badge ${ok ? 'badge-ok' : 'off'}`}>{label}</span>
   );
 }
 
 // Section divider label
 function SectionLabel({ children }) {
-  return <div className="hri-section-label">{children}</div>;
+  return <div className="panel-section-label">{children}</div>;
 }
 
 // ── Vision Test Panel ─────────────────────────────────────────────────────────
@@ -119,16 +119,16 @@ function VisionPanel() {
   const isPublishing = !!intervalRef.current;
 
   return (
-    <div className="hri-test-panel">
+    <div className="panel-body">
       <SectionLabel>Camera → ROS CompressedImage</SectionLabel>
 
-      <div className="hri-row hri-row-wrap">
+      <div className="row row-wrap">
         <Badge ok={camAvail}  label={camAvail  ? 'Camera available' : 'No camera'} />
         <Badge ok={camActive} label={camActive ? 'Preview active'   : 'Off'} />
         {isPublishing && <Badge ok={true} label={`Publishing ×${frameCount}`} />}
       </div>
 
-      {camError && <div className="hri-error">{camError}</div>}
+      {camError && <div className="error-text">{camError}</div>}
 
       {/* Live preview */}
       <div className="hri-cam-preview">
@@ -142,51 +142,51 @@ function VisionPanel() {
         )}
       </div>
 
-      <div className="hri-field hri-field-full">
-        <label>Target topic</label>
-        <select value={topic} onChange={e => setTopic(e.target.value)}>
+      <div className="field field-full">
+        <label className="field-label">Target topic</label>
+        <select className="input input-full" value={topic} onChange={e => setTopic(e.target.value)}>
           <option value="/dori/camera/color/image_raw">/dori/camera/color/image_raw</option>
           <option value="/dori/camera/rear/color/image_raw">/dori/camera/rear/color/image_raw</option>
         </select>
       </div>
 
-      <div className="hri-row hri-row-wrap">
-        <div className="hri-field">
-          <label>Publish Hz</label>
-          <input type="number" min="1" max="30" step="1"
+      <div className="row row-wrap">
+        <div className="field">
+          <label className="field-label">Publish Hz</label>
+          <input className="input" type="number" min="1" max="30" step="1"
             value={fps} onChange={e => setFps(Number(e.target.value))} />
         </div>
-        <div className="hri-field">
-          <label>JPEG quality</label>
-          <input type="number" min="0.1" max="1" step="0.1"
+        <div className="field">
+          <label className="field-label">JPEG quality</label>
+          <input className="input" type="number" min="0.1" max="1" step="0.1"
             value={quality} onChange={e => setQuality(Number(e.target.value))} />
         </div>
       </div>
 
-      <div className="hri-row">
+      <div className="row">
         {!camActive ? (
-          <button className="hri-btn accent hri-btn-icon" disabled={!camAvail} onClick={startCamera}>
+          <button className="btn btn-sm btn-ok btn-icon" disabled={!camAvail} onClick={startCamera}>
             <Camera size={12} /> Start Preview
           </button>
         ) : (
-          <button className="hri-btn danger hri-btn-icon" onClick={stopCamera}>
+          <button className="btn btn-sm btn-danger btn-icon" onClick={stopCamera}>
             <CameraOff size={12} /> Stop Camera
           </button>
         )}
 
         {camActive && !isPublishing && (
-          <button className="hri-btn primary hri-btn-icon" disabled={!canPublish} onClick={startPublish}>
+          <button className="btn btn-sm btn-primary btn-icon" disabled={!canPublish} onClick={startPublish}>
             <Play size={12} /> Publish Frames
           </button>
         )}
         {isPublishing && (
-          <button className="hri-btn warning hri-btn-icon" onClick={stopPublish}>
+          <button className="btn btn-sm btn-warn btn-icon" onClick={stopPublish}>
             <Square size={12} /> Stop Publishing
           </button>
         )}
       </div>
 
-      <p className="hri-hint">
+      <p className="hint-text">
         프레임은 <code>sensor_msgs/CompressedImage</code>로 publish됩니다.
         person_detection, gesture, expression 노드가 구독 중이라면 실시간 비전 테스트가 가능합니다.
       </p>

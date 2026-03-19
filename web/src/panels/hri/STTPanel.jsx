@@ -23,13 +23,13 @@ function pub(topic, msgType, data) {
 // Status badge
 function Badge({ ok, label }) {
   return (
-    <span className={`hri-badge ${ok ? 'ok' : 'off'}`}>{label}</span>
+    <span className={`badge ${ok ? 'badge-ok' : 'off'}`}>{label}</span>
   );
 }
 
 // Section divider label
 function SectionLabel({ children }) {
-  return <div className="hri-section-label">{children}</div>;
+  return <div className="panel-section-label">{children}</div>;
 }
 
 // ── STT Panel ─────────────────────────────────────────────────────────────────
@@ -132,11 +132,11 @@ function STTPanel() {
   }
 
   return (
-    <div className="hri-test-panel">
+    <div className="panel-body">
       <SectionLabel>Text Inject → /dori/stt/result</SectionLabel>
 
       <textarea
-        className="hri-input-text"
+        className="input-text"
         rows={2}
         placeholder="테스트할 발화를 입력하세요 (예: 도서관 어디야)"
         value={text}
@@ -144,63 +144,63 @@ function STTPanel() {
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleTextInject(); } }}
       />
 
-      <div className="hri-row hri-row-wrap">
-        <div className="hri-field">
-          <label>Language</label>
-          <select value={lang} onChange={e => setLang(e.target.value)}>
+      <div className="row row-wrap">
+        <div className="field">
+          <label className="field-label">Language</label>
+          <select className="input" value={lang} onChange={e => setLang(e.target.value)}>
             <option value="ko">ko</option>
             <option value="en">en</option>
             <option value="auto">auto</option>
           </select>
         </div>
-        <div className="hri-field">
-          <label>Confidence</label>
-          <input type="number" min="0" max="1" step="0.01"
+        <div className="field">
+          <label className="field-label">Confidence</label>
+          <input className="input" type="number" min="0" max="1" step="0.01"
             value={conf} onChange={e => setConf(e.target.value)} />
         </div>
         <button
-          className="hri-btn primary"
+          className="btn btn-sm btn-primary"
           disabled={!canPublish || !text.trim()}
           onClick={handleTextInject}
         >Inject STT</button>
       </div>
 
       {lastResult && (
-        <div className="hri-result-row">
-          <span className="hri-result-label">Last inject</span>
-          <span className="hri-result-val">"{lastResult.text}"</span>
+        <div className="result-row">
+          <span className="result-label">Last inject</span>
+          <span className="result-value">"{lastResult.text}"</span>
         </div>
       )}
 
       <SectionLabel>Microphone → /dori/debug/audio_blob</SectionLabel>
 
-      <div className="hri-row">
+      <div className="row">
         <Badge ok={micAvail} label={micAvail ? 'Mic available' : 'Mic unavailable'} />
         <Badge ok={micActive} label={micStatus} />
       </div>
 
-      {micError && <div className="hri-error">{micError}</div>}
+      {micError && <div className="error-text">{micError}</div>}
 
-      <div className="hri-row">
+      <div className="row">
         {!micActive ? (
           <button
-            className="hri-btn accent hri-btn-icon"
+            className="btn btn-sm btn-ok btn-icon"
             disabled={!micAvail || !canPublish}
             onClick={handleMicStart}
           >
             <Mic size={12} /> Start Recording
           </button>
         ) : (
-          <button className="hri-btn danger hri-btn-icon" onClick={handleMicStopClick}>
+          <button className="btn btn-sm btn-danger btn-icon" onClick={handleMicStopClick}>
             <MicOff size={12} /> Stop &amp; Send
           </button>
         )}
         {micActive && (
-          <span className="hri-recording-dot" />
+          <span className="recording-dot" />
         )}
       </div>
 
-      <p className="hri-hint">
+      <p className="hint-text">
         녹음된 오디오는 <code>/dori/debug/audio_blob</code>으로 publish됩니다.
         Jetson 측에서 이 토픽을 구독해 Whisper로 전달하면 실제 STT 테스트가 가능합니다.
       </p>
