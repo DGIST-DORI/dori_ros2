@@ -383,14 +383,30 @@ WEB_DIR = _resolve_web_dir()
 if WEB_DIR:
     from fastapi.responses import FileResponse as _FileResponse
 
+    _STATIC_FILE_EXTENSIONS = {
+        '.js', '.mjs', '.css', '.map', '.png', '.jpg', '.svg', '.ico', '.woff', '.woff2',
+    }
+
     @app.get('/{full_path:path}', include_in_schema=False)
     async def serve_spa(full_path: str):
         # 실제 파일이 있으면 그대로 반환 (JS, CSS, 이미지 등)
         target = WEB_DIR / full_path
         if target.is_file():
             return _FileResponse(str(target))
-        # 없으면 SPA fallback
-        return _FileResponse(str(WEB_DIR / 'index.html'))
+
+        requested_path = Path(full_path)
+        is_asset_request = (
+            'assets' in requested_path.parts
+            or requested_path.suffix.lower() in _STATIC_FILE_EXTENSIONS
+        )
+        if is_asset_request:
+            raise HTTPException(404, 'Not Found')
+
+        # 파일 확장자가 없는 SPA route만 index.html fallback 처리
+        if not requested_path.suffix:
+            return _FileResponse(str(WEB_DIR / 'index.html'))
+
+        raise HTTPException(404, 'Not Found')
 
 # ── /api/webhook + /api/deploy/* ──────────────────────────────────────────────
 # GitHub Webhook receiver + async deploy pipeline
