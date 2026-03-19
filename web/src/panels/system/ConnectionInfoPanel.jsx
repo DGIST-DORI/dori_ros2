@@ -10,7 +10,7 @@ function ConnectionInfoPanel() {
   const parsedWsUrl = parseWsUrl(wsUrl);
 
   return (
-    <div className="sys-panel-root sys-panel-connection">
+    <div className="layout-panel-body sys-panel-connection">
       <div className="sys-info">
         <div className="sys-info-row">
           <span>Status</span>

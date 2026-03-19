@@ -17,7 +17,7 @@ function pub(topic, msgType, data) {
 
 // Section divider label
 function SectionLabel({ children }) {
-  return <div className="hri-section-label">{children}</div>;
+  return <div className="panel-section-label">{children}</div>;
 }
 
 // ── LLM / TTS Panel ───────────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ function LLMTTSPanel() {
   }
 
   return (
-    <div className="hri-test-panel">
+    <div className="panel-body">
       <div className="hri-tab-row">
         <button className={`hri-tab-btn ${mode === 'llm' ? 'active' : ''}`} onClick={() => setMode('llm')}>LLM Query</button>
         <button className={`hri-tab-btn ${mode === 'tts' ? 'active' : ''}`} onClick={() => setMode('tts')}>TTS Direct</button>
@@ -67,29 +67,30 @@ function LLMTTSPanel() {
         <>
           <SectionLabel>LLM Query → /dori/llm/query</SectionLabel>
           <textarea
-            className="hri-input-text"
+            className="input-text"
             rows={2}
             placeholder="질문 (예: 학생식당 어디에 있어요?)"
             value={llmQuery}
             onChange={e => setLlmQuery(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleLLM(); } }}
           />
-          <div className="hri-field hri-field-full">
-            <label>Location context (optional)</label>
+          <div className="field field-full">
+            <label className="field-label">Location context (optional)</label>
             <input
+              className="input input-full"
               type="text"
               placeholder="예: E7 건물 앞"
               value={locCtx}
               onChange={e => setLocCtx(e.target.value)}
             />
           </div>
-          <button className="hri-btn primary" disabled={!canPublish || !llmQuery.trim()} onClick={handleLLM}>
+          <button className="btn btn-sm btn-primary" disabled={!canPublish || !llmQuery.trim()} onClick={handleLLM}>
             Send to LLM
           </button>
           {lastLlmResp && (
-            <div className="hri-result-row hri-result-multiline">
-              <span className="hri-result-label">LLM response</span>
-              <span className="hri-result-val">{typeof lastLlmResp === 'string' ? lastLlmResp : JSON.stringify(lastLlmResp)}</span>
+            <div className="result-row result-row-col">
+              <span className="result-label">LLM response</span>
+              <span className="result-value">{typeof lastLlmResp === 'string' ? lastLlmResp : JSON.stringify(lastLlmResp)}</span>
             </div>
           )}
         </>
@@ -99,20 +100,20 @@ function LLMTTSPanel() {
         <>
           <SectionLabel>TTS Direct → /dori/tts/text</SectionLabel>
           <textarea
-            className="hri-input-text"
+            className="input-text"
             rows={3}
             placeholder="로봇이 말할 텍스트 (예: 안녕하세요, 도리입니다.)"
             value={ttsText}
             onChange={e => setTtsText(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleTTS(); } }}
           />
-          <button className="hri-btn primary" disabled={!canPublish || !ttsText.trim()} onClick={handleTTS}>
+          <button className="btn btn-sm btn-primary" disabled={!canPublish || !ttsText.trim()} onClick={handleTTS}>
             Speak
           </button>
           {lastTts && (
-            <div className="hri-result-row">
-              <span className="hri-result-label">Last TTS</span>
-              <span className="hri-result-val">"{lastTts}"</span>
+            <div className="result-row">
+              <span className="result-label">Last TTS</span>
+              <span className="result-value">"{lastTts}"</span>
             </div>
           )}
         </>

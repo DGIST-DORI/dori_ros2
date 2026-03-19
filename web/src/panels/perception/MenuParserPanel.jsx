@@ -6,10 +6,10 @@ const API = '/api/knowledge';
 
 function StatusBadge({ status }) {
   const map = {
-    idle: ['km-badge km-badge-idle', '—'],
-    running: ['km-badge km-badge-running', 'RUNNING'],
-    ok: ['km-badge km-badge-ok', 'OK'],
-    error: ['km-badge km-badge-error', 'ERROR'],
+    idle: ['badge', '—'],
+    running: ['badge badge-running', 'RUNNING'],
+    ok: ['badge badge-ok', 'OK'],
+    error: ['badge badge-error', 'ERROR'],
   };
   const [cls, label] = map[status] ?? map.idle;
   return <span className={cls}>{label}</span>;
@@ -21,10 +21,10 @@ function LogPane({ lines }) {
     if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
   }, [lines]);
   return (
-    <div className="km-log" ref={ref}>
+    <div className="log-pane" ref={ref}>
       {lines.length === 0
-        ? <span className="km-log-empty">No output yet.</span>
-        : lines.map((l, i) => <div key={i} className="km-log-line">{l}</div>)}
+        ? <span className="log-pane-empty">No output yet.</span>
+        : lines.map((l, i) => <div key={i} className="log-pane-line">{l}</div>)}
     </div>
   );
 }
@@ -81,9 +81,9 @@ function MenuParserPanel() {
   }
 
   return (
-    <div className="km-panel-root km-menu-parser-panel">
-      <div className="km-section">
-        <p className="km-hint">
+    <div className="layout-panel-body km-menu-parser-panel">
+      <div className="panel-section">
+        <p className="hint-text">
           Upload weekly menu files (<code>.xlsx</code> / <code>.pdf</code>).
           Parsed output is saved to <code>data/campus/processed/cafeteria/</code>.
         </p>
@@ -119,16 +119,16 @@ function MenuParserPanel() {
             )}
         </div>
 
-        <div className="km-actions">
+        <div className="row row-wrap">
           <button
-            className="km-btn km-btn-primary"
+            className="btn btn-sm btn-primary"
             disabled={files.length === 0 || status === 'running'}
             onClick={handleUpload}
           >
             {status === 'running' ? 'Parsing…' : 'Parse & Save'}
           </button>
           {files.length > 0 && status !== 'running' && (
-            <button className="km-btn" onClick={() => { setFiles([]); setLog([]); setStatus('idle'); }}>
+            <button className="btn btn-sm" onClick={() => { setFiles([]); setLog([]); setStatus('idle'); }}>
               Clear
             </button>
           )}

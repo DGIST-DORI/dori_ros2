@@ -384,10 +384,10 @@ function ConversationTabContent() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="cr-layout">
+    <div className="layout-conversation">
 
       {/* ══ Left: Session list ══════════════════════════════════════════════ */}
-      <Panel title="Sessions" className="cr-panel-sessions">
+      <Panel title="Sessions" className="slot-sessions">
         <div className="cr-session-panel">
 
           {/* Toolbar */}
@@ -437,7 +437,7 @@ function ConversationTabContent() {
       </Panel>
 
       {/* ══ Right: Chat view ════════════════════════════════════════════════ */}
-      <div className="cr-right">
+      <div className="slot-chat">
 
         {/* Chat header */}
         <div className="cr-chat-header">

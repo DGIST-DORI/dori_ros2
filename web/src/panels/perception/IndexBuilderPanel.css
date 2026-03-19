@@ -1,5 +1,3 @@
-@import "../../styles/shared/knowledgeLayout.css";
-
 .km-index-info {
   display: flex;
   gap: 8px;
@@ -45,59 +43,3 @@
   accent-color: var(--accent, #00c8ff);
 }
 
-.km-btn {
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  color: var(--text-0);
-  border-radius: var(--radius);
-  font-size: 11px;
-  padding: 5px 12px;
-  cursor: pointer;
-  transition: background 0.12s, border-color 0.12s;
-  white-space: nowrap;
-}
-
-.km-btn:hover:not(:disabled) {
-  background: var(--bg-3);
-  border-color: var(--border-bright);
-}
-
-.km-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.km-btn-primary {
-  background: var(--accent-dim, rgba(0,200,255,0.08));
-  border-color: var(--accent, #00c8ff);
-  color: var(--accent, #00c8ff);
-}
-
-.km-btn-primary:hover:not(:disabled) {
-  background: rgba(0, 200, 255, 0.16);
-}
-
-.km-log {
-  flex: 1;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-  font-size: 10px;
-  line-height: 1.6;
-  color: var(--text-1);
-  background: var(--bg-0, #0d0d0d);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 8px 10px;
-  overflow-y: auto;
-  min-height: 72px;
-  max-height: 140px;
-}
-
-.km-log-empty {
-  color: var(--text-2);
-  font-style: italic;
-}
-
-.km-log-line {
-  white-space: pre-wrap;
-  word-break: break-all;
-}
