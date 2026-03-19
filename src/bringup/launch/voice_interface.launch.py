@@ -33,7 +33,7 @@ def generate_launch_description():
     try:
         llm_pkg_dir = get_package_share_directory('llm_pkg')
         knowledge_file_default = os.path.join(
-            llm_pkg_dir, 'config', 'campus_knowledge.json'
+            llm_pkg_dir, 'config', 'campus_knowledge.json' # TODO: consider moving this to llm_pkg's parameters instead of hardcoding the path here
         )
     except Exception:
         knowledge_file_default = ''
@@ -52,6 +52,9 @@ def generate_launch_description():
         DeclareLaunchArgument('wake_word',
             default_value='porcupine',
             description='Porcupine wake word keyword'),
+        DeclareLaunchArgument('wake_word_paths',
+            default_value='data/porcupine/dori.ppn',
+            description='Path to custom Porcupine wake word .ppn file'),
         DeclareLaunchArgument('tts_engine',
             default_value='gtts',
             description='TTS engine: gtts (online) or pyttsx3 (offline)'),
@@ -84,6 +87,7 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'wake_word':        LaunchConfiguration('wake_word'),
+            'wake_word_paths':  LaunchConfiguration('wake_word_paths'),
             'whisper_model':    LaunchConfiguration('whisper_model'),
             'whisper_device':   'cpu',
             'vad_threshold':    0.5,

@@ -65,12 +65,14 @@ class STTNode(Node):
 
         # Parameters
         self.declare_parameter('wake_word', 'porcupine')
+        self.declare_parameter('wake_word_paths', 'data/porcupine/dori.ppn')
         self.declare_parameter('whisper_model', 'small')
         self.declare_parameter('whisper_device', 'cpu')
         self.declare_parameter('vad_threshold', 0.5)
         self.declare_parameter('silence_duration', 1.2)
 
         wake_word    = self.get_parameter('wake_word').value
+        wake_word_paths = self.get_parameter('wake_word_paths').value
         model_size   = self.get_parameter('whisper_model').value
         device       = self.get_parameter('whisper_device').value
         self.vad_threshold  = self.get_parameter('vad_threshold').value
@@ -100,11 +102,18 @@ class STTNode(Node):
             return
 
         try:
-            self.porcupine = pvporcupine.create(
-                access_key=os.getenv('PORCUPINE_ACCESS_KEY', ''),
-                keywords=[wake_word],
-            )
-            self.get_logger().info(f'Porcupine ready — wake word: "{wake_word}"')
+            if os.path.isfile(os.path.join(wake_word_paths)): # TODO
+                self.get_logger().info(f'Using custom wake word from: {wake_word_paths}')
+                self.porcupine = pvporcupine.create(
+                    access_key=os.getenv('PORCUPINE_ACCESS_KEY', ''),
+                    keyword_paths=[wake_word_paths],
+                )
+            else:
+                self.get_logger().info(f'Using built-in wake word: "{wake_word}"')
+                self.porcupine = pvporcupine.create(
+                    access_key=os.getenv('PORCUPINE_ACCESS_KEY', ''),
+                    keywords=[wake_word]
+                )
         except Exception as e:
             self.get_logger().error(f'Porcupine init failed: {e}')
             return
