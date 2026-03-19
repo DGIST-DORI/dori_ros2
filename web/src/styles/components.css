@@ -55,7 +55,7 @@
 .panel-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2) + 2px;   /* 10px */
+  gap: calc(var(--space-2) + 2px);   /* 10px */
   padding: var(--space-3);
   height: 100%;
   overflow: auto;
