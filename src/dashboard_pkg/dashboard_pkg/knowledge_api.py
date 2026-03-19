@@ -21,6 +21,8 @@ import argparse
 import asyncio
 import json
 import os
+import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -83,6 +85,10 @@ def _resolve_web_dir() -> Path | None:
         candidate = Path(args.web_dir).expanduser().resolve()
         if candidate.is_dir():
             return candidate
+
+    published = Path(__file__).resolve().parents[2] / 'web_current'
+    if published.is_dir():
+        return published
 
     fallback = Path(__file__).resolve().parents[2] / 'web'
     if fallback.is_dir():
@@ -383,18 +389,64 @@ WEB_DIR = _resolve_web_dir()
 if WEB_DIR:
     from fastapi.responses import FileResponse as _FileResponse
 
+    _STATIC_FILE_EXTENSIONS = {
+        '.js', '.mjs', '.css', '.map', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.eot',
+    }
+    _IMMUTABLE_ASSET_EXTENSIONS = {
+        '.js', '.mjs', '.css', '.map', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.eot',
+    }
+
+    def _is_versioned_asset(requested_path: Path) -> bool:
+        if 'assets' not in requested_path.parts:
+            return False
+
+        stem_parts = [part for part in requested_path.stem.split('.') if part]
+        return len(stem_parts) > 1
+
+
+    def _static_cache_headers(requested_path: Path) -> dict[str, str]:
+        normalized_parts = tuple(part for part in requested_path.parts if part not in ('', '.'))
+        suffix = requested_path.suffix.lower()
+
+        if normalized_parts == ('index.html',):
+            return {'Cache-Control': 'no-cache, no-store, must-revalidate'}
+
+        if _is_versioned_asset(requested_path) and suffix in _IMMUTABLE_ASSET_EXTENSIONS:
+            return {'Cache-Control': 'public, max-age=31536000, immutable'}
+
+        if suffix in {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.eot'}:
+            return {'Cache-Control': 'public, max-age=3600'}
+
+        return {'Cache-Control': 'public, max-age=300'}
+
+
     @app.get('/{full_path:path}', include_in_schema=False)
     async def serve_spa(full_path: str):
         # 실제 파일이 있으면 그대로 반환 (JS, CSS, 이미지 등)
         target = WEB_DIR / full_path
+        requested_path = Path(full_path)
         if target.is_file():
-            return _FileResponse(str(target))
-        # 없으면 SPA fallback
-        return _FileResponse(str(WEB_DIR / 'index.html'))
+            return _FileResponse(str(target), headers=_static_cache_headers(requested_path))
+
+        is_asset_request = (
+            'assets' in requested_path.parts
+            or requested_path.suffix.lower() in _STATIC_FILE_EXTENSIONS
+        )
+        if is_asset_request:
+            raise HTTPException(404, 'Not Found')
+
+        # 파일 확장자가 없는 SPA route만 index.html fallback 처리
+        if not requested_path.suffix:
+            index_path = Path('index.html')
+            return _FileResponse(str(WEB_DIR / index_path), headers=_static_cache_headers(index_path))
+
+        raise HTTPException(404, 'Not Found')
 
 # ── /api/webhook + /api/deploy/* ──────────────────────────────────────────────
 # GitHub Webhook receiver + async deploy pipeline
 # Pipeline: git pull → npm run build (if web changed) → colcon build
+#        → validate installed static tree → publish web_current symlink
+# Only purge CDN/browser caches after the publish step completes.
 #
 # Env vars:
 #   DORI_WEBHOOK_SECRET  : GitHub webhook secret (HMAC-SHA256)
@@ -475,6 +527,107 @@ def _web_dir() -> Path | None:
     """Return the web/ directory path if it exists."""
     candidate = REPO_ROOT / 'web'
     return candidate if candidate.is_dir() else None
+
+
+def _installed_dashboard_share_dir() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def _built_web_dir() -> Path:
+    return _installed_dashboard_share_dir() / 'web'
+
+
+def _published_web_dir() -> Path:
+    return _installed_dashboard_share_dir() / 'web_current'
+
+
+def _web_release_root() -> Path:
+    return _installed_dashboard_share_dir() / 'web_releases'
+
+
+def _extract_index_asset_paths(index_path: Path) -> list[str]:
+    text = index_path.read_text(encoding='utf-8')
+    matches = re.findall(r'''(?:src|href)=["']([^"']+)["']''', text)
+    return [
+        match.lstrip('/')
+        for match in matches
+        if match and not match.startswith(('http://', 'https://', '//'))
+    ]
+
+
+def _validate_static_tree(web_dir: Path) -> list[str]:
+    missing: list[str] = []
+    index_path = web_dir / 'index.html'
+    if not index_path.is_file():
+        return ['index.html']
+
+    for asset_path in _extract_index_asset_paths(index_path):
+        if asset_path.startswith('api/'):
+            continue
+        if not (web_dir / asset_path).is_file():
+            missing.append(asset_path)
+
+    return missing
+
+
+def _publish_built_web_tree() -> tuple[bool, str]:
+    """
+    Publish a fully built static tree via an atomic symlink swap.
+
+    Flow:
+      1) Validate install/share/dashboard_pkg/web is complete.
+      2) Copy it into a new versioned release directory.
+      3) Atomically replace web_current -> web_releases/<release>.
+
+    Operators should purge CDN/browser caches only after this completes.
+    """
+    built_web_dir = _built_web_dir()
+    missing = _validate_static_tree(built_web_dir)
+    if missing:
+        preview = ', '.join(missing[:5])
+        if len(missing) > 5:
+            preview += f', ... (+{len(missing) - 5} more)'
+        return False, (
+            'Installed static tree is incomplete; refusing to publish '
+            f'{built_web_dir}. Missing: {preview}'
+        )
+
+    release_root = _web_release_root()
+    release_root.mkdir(parents=True, exist_ok=True)
+
+    release_name = datetime.utcnow().strftime('%Y%m%dT%H%M%S') + f'-{uuid.uuid4().hex[:8]}'
+    release_dir = release_root / release_name
+    tmp_release_dir = release_root / f'.{release_name}.tmp'
+
+    if tmp_release_dir.exists():
+        shutil.rmtree(tmp_release_dir)
+    shutil.copytree(built_web_dir, tmp_release_dir)
+
+    copied_missing = _validate_static_tree(tmp_release_dir)
+    if copied_missing:
+        shutil.rmtree(tmp_release_dir, ignore_errors=True)
+        preview = ', '.join(copied_missing[:5])
+        if len(copied_missing) > 5:
+            preview += f', ... (+{len(copied_missing) - 5} more)'
+        return False, (
+            'Staged static tree is incomplete after copy; refusing to publish. '
+            f'Missing: {preview}'
+        )
+
+    tmp_release_dir.rename(release_dir)
+
+    published_link = _published_web_dir()
+    tmp_link = published_link.with_name(published_link.name + '.tmp')
+    if tmp_link.exists() or tmp_link.is_symlink():
+        tmp_link.unlink()
+    tmp_link.symlink_to(release_dir, target_is_directory=True)
+    os.replace(tmp_link, published_link)
+
+    return True, (
+        'Published dashboard static tree via atomic symlink swap. '
+        f'Active tree: {published_link} -> {release_dir}. '
+        'Cache purge/window for public exposure must happen after this step.'
+    )
 
 
 def _changed_paths(pull_stdout: str) -> list[str]:
@@ -567,7 +720,7 @@ def _deploy_pipeline():
 
     if packages_to_build:
         _deploy_job['steps'].append({
-            'name': 'colcon build target packages',
+            'step': 'select packages',
             'status': 'done',
             'log': 'Packages selected: ' + ', '.join(packages_to_build),
         })
@@ -584,6 +737,31 @@ def _deploy_pipeline():
             _deploy_job.update({'status': 'error', 'error': 'colcon build failed',
                                 'finished_at': datetime.datetime.now().isoformat()})
             return
+
+    # ── Step 4: publish dashboard static tree only after install completes ───
+    if web_changed:
+        step = {
+            'step': 'publish dashboard static tree',
+            'status': 'running',
+            'log': (
+                'Validating install/share/dashboard_pkg/web, copying into a new '
+                'versioned release directory, and switching web_current only '
+                'after the full asset set is present. Purge caches only after '
+                'this step reports done.'
+            ),
+        }
+        _deploy_job['steps'].append(step)
+        ok, publish_log = _publish_built_web_tree()
+        step['log'] += '\n' + publish_log
+        if not ok:
+            step['status'] = 'error'
+            _deploy_job.update({
+                'status': 'error',
+                'error': 'dashboard static publish failed',
+                'finished_at': datetime.datetime.now().isoformat(),
+            })
+            return
+        step['status'] = 'done'
 
     _deploy_job.update({'status': 'done',
                         'finished_at': datetime.datetime.now().isoformat()})
