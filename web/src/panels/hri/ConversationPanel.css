@@ -195,9 +195,9 @@
 
 .cr-ctx-wake    { color: var(--color-warn);  background: var(--color-warn-bg);  border: 1px solid color-mix(in srgb, var(--color-warn)  25%, transparent); }
 .cr-ctx-state   { color: var(--color-info);  background: var(--color-info-bg);  border: 1px solid color-mix(in srgb, var(--color-info)  25%, transparent); }
-.cr-ctx-tts     { color: var(--orange);      background: var(--orange-dim);     border: 1px solid color-mix(in srgb, var(--orange)      25%, transparent); }
+.cr-ctx-tts     { color: var(--color-tts);   background: var(--color-tts-bg);   border: 1px solid color-mix(in srgb, var(--color-tts)   25%, transparent); }
 .cr-ctx-gesture { color: var(--color-info);  background: var(--color-info-bg);  border: 1px solid color-mix(in srgb, var(--color-info)  20%, transparent); }
-.cr-ctx-nav     { color: var(--color-warn);  background: var(--color-warn-bg);  border: 1px solid color-mix(in srgb, var(--color-warn)  20%, transparent); }
+.cr-ctx-nav     { color: var(--color-nav);   background: var(--color-nav-bg);   border: 1px solid color-mix(in srgb, var(--color-nav)   20%, transparent); }
 .cr-ctx-track   { color: var(--text-secondary); background: var(--surface-raised); border: 1px solid var(--border-default); }
 .cr-ctx-default { background: var(--surface-raised); border: 1px solid var(--border-default); }
 

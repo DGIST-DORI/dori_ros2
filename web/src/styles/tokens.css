@@ -9,59 +9,88 @@
  * Place:  web/src/styles/tokens.css
  */
 
-/* ── Semantic color tokens ──────────────────────────────────────────────────
- *
- * Status    : reflects a system or data state
- * Interactive: anything the user can click / activate
- * Surface   : background layering
- * Text      : foreground hierarchy
- * Border    : stroke hierarchy
- */
-
 :root {
-  /* Status */
-  --color-ok:    var(--green);
-  --color-warn:  var(--yellow);
-  --color-error: var(--red);
-  --color-info:  var(--accent);
+  /* ── Status colors ─────────────────────────────────────────────────────
+   *
+   * Use these for generic system/data states.
+   */
+  --color-ok:       var(--green);
+  --color-warn:     var(--yellow);
+  --color-error:    var(--red);
+  --color-info:     var(--accent);
 
-  /* Status — dim backgrounds (for badges / tinted cards) */
+  /* Dim backgrounds — for badges and tinted cards */
   --color-ok-bg:    var(--green-dim);
   --color-warn-bg:  var(--yellow-dim);
   --color-error-bg: var(--red-dim);
   --color-info-bg:  var(--accent-dim);
 
-  /* Interactive */
-  --color-interactive:       var(--accent);
-  --color-interactive-bg:    var(--accent-dim);
-  --color-interactive-glow:  var(--accent-glow);
+  /* ── Role-specific colors ───────────────────────────────────────────────
+   *
+   * Use these when a hue is permanently tied to a specific domain meaning
+   * (e.g. a ROS topic category shown in timelines / logs), rather than a
+   * generic ok/warn/error status.
+   *
+   * --color-tts : TTS / speech output events
+   * --color-nav : navigation command events
+   */
+  --color-tts:      var(--orange);
+  --color-tts-bg:   var(--orange-dim);
+  --color-nav:      var(--yellow);
+  --color-nav-bg:   var(--yellow-dim);
 
-  /* Surface (alias — same as index.css bg-* but semantic names) */
+  /* ── Interactive ────────────────────────────────────────────────────────
+   *
+   * Anything the user can click, activate, or select.
+   */
+  --color-interactive:      var(--accent);
+  --color-interactive-bg:   var(--accent-dim);
+  --color-interactive-glow: var(--accent-glow);
+
+  /* ── Surface layers ─────────────────────────────────────────────────────
+   *
+   * Semantic aliases for the bg-* raw variables in index.css.
+   * Use surface tokens instead of --bg-0 / --bg-1 / etc.
+   *
+   *   base    → page background
+   *   panel   → panel card background
+   *   raised  → elevated elements (rows, cards inside panels)
+   *   overlay → tooltips, dropdowns, topmost layers
+   */
   --surface-base:    var(--bg-0);
   --surface-panel:   var(--bg-1);
   --surface-raised:  var(--bg-2);
   --surface-overlay: var(--bg-3);
 
-  /* Text hierarchy */
+  /* ── Text hierarchy ─────────────────────────────────────────────────────
+   *
+   *   primary   → main readable content
+   *   secondary → supporting text
+   *   muted     → labels, placeholders, disabled states
+   */
   --text-primary:   var(--text-0);
   --text-secondary: var(--text-1);
   --text-muted:     var(--text-2);
 
-  /* Border hierarchy */
+  /* ── Border hierarchy ───────────────────────────────────────────────────
+   *
+   *   default → standard dividers and outlines
+   *   bright  → focused / hovered outlines
+   */
   --border-default: var(--border);
-  --border-bright:  var(--border-bright);   /* already defined in index.css */
+  --border-bright:  var(--border-bright);
 
-  /* ── Typography ────────────────────────────────────────────────────────
+  /* ── Typography ─────────────────────────────────────────────────────────
    *
-   * font-mono : all UI chrome — labels, buttons, inputs, code, log
-   * font-sans : Korean body text, long-form descriptions only
+   * font-mono : all UI chrome — labels, buttons, inputs, code, logs
+   * font-sans : Korean body text, search inputs
    *
-   * Size scale (px):
-   *   xs  9   → badge labels, uppercase meta
-   *   sm  10  → secondary UI text, table cells
-   *   md  11  → primary body / panel text   ← default
-   *   lg  13  → section titles, emphasized values
-   *   xl  15  → header logo, big indicators
+   * Size scale:
+   *   xs  9px  → badge labels, uppercase meta
+   *   sm  10px → secondary UI text, table cells
+   *   md  11px → primary body / panel text  (default)
+   *   lg  13px → section titles, emphasized values
+   *   xl  15px → header logo, large numeric displays
    */
   --font-size-xs: 9px;
   --font-size-sm: 10px;
@@ -69,9 +98,8 @@
   --font-size-lg: 13px;
   --font-size-xl: 15px;
 
-  /* ── Spacing scale ─────────────────────────────────────────────────────
+  /* ── Spacing scale ──────────────────────────────────────────────────────
    *
-   * Based on values actually used throughout the codebase.
    * Always prefer these over hard-coded px values in new code.
    */
   --space-1: 4px;
@@ -81,12 +109,12 @@
   --space-6: 24px;
   --space-8: 32px;
 
-  /* ── Component sizing ──────────────────────────────────────────────────
+  /* ── Component sizing ───────────────────────────────────────────────────
    *
    * Standard heights for interactive elements.
    */
-  --height-header:  44px;   /* top header bar, sidebar top cell */
+  --height-header:  44px;   /* top header bar */
   --height-toolbar: 36px;   /* panel inner toolbars */
-  --height-input:   28px;   /* single-line inputs, selects */
+  --height-input:   28px;   /* single-line inputs / selects */
   --height-btn-sm:  24px;   /* small icon buttons */
 }
