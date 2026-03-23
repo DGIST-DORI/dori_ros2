@@ -1,23 +1,16 @@
-.km-toolbar {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.km-toolbar-with-badge {
-  align-items: stretch;
-}
+.km-toolbar { display: flex; gap: 6px; align-items: center; }
+.km-toolbar-with-badge { align-items: stretch; }
 
 .km-panel-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 28px;
-  padding: 0 8px;
-  font-size: 10px;
-  color: var(--text-2);
-  background: var(--bg-3);
-  border: 1px solid var(--border);
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
   border-radius: 999px;
   font-variant-numeric: tabular-nums;
 }
@@ -31,31 +24,23 @@
 }
 
 .km-doc-item {
-  background: var(--bg-2);
-  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius);
-  padding: 6px 10px;
+  padding: 6px calc(var(--space-2) + 2px);
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
 .km-doc-source {
-  font-size: 11px;
-  color: var(--text-0);
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
   font-family: 'JetBrains Mono', monospace;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.km-doc-meta {
-  display: flex;
-  gap: 10px;
-  font-size: 10px;
-  color: var(--text-2);
-}
-
-.km-doc-mtime {
-  margin-left: auto;
-}
+.km-doc-meta { display: flex; gap: calc(var(--space-2) + 2px); font-size: var(--font-size-sm); color: var(--text-muted); }
+.km-doc-mtime { margin-left: auto; }

@@ -1,14 +1,14 @@
 .sys-metrics-body {
-  padding: 10px 12px 12px;
+  padding: var(--space-2) var(--space-3) var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .sys-metric-card {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius);
-  background: var(--bg-2);
+  background: var(--surface-raised);
   padding: 9px 11px;
 }
 
@@ -20,26 +20,26 @@
 }
 
 .sys-metric-title {
-  font-size: 9px;
+  font-size: var(--font-size-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--text-2);
+  color: var(--text-muted);
 }
 
 .sys-metric-primary {
-  font-size: 13px;
+  font-size: var(--font-size-lg);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--text-0);
+  color: var(--text-primary);
   line-height: 1;
 }
-.sys-metric-primary.is-warning { color: var(--red,   #d66b66); }
-.sys-metric-primary.is-ok      { color: var(--green, #53c87a); }
+.sys-metric-primary.is-warning { color: var(--color-error); }
+.sys-metric-primary.is-ok      { color: var(--color-ok); }
 
 .sys-bar-wrap {
   height: 3px;
-  background: var(--bg-3);
+  background: var(--surface-overlay);
   border-radius: 2px;
   margin-bottom: 7px;
   overflow: hidden;
@@ -49,32 +49,29 @@
   height: 100%;
   border-radius: 2px;
   transition: width 0.4s ease, background-color 0.3s;
-  background: var(--accent, #00c8ff);
+  background: var(--color-info);
 }
-
-.sys-bar-fill.warn { background: var(--red, #d66b66); }
+.sys-bar-fill.warn { background: var(--color-error); }
 
 .sys-metric-details {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2px 10px;
+  gap: 2px calc(var(--space-2) + 2px);
 }
 
 .sys-metric-row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-size: 10px;
-  gap: 4px;
+  font-size: var(--font-size-sm);
+  gap: var(--space-1);
 }
-
-.sys-metric-row span:first-child { color: var(--text-2); white-space: nowrap; }
+.sys-metric-row span:first-child { color: var(--text-muted); white-space: nowrap; }
 
 .sys-metric-value {
-  color: var(--text-0);
+  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   font-weight: 500;
   text-align: right;
 }
-
-.sys-metric-value.is-warning { color: var(--red, #d66b66); font-weight: 700; }
+.sys-metric-value.is-warning { color: var(--color-error); font-weight: 700; }
