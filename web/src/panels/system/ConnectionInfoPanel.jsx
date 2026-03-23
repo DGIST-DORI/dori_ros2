@@ -3,24 +3,24 @@ import { parseWsUrl } from '../../core/url';
 import './ConnectionInfoPanel.css';
 
 function ConnectionInfoPanel() {
-  const connected = useStore((s) => s.connected);
-  const isDemoMode = useStore((s) => s.isDemoMode);
-  const wsUrl = useStore((s) => s.wsUrl);
+  const connected  = useStore(s => s.connected);
+  const isDemoMode = useStore(s => s.isDemoMode);
+  const wsUrl      = useStore(s => s.wsUrl);
 
   const parsedWsUrl = parseWsUrl(wsUrl);
 
+  const statusColor = connected
+    ? 'var(--color-ok)'
+    : isDemoMode
+      ? 'var(--color-warn)'
+      : 'var(--text-muted)';
+
   return (
-    <div className="layout-panel-body sys-panel-connection">
+    <div className="layout-panel-body">
       <div className="sys-info">
         <div className="sys-info-row">
           <span>Status</span>
-          <span
-            style={{
-              color: connected ? 'var(--green)'
-                : isDemoMode ? 'var(--yellow)'
-                : 'var(--text-2)',
-            }}
-          >
+          <span style={{ color: statusColor }}>
             {connected ? 'ROS Connected' : isDemoMode ? 'Demo Mode' : 'Disconnected'}
           </span>
         </div>
@@ -38,7 +38,7 @@ function ConnectionInfoPanel() {
         ) : (
           <div className="sys-info-row">
             <span>Transport</span>
-            <span style={{ color: 'var(--red)' }}>Invalid URL</span>
+            <span style={{ color: 'var(--color-error)' }}>Invalid URL</span>
           </div>
         )}
       </div>

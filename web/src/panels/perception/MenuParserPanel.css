@@ -1,21 +1,19 @@
 .km-dropzone {
-  border: 1px dashed var(--border);
+  border: 1px dashed var(--border-default);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: var(--space-4);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   min-height: 72px;
-  background: var(--bg-2);
+  background: var(--surface-raised);
 }
-
 .km-dropzone:hover {
-  border-color: var(--accent);
-  background: var(--accent-dim, rgba(0,200,255,0.04));
+  border-color: var(--color-info);
+  background: var(--color-info-bg);
 }
-
 .km-dropzone.has-files {
   border-style: solid;
   border-color: var(--border-bright);
@@ -23,60 +21,32 @@
   cursor: default;
 }
 
-.km-dropzone-hint {
-  font-size: 11px;
-  color: var(--text-2);
-  text-align: center;
-}
+.km-dropzone-hint { font-size: var(--font-size-md); color: var(--text-muted); text-align: center; }
 
-.km-file-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.km-file-list { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: var(--space-1); }
 
 .km-file-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  padding: 4px 6px;
+  gap: var(--space-2);
+  font-size: var(--font-size-md);
+  padding: var(--space-1) 6px;
   border-radius: var(--radius);
-  background: var(--bg-3);
+  background: var(--surface-overlay);
 }
 
-.km-file-name {
-  flex: 1;
-  color: var(--text-0);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.km-file-size {
-  color: var(--text-2);
-  font-variant-numeric: tabular-nums;
-  font-size: 10px;
-}
+.km-file-name { flex: 1; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.km-file-size { color: var(--text-muted); font-variant-numeric: tabular-nums; font-size: var(--font-size-sm); }
 
 .km-file-remove {
   background: transparent;
   border: none;
-  color: var(--text-2);
+  color: var(--text-muted);
   cursor: pointer;
-  font-size: 10px;
-  padding: 2px 4px;
+  font-size: var(--font-size-sm);
+  padding: 2px var(--space-1);
   border-radius: 3px;
   line-height: 1;
   transition: color 0.1s, background 0.1s;
 }
-
-.km-file-remove:hover {
-  color: var(--red, #d66b66);
-  background: var(--red-dim, rgba(214,107,102,0.12));
-}
-
+.km-file-remove:hover { color: var(--color-error); background: var(--color-error-bg); }

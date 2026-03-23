@@ -53,28 +53,53 @@ ws://[Robot IP]:9090
 
 For broader project context, see the root README: `../README.md`.
 
+## Style system
+
+Shared styles are managed in three files under `web/src/styles/`.
+The old `styles/shared/` folder has been deleted and must not be used.
+
+```
+web/src/styles/
+  tokens.css      ← color, font, and spacing tokens
+  layout.css      ← grid layout classes
+  components.css  ← reusable UI: buttons, badges, inputs, log panes, etc.
+```
+
+`index.css` globally imports all three, so each panel CSS only needs to `@import` what it uses.
+For the full design conventions, see `CODING_RULES.md`.
+
 ## Panel structure convention
 
-패널 구현은 `web/src/panels/<domain>/` 아래에만 둡니다. 각 패널은 **1파일 1컴포넌트** 원칙을 따릅니다 (예: `web/src/panels/system/EventLogPanel.jsx`, `web/src/panels/hri/STTPanel.jsx`).
+Panel implementations live exclusively under `web/src/panels/<domain>/`.
+Each panel follows the **one file, one component** rule
+(e.g. `web/src/panels/system/EventLogPanel.jsx`, `web/src/panels/hri/STTPanel.jsx`).
 
-- 예시 도메인 폴더: `hri/`, `cube/`, `knowledge/`, `conversation/`, `face/`, `system/`
-- `web/src/panelTree.jsx`는 패널 컴포넌트를 `web/src/panels/...`에서만 import 합니다.
-- `web/src/tabs/`는 신규 구현 위치가 아니며, 기존 코드 호환을 위한 **legacy compatibility layer**로만 유지합니다.
-- 신규/이관 스타일은 반드시 패널 인접 CSS(`web/src/panels/<domain>/<PanelName>.css`)에 둡니다. 여러 패널이 공유하는 레이아웃/토큰성 스타일은 `web/src/styles/shared/`에 둡니다.
+- Example domain folders: `hri/`, `control/`, `perception/`, `conversation/`, `system/`
+- `web/src/panelTree.jsx` imports panel components only from `web/src/panels/...`
+- `web/src/tabs/` is **not** a location for new implementations; it is kept solely as a
+  **legacy compatibility layer** for existing code
+- New and migrated styles go in the panel-adjacent CSS file
+  (`web/src/panels/<domain>/<PanelName>.css`). Styles shared across multiple panels go in
+  the three files under `web/src/styles/`
 
-### 새 패널 추가 절차
+### Adding a new panel
 
-1. `web/src/panels/<domain>/`에 새 패널 파일을 추가합니다 (한 파일에 한 패널 컴포넌트).
-2. 패널 컴포넌트를 named export로 노출합니다.
-3. `web/src/panelTree.jsx`에 해당 패널 import를 추가합니다.
-4. `PANEL_TREE`의 적절한 leaf 노드에 `component: <YourPanelComponent>`를 등록합니다.
-5. 필요 시에만 `web/src/tabs/`의 레거시 진입점에 re-export를 추가합니다.
+1. Create the panel file under `web/src/panels/<domain>/` (one component per file)
+2. Export the component as a named export
+3. Add the import to `web/src/panelTree.jsx`
+4. Register it at the appropriate leaf node in `PANEL_TREE` with `component: <YourPanel>`
+5. Add default window dimensions to `PANEL_SIZES` in `web/src/core/floatingPanels.js`
+6. Only add a re-export to `web/src/tabs/` if a legacy entry point requires it
 
-
-- System 패널에는 `Event Log`와 `Topic Publisher`가 포함되며 경로는 각각 `web/src/panels/system/EventLogPanel.jsx`, `web/src/panels/system/TopicPublisherPanel.jsx`입니다.
+System panels include `Event Log` and `Topic Publisher`, located at
+`web/src/panels/system/EventLogPanel.jsx` and `web/src/panels/system/TopicPublisherPanel.jsx`.
 
 ### Header ownership rule
 
-- Floating workspace (`FloatingPanel`) and mobile stack (`MobileStack`) own the window title + minimize/close controls. Panels opened there must render content-only roots and must not recreate an internal `Panel` header.
-- Sidebar or fixed tab layouts may still use `web/src/components/Panel.jsx` when they need a local card header/body shell.
-- When moving a panel between layouts, keep header responsibility in exactly one layer and move any padding, overflow, or badge UI into the panel-specific root/CSS.
+- `FloatingPanel` and `MobileStack` own the window title and minimize/close controls.
+  Panels rendered inside them must be **content-only roots** and must not recreate an
+  internal `Panel` header.
+- Sidebar or fixed tab layouts may still use `web/src/components/Panel.jsx` when a local
+  card header/body shell is needed.
+- When moving a panel between layouts, keep header responsibility in exactly one layer and
+  move any padding, overflow, or badge UI into the panel-specific root or CSS.

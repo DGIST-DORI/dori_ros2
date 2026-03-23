@@ -1,18 +1,17 @@
-
 .hri-state-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
-  background: var(--bg-2);
-  border: 1px solid var(--border);
+  font-size: var(--font-size-md);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius);
-  padding: 6px 10px;
+  padding: var(--space-1) var(--space-3);
 }
 
-.hri-state-key { color: var(--text-2); font-size: 10px; }
+.hri-state-key { color: var(--text-muted); font-size: var(--font-size-sm); }
 .hri-state-val { font-weight: 700; }
-.hri-state-IDLE       { color: var(--text-1); }
-.hri-state-LISTENING  { color: var(--accent); }
-.hri-state-RESPONDING { color: var(--yellow); }
-.hri-state-NAVIGATING { color: var(--green); }
+.hri-state-IDLE       { color: var(--text-secondary); }
+.hri-state-LISTENING  { color: var(--color-info); }
+.hri-state-RESPONDING { color: var(--color-warn); }
+.hri-state-NAVIGATING { color: var(--color-ok); }
