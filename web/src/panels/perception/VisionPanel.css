@@ -1,10 +1,9 @@
-
 .hri-cam-preview {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: var(--bg-0);
-  border: 1px solid var(--border);
+  background: var(--surface-base);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius);
   overflow: hidden;
   flex-shrink: 0;
@@ -17,9 +16,7 @@
   display: block;
 }
 
-.hri-cam-canvas {
-  display: none;
-}
+.hri-cam-canvas { display: none; }
 
 .hri-cam-placeholder {
   position: absolute;
@@ -28,9 +25,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  color: var(--text-2);
-  font-size: 11px;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--font-size-md);
 }
-
 .hri-cam-placeholder svg { opacity: 0.5; }
