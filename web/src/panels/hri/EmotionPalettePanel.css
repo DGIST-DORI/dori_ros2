@@ -11,6 +11,11 @@
 .face-palette-search-wrap {
   padding: calc(var(--space-1) + 2px) var(--space-2);
   flex-shrink: 0;
+  display: flex;
+}
+
+.face-palette-search-wrap .input-search {
+  width: 100%;
 }
 
 /* Scrollable palette list */
