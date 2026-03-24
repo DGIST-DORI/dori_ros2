@@ -23,6 +23,7 @@ const VisionPanel = lazy(() => import('./panels/perception/VisionPanel'));
 const LLMInjectPanel = lazy(() => import('./panels/perception/LLMInjectPanel'));
 const MenuParserPanel = lazy(() => import('./panels/perception/MenuParserPanel'));
 const IndexBuilderPanel = lazy(() => import('./panels/perception/IndexBuilderPanel'));
+const CampusCrawlerPanel = lazy(() => import('./panels/perception/CampusCrawlerPanel'));
 const DocumentBrowserPanel = lazy(() => import('./panels/perception/DocumentBrowserPanel'));
 const BuildingEditorPanel = lazy(() => import('./panels/perception/BuildingEditorPanel'));
 
@@ -125,6 +126,7 @@ export const PANEL_TREE = [
         children: [
           { id: 'menu-parser', label: 'Menu Parser',     component: MenuParserPanel },
           { id: 'index-builder', label: 'Index Builder',   component: IndexBuilderPanel },
+          { id: 'campus-crawler', label: 'Campus Crawler', component: CampusCrawlerPanel },
           { id: 'knowledge-docs',     label: 'Document Browser', component: DocumentBrowserPanel },
           { id: 'knowledge-building', label: 'Building Editor',  component: BuildingEditorPanel },
         ],
