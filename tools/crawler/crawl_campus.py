@@ -429,8 +429,11 @@ def load_extra_urls(path: str) -> list[tuple]:
             parts = line.split()
             url = parts[0]
             category = parts[1] if len(parts) > 1 else "misc"
-            doc_hint = parts[2] if len(parts) > 2 else "page"
-            doc_id = normalize_doc_id(url, fallback=doc_hint)
+            doc_hint = parts[2] if len(parts) > 2 else None
+            if doc_hint:
+                doc_id = ensure_safe_doc_id(doc_hint)
+            else:
+                doc_id = normalize_doc_id(url, fallback="page")
 
             if doc_id in seen_doc_ids:
                 suffix = hashlib.sha1(url.encode("utf-8")).hexdigest()[:6]

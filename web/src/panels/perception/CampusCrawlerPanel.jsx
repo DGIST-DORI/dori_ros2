@@ -65,7 +65,7 @@ function CampusCrawlerPanel() {
   }
 
   function summarize(lines, finalStatus, errorMessage = '') {
-    const processedCount = lines.filter((line) => /^\[[^\]]+\]\s+/.test(line) && !line.startsWith('[WARN]')).length;
+    const processedCount = lines.filter((line) => /^\[[a-z0-9_-]+\]\s+/.test(line)).length;
     const fallbackCount = lines.filter((line) => line.includes('(raw fallback)') || line.includes('LLM refinement failed')).length;
 
     return {
