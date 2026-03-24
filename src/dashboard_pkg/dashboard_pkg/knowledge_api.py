@@ -245,14 +245,21 @@ def _resolve_repo_internal_path(path_value: str | None, *, param_name: str) -> P
     if raw_value in ('', '.', '/'):
         raise HTTPException(400, f'{param_name} must be a non-empty relative path')
 
-    # Reject obvious traversal attempts before touching the filesystem.
-    parts = [p for p in raw_value.split('/') if p]
-    if any(part in ('.', '..') for part in parts):
-        raise HTTPException(400, f'{param_name} must not contain "." or ".." path segments')
+    # Normalize the path string to eliminate any ".." or "." segments before constructing a Path.
+    normed = os.path.normpath(raw_value)
+    if normed in ('', '.', os.sep):
+        raise HTTPException(400, f'{param_name} must be a non-empty relative path')
 
-    candidate = Path(raw_value).expanduser()
-    if not candidate.is_absolute():
-        candidate = (REPO_ROOT / candidate)
+    # Reject absolute paths outright; callers must provide repo-internal relative paths.
+    if os.path.isabs(normed):
+        raise HTTPException(400, f'{param_name} must be a relative path inside the repo root')
+
+    # Reject traversal segments after normalization as an extra safety check.
+    parts = [p for p in normed.split(os.sep) if p]
+    if any(part in ('.', '..') for part in parts):
+        raise HTTPException(400, f'{param_name} must not contain \".\" or \"..\" path segments')
+
+    candidate = REPO_ROOT / Path(normed).expanduser()
     resolved = candidate.resolve()
     repo_resolved = REPO_ROOT.resolve()
 
