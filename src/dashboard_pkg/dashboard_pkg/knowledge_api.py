@@ -236,7 +236,21 @@ def _resolve_repo_internal_path(path_value: str | None, *, param_name: str) -> P
     if path_value in (None, ''):
         return None
 
-    candidate = Path(path_value).expanduser()
+    # Basic type and character validation before constructing a Path from untrusted input.
+    if not isinstance(path_value, str):
+        raise HTTPException(400, f'{param_name} must be a string path')
+
+    # Normalize separators and trim whitespace to reduce platform-specific edge cases.
+    raw_value = path_value.strip().replace('\\', '/')
+    if raw_value in ('', '.', '/'):
+        raise HTTPException(400, f'{param_name} must be a non-empty relative path')
+
+    # Reject obvious traversal attempts before touching the filesystem.
+    parts = [p for p in raw_value.split('/') if p]
+    if any(part in ('.', '..') for part in parts):
+        raise HTTPException(400, f'{param_name} must not contain "." or ".." path segments')
+
+    candidate = Path(raw_value).expanduser()
     if not candidate.is_absolute():
         candidate = (REPO_ROOT / candidate)
     resolved = candidate.resolve()
