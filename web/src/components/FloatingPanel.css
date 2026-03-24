@@ -87,6 +87,16 @@
   position: relative;
 }
 
+.fp-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  color: var(--text-2);
+  font-size: 12px;
+  letter-spacing: 0.2px;
+}
+
 /* ── Resize handle ── */
 .fp-resize-handle {
   position: absolute;
