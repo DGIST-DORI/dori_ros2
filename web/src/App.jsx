@@ -79,6 +79,7 @@ export default function App() {
     <div className={`app ${sidebarExpanded ? 'sb-expanded' : ''} ${isOverlaySidebar ? 'sb-overlay' : ''}`}>
       <div className="app-sidebar">
         <Sidebar
+          themeMode={themeMode}
           expanded={sidebarExpanded}
           onExpand={() => setSidebarExpanded(true)}
           onCollapse={() => setSidebarExpanded(false)}
