@@ -143,6 +143,7 @@ class STTNode(Node):
                 self.porcupine = pvporcupine.create(
                     access_key=os.getenv('PORCUPINE_ACCESS_KEY', ''),
                     keyword_paths=[resolved_ppn],
+                    model_path=[resolved_ppn.replace('doridori_ko_linux_v4_0_0.ppn', 'porcupine_params_ko.pv')], # TODO: this is a bit hacky, ideally the user should specify the model path separately
                 )
             else:
                 self.get_logger().info(
