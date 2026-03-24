@@ -71,7 +71,6 @@
   align-items: center;
   flex: 1;
   min-width: 0;
-  animation: sb-fade-in 0.18s ease;
 }
 
 .sb-logo-text-svg {
