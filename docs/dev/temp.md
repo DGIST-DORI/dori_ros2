@@ -124,6 +124,36 @@ The dashboard displays real-time topic values, HRI state, person tracking, gestu
 - **LLM:** offload to external server recommended for 7B+ models
 - **SLAM:** 
 
+### MediaPipe Task Models (Operations)
+
+Gesture and expression nodes require external MediaPipe Task files:
+
+- `hand_landmarker.task`
+- `face_landmarker.task`
+
+Recommended placement in source tree:
+
+```text
+src/hri_pkg/models/
+```
+
+After `colcon build`, assets are installed under:
+
+```text
+install/hri_pkg/share/hri_pkg/models/
+```
+
+Launch options:
+
+- Set explicit launch arguments: `hand_model_path`, `face_model_path`
+- Or leave them empty and let each node resolve defaults from package share
+
+Startup logs distinguish:
+
+- missing model file
+- permission/readability errors
+- model loading/validation failures
+
 ### Coordinate System (Cube Robot)
 
 ```

@@ -57,6 +57,39 @@ pip3 install -r requirements.txt
 
 The root `requirements.txt` refers to the following files:
 
+### 3-1. Download and Place MediaPipe `.task` Models (HRI)
+
+`hri_pkg` gesture/expression nodes use MediaPipe Tasks models that are **not** bundled by default.
+
+1. Create the model asset directory:
+
+```bash
+mkdir -p src/hri_pkg/models
+```
+
+2. Download required `.task` files and place them in that directory:
+
+```text
+src/hri_pkg/models/hand_landmarker.task
+src/hri_pkg/models/face_landmarker.task
+```
+
+3. Build/install the workspace so models are copied to:
+
+```text
+<install-prefix>/share/hri_pkg/models/
+```
+
+4. Launch with explicit model paths (recommended) or rely on default share-directory lookup:
+
+```bash
+ros2 launch hri_pkg hri.launch.py \
+  hand_model_path:=/absolute/path/to/hand_landmarker.task \
+  face_model_path:=/absolute/path/to/face_landmarker.task
+```
+
+If model files are missing/unreadable/corrupted, the nodes log explicit errors and stop startup.
+
 ### 4. Set API Keys
 
 ```bash
