@@ -46,7 +46,7 @@ cd dori
 
 #### Required (Common)
 
-Install all dependencies for the core voice interface packages (`stt_pkg`, `tts_pkg`, `llm_pkg`) in a single step below.
+Install all dependencies for the core voice interface packages (`stt_pkg`, `tts_pkg`, `llm_pkg`, `hri_pkg`, `dashboard_pkg`, `system_monitor_pkg`) in a single step below.
 
 ```bash
 pip3 install -r requirements.txt
@@ -57,19 +57,9 @@ The root `requirements.txt` refers to the following files:
 - `src/stt_pkg/requirements.txt`
 - `src/tts_pkg/requirements.txt`
 - `src/llm_pkg/requirements.txt`
-
-#### Optional (Additional installations per package)
-
-Please install the following additionally for each feature.
-
-- `hri_pkg` (Camera/Vision Function):
-
-  ```bash
-  pip3 install opencv-python mediapipe ultralytics pyrealsense2
-  ```
-
-- `llm_pkg` When using external model APIs: API key setup required (`OPENAI_API_KEY`, `GEMINI_API_KEY`, etc.)
-- `stt_pkg` When using Silero VAD: `torch` installation recommended
+- `src/hri_pkg/requirements.txt`
+- `src/dashboard_pkg/requirements.txt`
+- `src/system_monitor_pkg/requirements.txt`
 
 ### 4. Set API Keys
 
