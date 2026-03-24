@@ -169,7 +169,7 @@ def refine_with_llm(raw_text: str, description_ko: str, description_en: str,
     try:
         from google import genai
     except ImportError:
-        print("  [WARN] google-geni package not installed — skipping LLM refinement.")
+        print("  [WARN] google-genai package not installed — skipping LLM refinement.")
         return None
 
     try:
