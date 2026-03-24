@@ -31,9 +31,9 @@ function LeafItem({ node, onSelect, expanded }) {
 
   return (
     <button
-      className={`sb-leaf ${node.placeholder ? 'placeholder' : ''} ${flashing ? 'flash' : ''}`}
+      className={`sb-leaf sb-tooltip-trigger ${node.placeholder ? 'placeholder' : ''} ${flashing ? 'flash' : ''}`}
       onClick={handleClick}
-      title={!expanded ? node.label : undefined}
+      aria-label={!expanded ? node.label : undefined}
       disabled={node.placeholder}
     >
       {expanded && (
@@ -103,9 +103,9 @@ function CategoryBlock({ node, onSelect, expanded, searchActive, onExpandSidebar
   return (
     <div className={`sb-category ${isOpen ? 'open' : ''}`}>
       <button
-        className="sb-cat-header"
+        className="sb-cat-header sb-tooltip-trigger"
         onClick={handleHeaderClick}
-        title={!expanded ? node.label : undefined}
+        aria-label={!expanded ? node.label : undefined}
       >
         {node.icon && <span className="sb-cat-icon">{node.icon}</span>}
         {expanded && (
@@ -192,8 +192,9 @@ export default function Sidebar({
           </>
         ) : (
           <button
-            className="sb-open"
+            className="sb-open sb-tooltip-trigger"
             onClick={e => { e.stopPropagation(); onExpand(); }}
+            aria-label="Open sidebar"
           >
             <SidebarIcon />
             <span className="sb-tooltip">Open sidebar</span>
@@ -220,9 +221,9 @@ export default function Sidebar({
           </div>
         ) : (
           <button
-            className="sb-search-btn"
+            className="sb-search-btn sb-tooltip-trigger"
             onClick={() => { onExpand(); setPendingFocus(true); }}
-            title="Search panels"
+            aria-label="Search panels"
           >
             <SearchIcon className="sb-search-btn-icon" />
             <span className="sb-tooltip">Search panels</span>
@@ -250,7 +251,7 @@ export default function Sidebar({
 
       {/* ── Bottom: connection status ── */}
       <div className="sb-bottom">
-        <div className={`sb-status ${statusClass}`}>
+        <div className={`sb-status sb-tooltip-trigger ${statusClass}`}>
           <div className="sb-status-dot" />
           {expanded  && <span className="sb-status-label">{statusLabel}</span>}
           {!expanded && <span className="sb-tooltip sb-tooltip-status">{statusLabel}</span>}

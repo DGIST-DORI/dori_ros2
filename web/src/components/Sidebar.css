@@ -1,10 +1,12 @@
 /* ── Sidebar container ── */
 .sidebar {
+  position: relative;
   background: var(--bg-1);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: visible;
+  isolation: isolate;
   height: 100%;
 }
 .sidebar.collapsed { cursor: pointer; }
@@ -71,6 +73,10 @@
   align-items: center;
   border-bottom: 1px solid var(--border);
   overflow: hidden;
+}
+
+.sidebar.collapsed .sb-search-cell {
+  overflow: visible;
 }
 
 /* Collapsed: icon button fills the cell */
@@ -154,6 +160,10 @@
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
+}
+
+.sidebar.collapsed .sb-nav {
+  overflow-x: visible;
 }
 
 .sb-empty {
@@ -393,6 +403,8 @@
 .sb-tooltip {
   pointer-events: none;
   position: absolute;
+  display: inline-flex;
+  align-items: center;
   left: calc(100% + 10px);
   top: 50%;
   transform: translateY(-50%) translateX(-4px);
@@ -401,11 +413,14 @@
   border: 1px solid var(--border-bright);
   border-radius: var(--radius);
   padding: 4px 10px;
+  line-height: 1.2;
+  font-family: var(--font-sans);
   font-size: 11px;
   color: var(--text-0);
+  visibility: hidden;
   opacity: 0;
   transition: opacity 0.12s, transform 0.12s;
-  z-index: 100;
+  z-index: 200;
   box-shadow: 0 2px 8px rgba(0,0,0,0.4);
   text-transform: none;
   letter-spacing: 0;
@@ -428,10 +443,8 @@
   border-right-color: var(--bg-3);
 }
 
-.sidebar.collapsed .sb-open:hover .sb-tooltip,
-.sidebar.collapsed .sb-cat-header:hover .sb-tooltip,
-.sidebar.collapsed .sb-leaf:hover .sb-tooltip,
-.sidebar.collapsed .sb-status:hover .sb-tooltip {
+.sidebar.collapsed .sb-tooltip-trigger:hover > .sb-tooltip {
+  visibility: visible;
   opacity: 1;
   transform: translateY(-50%) translateX(0);
 }
