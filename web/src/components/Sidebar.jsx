@@ -74,13 +74,25 @@ function SubcategoryBlock({ node, onSelect, expanded, searchActive }) {
   );
 }
 
-function CategoryBlock({ node, onSelect, expanded, searchActive, onExpandSidebar }) {
-  const [open, setOpen] = useState(false);
+function CategoryBlock({
+  node,
+  onSelect,
+  expanded,
+  searchActive,
+  onExpandSidebar,
+  open,
+  onToggleOpen,
+  onOpenFromCollapsed,
+}) {
   const isOpen = searchActive ? true : open;
 
   function handleHeaderClick() {
-    if (!expanded) { onExpandSidebar(); setOpen(true); }
-    else if (!searchActive) setOpen(o => !o);
+    if (!expanded) {
+      onOpenFromCollapsed(node.id);
+      onExpandSidebar();
+      return;
+    }
+    if (!searchActive) onToggleOpen(node.id);
   }
 
   return (
@@ -144,6 +156,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
 
   const [query,        setQuery]        = useState('');
   const [pendingFocus, setPendingFocus] = useState(false);
+  const [openCategoryMap, setOpenCategoryMap] = useState({});
   const searchInputRef = useRef(null);
   const searchActive   = query.trim().length > 0;
 
@@ -159,10 +172,20 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
   const isDark = themeMode === 'dark' || (themeMode === 'auto' && autoIsDark);
   const LogoText = isDark ? DoriLogoTextDark : DoriLogoText;
 
+  function handleToggleCategory(categoryId) {
+    setOpenCategoryMap(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId],
+    }));
+  }
+
+  function handleOpenFromCollapsed(categoryId) {
+    setOpenCategoryMap({ [categoryId]: true });
+  }
+
   return (
     <aside
       className={`sidebar ${expanded ? 'expanded' : 'collapsed'}`}
-      onClick={() => !expanded && onExpand()}
     >
       {/* ── Top cell ── */}
       <div className="sb-top">
@@ -239,12 +262,15 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
             expanded={expanded}
             searchActive={searchActive}
             onExpandSidebar={onExpand}
+            open={!!openCategoryMap[category.id]}
+            onToggleOpen={handleToggleCategory}
+            onOpenFromCollapsed={handleOpenFromCollapsed}
           />
         ))}
       </nav>
 
       {/* ── Bottom: connection status ── */}
-      <div className="sb-bottom">
+      <div className="sb-bottom" onClick={e => e.stopPropagation()}>
         <div className={`sb-status ${statusClass}`}>
           <div className="sb-status-dot" />
           {expanded  && <span className="sb-status-label">{statusLabel}</span>}
