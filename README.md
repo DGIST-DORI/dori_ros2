@@ -1,4 +1,5 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-hotpink.svg)](CODE_OF_CONDUCT.md)
+[![CodeQL Advanced](https://github.com/DGIST-DORI/dori/actions/workflows/codeql.yml/badge.svg)](https://github.com/DGIST-DORI/dori/actions/workflows/codeql.yml)
 
 # DORI
 
@@ -10,6 +11,7 @@
 
 ### Prerequisites
 
+- JetPack 6
 - Ubuntu 22.04
 - ROS2 Humble
 - Python 3.10+
