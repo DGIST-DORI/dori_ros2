@@ -1,7 +1,8 @@
 <p align="center">
   <img
     src="https://raw.githubusercontent.com/DGIST-DORI/dori/master/assets/icon/dori_text.svg"
-    alt="dori logo">
+    alt="dori logo"
+    width="300">
 </p>
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-hotpink.svg)](CODE_OF_CONDUCT.md)
