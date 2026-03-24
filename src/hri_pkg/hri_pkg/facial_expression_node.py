@@ -101,6 +101,8 @@ class FacialExpressionNode(Node):
         self.declare_parameter('visualize', True)
         self.declare_parameter('active_only_on_trigger', True)
         self.declare_parameter('confirm_frames', 5)
+        self.declare_parameter('publish_cooldown_sec', 3.0)
+        self.declare_parameter('min_face_presence_confidence', 0.5)
 
         # Face expression thresholds (needs to be tuned)
         self.declare_parameter('smile_threshold', 0.02)
@@ -113,6 +115,9 @@ class FacialExpressionNode(Node):
         self.visualize         = self.get_parameter('visualize').value
         self.active_on_trigger = self.get_parameter('active_only_on_trigger').value
         self.confirm_frames    = self.get_parameter('confirm_frames').value
+        self.publish_cooldown_sec = self.get_parameter('publish_cooldown_sec').value
+        self.min_face_presence_confidence = self.get_parameter(
+            'min_face_presence_confidence').value
         self.smile_thresh      = self.get_parameter('smile_threshold').value
         self.frown_thresh      = self.get_parameter('frown_threshold').value
         self.brow_frown_thresh = self.get_parameter('brow_frown_threshold').value
@@ -135,9 +140,9 @@ class FacialExpressionNode(Node):
             running_mode=RunningMode.VIDEO,
             num_faces=1,
             min_face_detection_confidence=det_conf,
-            min_face_presence_confidence=det_conf,
+            min_face_presence_confidence=self.min_face_presence_confidence,
             min_tracking_confidence=trk_conf,
-            output_face_blendshapes=False,
+            output_face_blendshapes=True,
             output_facial_transformation_matrixes=False,
         )
         self.face_mesh = FaceLandmarker.create_from_options(face_options)
@@ -150,6 +155,8 @@ class FacialExpressionNode(Node):
         # Counters for expression-specific logic
         self._confused_count: int = 0
         self._confused_trigger_count: int = 3
+        self._last_published_command: str | None = None
+        self._last_command_publish_time: float = 0.0
 
         # Subscribers
         self.create_subscription(
@@ -201,6 +208,28 @@ class FacialExpressionNode(Node):
             self._publish_expression(Expression.NEUTRAL, {}, msg)
             if self.visualize:
                 self._safe_publish_annotated(cv_image, None, Expression.NEUTRAL, {}, msg)
+            return
+
+        face_presence_conf = None
+        if (
+            results.face_blendshapes
+            and len(results.face_blendshapes) > 0
+            and len(results.face_blendshapes[0]) > 0
+        ):
+            # MediaPipe Tasks: blendshape score is a practical proxy for face presence confidence.
+            face_presence_conf = max(c.score for c in results.face_blendshapes[0])
+
+        if (
+            face_presence_conf is not None
+            and face_presence_conf < self.min_face_presence_confidence
+        ):
+            self._expr_history.clear()
+            self._confused_count = 0
+            self._publish_expression(Expression.NEUTRAL, {'presence_conf': round(face_presence_conf, 4)}, msg)
+            if self.visualize:
+                self._safe_publish_annotated(
+                    cv_image, results.face_landmarks[0], Expression.NEUTRAL,
+                    {'presence_conf': round(face_presence_conf, 4)}, msg)
             return
 
         face_lm = results.face_landmarks[0]
@@ -324,7 +353,16 @@ class FacialExpressionNode(Node):
 
         msg = String()
         msg.data = json.dumps(command, ensure_ascii=False)
+        now_sec = time.monotonic()
+        command_key = command['command']
+        if (
+            command_key == self._last_published_command
+            and (now_sec - self._last_command_publish_time) < self.publish_cooldown_sec
+        ):
+            return
         self.command_pub.publish(msg)
+        self._last_published_command = command_key
+        self._last_command_publish_time = now_sec
         self.get_logger().info(f'Expression command: {command["command"]}')
 
     def _publish_annotated(self, image: np.ndarray, face_landmarks,

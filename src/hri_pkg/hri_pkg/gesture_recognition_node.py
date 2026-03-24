@@ -93,6 +93,9 @@ class GestureRecognitionNode(Node):
         self.declare_parameter('wave_history_len', 10)           # WAVE 판정용 이력 길이
         self.declare_parameter('wave_threshold', 0.08)           # WAVE x축 변화 임계값
         self.declare_parameter('gesture_confirm_frames', 3)      # 연속 N프레임 확인 후 발행
+        self.declare_parameter('publish_cooldown_sec', 1.5)      # 동일 명령 중복 발행 억제
+        self.declare_parameter('min_result_confidence', 0.5)     # 결과 사용 최소 confidence
+        self.declare_parameter('use_handedness_correction', True)
 
         hand_model_path = self.get_parameter('hand_model_path').value
         num_hands = self.get_parameter('num_hands').value
@@ -104,6 +107,9 @@ class GestureRecognitionNode(Node):
         wave_history_len        = self.get_parameter('wave_history_len').value
         self.wave_thresh        = self.get_parameter('wave_threshold').value
         self.confirm_frames     = self.get_parameter('gesture_confirm_frames').value
+        self.publish_cooldown_sec = self.get_parameter('publish_cooldown_sec').value
+        self.min_result_confidence = self.get_parameter('min_result_confidence').value
+        self.use_handedness_correction = self.get_parameter('use_handedness_correction').value
 
         if not MP_AVAILABLE:
             self.get_logger().error('mediapipe not installed: pip install mediapipe')
@@ -133,6 +139,8 @@ class GestureRecognitionNode(Node):
         self._wrist_x_history: deque = deque(maxlen=wave_history_len)
 
         self._gesture_history: deque = deque(maxlen=self.confirm_frames)
+        self._last_published_command: str | None = None
+        self._last_command_publish_time: float = 0.0
 
         # Subscribers
         self.create_subscription(
@@ -195,13 +203,20 @@ class GestureRecognitionNode(Node):
 
         # 첫 번째 손만 처리
         hand_landmarks = results.hand_landmarks[0]
+        handedness_label = None
+        result_confidence = None
+        if results.handedness and len(results.handedness) > 0 and len(results.handedness[0]) > 0:
+            category = results.handedness[0][0]
+            handedness_label = category.category_name
+            result_confidence = category.score
         lm = hand_landmarks  # 랜드마크 리스트 (0~20)
 
         # 손목 x이력 갱신 (WAVE 감지용) ───────────────────────────
-        self._wrist_x_history.append(lm[WRIST].x)
+        if result_confidence is None or result_confidence >= self.min_result_confidence:
+            self._wrist_x_history.append(lm[WRIST].x)
 
         # 제스처 분류 ──────────────────────────────────────────────
-        gesture = self._classify(lm, w, h)
+        gesture = self._classify(lm, w, h, handedness_label)
 
         # 연속 confirm_frames 동안 같은 제스처여야 발행 (노이즈 방지)
         self._gesture_history.append(gesture)
@@ -224,7 +239,7 @@ class GestureRecognitionNode(Node):
         if self.visualize:
             self._safe_publish_annotated(cv_image, hand_landmarks, confirmed, msg)
 
-    def _classify(self, lm, w: int, h: int) -> Gesture:
+    def _classify(self, lm, w: int, h: int, handedness_label: str | None) -> Gesture:
         """
         손 랜드마크 기하학적 분석으로 제스처 분류
 
@@ -232,7 +247,7 @@ class GestureRecognitionNode(Node):
           - TIP의 y좌표 < PIP의 y좌표 → 펼쳐짐 (이미지 좌표계: 위가 y=0)
           - 엄지는 x축으로 판단 (왼손/오른손 방향 고려)
         """
-        fingers_extended = self._get_extended_fingers(lm)
+        fingers_extended = self._get_extended_fingers(lm, handedness_label)
         # fingers_extended: [thumb, index, middle, ring, pinky] bool list
 
         # STOP: 5개 모두 펼침 ──────────────────────────────────────
@@ -256,14 +271,19 @@ class GestureRecognitionNode(Node):
 
         return Gesture.NONE
 
-    def _get_extended_fingers(self, lm) -> list[bool]:
+    def _get_extended_fingers(self, lm, handedness_label: str | None = None) -> list[bool]:
         """
         각 손가락 펼침 여부 반환 [thumb, index, middle, ring, pinky]
         엄지: tip이 mcp보다 바깥쪽 (x축)
         나머지: tip이 pip보다 위 (y축, 이미지 좌표)
         """
-        # 엄지 — x축 기준 (왼손 기준; 오른손이면 부호 반전되나 근사값으로 사용)
-        thumb_ext = lm[THUMB_TIP].x < lm[THUMB_MCP].x
+        # 엄지 — x축 기준 (handedness 사용 시 좌/우 손 기준 보정)
+        thumb_dx = lm[THUMB_TIP].x - lm[THUMB_MCP].x
+        if self.use_handedness_correction and handedness_label in ('Left', 'Right'):
+            handedness_sign = -1.0 if handedness_label == 'Left' else 1.0
+            thumb_ext = (thumb_dx * handedness_sign) > 0
+        else:
+            thumb_ext = thumb_dx < 0
 
         index_ext  = lm[INDEX_TIP].y  < lm[INDEX_PIP].y
         middle_ext = lm[MIDDLE_TIP].y < lm[MIDDLE_PIP].y
@@ -334,9 +354,18 @@ class GestureRecognitionNode(Node):
         # gesture to command
         command = self._gesture_to_command(gesture, direction)
         if command:
+            command_key = command['command']
+            now_sec = time.monotonic()
+            if (
+                command_key == self._last_published_command
+                and (now_sec - self._last_command_publish_time) < self.publish_cooldown_sec
+            ):
+                return
             c_msg = String()
             c_msg.data = json.dumps(command, ensure_ascii=False)
             self.command_pub.publish(c_msg)
+            self._last_published_command = command_key
+            self._last_command_publish_time = now_sec
             self.get_logger().info(f'Gesture command: {command}')
 
     def _gesture_to_command(self, gesture: Gesture, direction: dict | None) -> dict | None:
