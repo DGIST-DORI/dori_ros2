@@ -33,32 +33,32 @@ cd dori
 
 ### 3. Install Python Dependencies
 
-#### 필수 (공통)
+#### Required (Common)
 
-아래 한 번으로 음성 인터페이스 핵심 패키지(`stt_pkg`, `tts_pkg`, `llm_pkg`) 의존성을 모두 설치합니다.
+Install all dependencies for the core voice interface packages (`stt_pkg`, `tts_pkg`, `llm_pkg`) in a single step below.
 
 ```bash
 pip3 install -r requirements.txt
 ```
 
-루트 `requirements.txt`는 다음 파일을 참조합니다.
+The root `requirements.txt` refers to the following files:
 
 - `src/stt_pkg/requirements.txt`
 - `src/tts_pkg/requirements.txt`
 - `src/llm_pkg/requirements.txt`
 
-#### 선택 (패키지별 추가 설치)
+#### Optional (Additional installations per package)
 
-기능별로 아래를 추가 설치하세요.
+Please install the following additionally for each feature.
 
-- `hri_pkg` (카메라/비전 기능):
+- `hri_pkg` (Camera/Vision Function):
 
   ```bash
   pip3 install opencv-python mediapipe ultralytics pyrealsense2
   ```
 
-- `llm_pkg` 외부 모델 API 사용 시: API 키 설정 필요 (`OPENAI_API_KEY`, `GEMINI_API_KEY` 등)
-- `stt_pkg` Silero VAD 사용 시: `torch` 설치 권장
+- `llm_pkg` When using external model APIs: API key setup required (`OPENAI_API_KEY`, `GEMINI_API_KEY`, etc.)
+- `stt_pkg` When using Silero VAD: `torch` installation recommended
 
 ### 4. Set API Keys
 
@@ -189,52 +189,6 @@ Alternatively, a **WAVE** gesture activates the same wake-word handler for users
 | STOP | Pause navigation |
 | POINT | Provide directional hint |
 | THUMBS_UP | Positive confirmation |
-
----
-
-## HRI State Machine
-
-```
-         wake word / WAVE gesture
-IDLE ──────────────────────────────► LISTENING
-  ▲                                      │
-  │                                 STT result
-  │ idle timeout (10 s)                  │
-  │                                      ▼
-  │                                 RESPONDING ──► LLM query
-  │                                      │
-  │                               TTS done / nav intent
-  │                                      │
-  └────────────── target lost ◄─── NAVIGATING
-```
-
----
-
-## Node Reference
-
-### `hri_manager_node`
-Central coordinator. Manages the state machine and routes messages between all HRI subsystems.
-
-### `person_detection_node`
-YOLOv8 + ByteTrack full-body person detection with depth-based distance estimation. Publishes tracking state and follow offset for navigation.
-
-### `gesture_recognition_node`
-MediaPipe Hands — classifies STOP / POINT / WAVE / THUMBS_UP from 21-point hand landmarks. CPU-only; activates only after interaction trigger.
-
-### `facial_expression_node`
-MediaPipe Face Mesh — classifies SATISFIED / CONFUSED / NEUTRAL from 468-point face landmarks. Activates only after interaction trigger.
-
-### `landmark_detection_node`
-YOLOv8 landmark detection for SLAM drift correction and LLM location context. Fine-tunable on campus-specific dataset.
-
-### `stt_node`
-Always-on Porcupine wake word detection. On trigger, activates Whisper transcription with Silero VAD for speech-end detection. Mutes itself while TTS is playing.
-
-### `llm_node`
-Intent classification (navigation / information / greeting / general) + lightweight RAG over campus knowledge base (locations + FAQs). Supports local inference or external API (OpenAI / Anthropic).
-
-### `tts_node`
-Korean TTS with `gtts` (online) or `pyttsx3` (offline). Publishes `/dori/tts/speaking` to mute the microphone during playback.
 
 ---
 
