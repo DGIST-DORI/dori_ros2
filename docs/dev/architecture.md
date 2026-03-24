@@ -105,3 +105,47 @@ All topics are namespaced under `/dori/`.
 ```
 
 ---
+
+## HRI State Machine
+
+```
+         wake word / WAVE gesture
+IDLE ──────────────────────────────► LISTENING
+  ▲                                      │
+  │                                 STT result
+  │ idle timeout (10 s)                  │
+  │                                      ▼
+  │                                 RESPONDING ──► LLM query
+  │                                      │
+  │                               TTS done / nav intent
+  │                                      │
+  └────────────── target lost ◄─── NAVIGATING
+```
+
+---
+
+## Node Reference
+
+### `hri_manager_node`
+Central coordinator. Manages the state machine and routes messages between all HRI subsystems.
+
+### `person_detection_node`
+YOLOv8 + ByteTrack full-body person detection with depth-based distance estimation. Publishes tracking state and follow offset for navigation.
+
+### `gesture_recognition_node`
+MediaPipe Hands — classifies STOP / POINT / WAVE / THUMBS_UP from 21-point hand landmarks. CPU-only; activates only after interaction trigger.
+
+### `facial_expression_node`
+MediaPipe Face Mesh — classifies SATISFIED / CONFUSED / NEUTRAL from 468-point face landmarks. Activates only after interaction trigger.
+
+### `landmark_detection_node`
+YOLOv8 landmark detection for SLAM drift correction and LLM location context. Fine-tunable on campus-specific dataset.
+
+### `stt_node`
+Always-on Porcupine wake word detection. On trigger, activates Whisper transcription with Silero VAD for speech-end detection. Mutes itself while TTS is playing.
+
+### `llm_node`
+Intent classification (navigation / information / greeting / general) + lightweight RAG over campus knowledge base (locations + FAQs). Supports local inference or external API (OpenAI / Anthropic).
+
+### `tts_node`
+Korean TTS with `gtts` (online) or `pyttsx3` (offline). Publishes `/dori/tts/speaking` to mute the microphone during playback.
