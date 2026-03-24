@@ -1,3 +1,5 @@
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-hotpink.svg)](CODE_OF_CONDUCT.md)
+
 # DORI — Autonomous Campus Guide Robot
 
 **DORI** (Dual-shell Omnidirectional Robot for Interaction) is a spherical campus guide robot capable of navigating diverse campus environments while providing LLM-powered voice interaction in Korean and English both.
