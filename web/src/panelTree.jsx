@@ -5,32 +5,33 @@
  * Keep `Control / Perception & Intelligence / System` leaves under matching folders.
  */
 
-import STTPanel from './panels/hri/STTPanel';
-import WakeWordPanel from './panels/hri/WakeWordPanel';
-import StateMonitorPanel from './panels/hri/StateMonitorPanel';
-import EventLogPanel from './panels/system/EventLogPanel';
+import { lazy } from 'react';
 
-import FaceDisplayPanel from './panels/hri/FaceDisplayPanel';
-import EmotionPalettePanel from './panels/hri/EmotionPalettePanel';
-import ConversationPanel from './panels/hri/ConversationPanel';
+const STTPanel = lazy(() => import('./panels/hri/STTPanel'));
+const WakeWordPanel = lazy(() => import('./panels/hri/WakeWordPanel'));
+const TTSInjectPanel = lazy(() => import('./panels/hri/TTSInjectPanel'));
+const StateMonitorPanel = lazy(() => import('./panels/hri/StateMonitorPanel'));
+const ConversationPanel = lazy(() => import('./panels/hri/ConversationPanel'));
+const FaceDisplayPanel = lazy(() => import('./panels/hri/FaceDisplayPanel'));
+const EmotionPalettePanel = lazy(() => import('./panels/hri/EmotionPalettePanel'));
 
-import CubeViewerPanel from './panels/control/CubeViewerPanel';
-import PieceStatePanel from './panels/control/PieceStatePanel';
-import RotationControlPanel from './panels/control/RotationControlPanel';
+const CubeViewerPanel = lazy(() => import('./panels/control/CubeViewerPanel'));
+const RotationControlPanel = lazy(() => import('./panels/control/RotationControlPanel'));
+const PieceStatePanel = lazy(() => import('./panels/control/PieceStatePanel'));
 
-import VisionPanel from './panels/perception/VisionPanel';
-import LLMInjectPanel from './panels/perception/LLMInjectPanel';
-import MenuParserPanel from './panels/perception/MenuParserPanel';
-import IndexBuilderPanel from './panels/perception/IndexBuilderPanel';
-import DocumentBrowserPanel from './panels/perception/DocumentBrowserPanel';
-import BuildingEditorPanel from './panels/perception/BuildingEditorPanel';
-import TTSInjectPanel from './panels/hri/TTSInjectPanel';
+const VisionPanel = lazy(() => import('./panels/perception/VisionPanel'));
+const LLMInjectPanel = lazy(() => import('./panels/perception/LLMInjectPanel'));
+const MenuParserPanel = lazy(() => import('./panels/perception/MenuParserPanel'));
+const IndexBuilderPanel = lazy(() => import('./panels/perception/IndexBuilderPanel'));
+const DocumentBrowserPanel = lazy(() => import('./panels/perception/DocumentBrowserPanel'));
+const BuildingEditorPanel = lazy(() => import('./panels/perception/BuildingEditorPanel'));
 
-import TopicDiagnosticsPanel from './panels/system/TopicDiagnosticsPanel';
-import ConnectionInfoPanel from './panels/system/ConnectionInfoPanel';
-import MetricsPanel from './panels/system/MetricsPanel';
-import TopicPublisherPanel from './panels/system/TopicPublisherPanel';
-import DeployStatusPanel from './panels/system/DeployStatusPanel';
+const ConnectionInfoPanel = lazy(() => import('./panels/system/ConnectionInfoPanel'));
+const TopicDiagnosticsPanel = lazy(() => import('./panels/system/TopicDiagnosticsPanel'));
+const MetricsPanel = lazy(() => import('./panels/system/MetricsPanel'));
+const EventLogPanel = lazy(() => import('./panels/system/EventLogPanel'));
+const TopicPublisherPanel = lazy(() => import('./panels/system/TopicPublisherPanel'));
+const DeployStatusPanel = lazy(() => import('./panels/system/DeployStatusPanel'));
 
 import HriIcon        from './assets/icons/icon-hri.svg?react';
 import ControlIcon    from './assets/icons/icon-control.svg?react';

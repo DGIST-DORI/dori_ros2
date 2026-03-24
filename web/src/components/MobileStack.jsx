@@ -6,6 +6,7 @@
  * No dragging, no z-index management.
  */
 
+import { Suspense } from 'react';
 import { useStore } from '../core/store';
 import './MobileStack.css';
 
@@ -37,7 +38,9 @@ function MobilePanel({ panel }) {
       </div>
       {!minimized && (
         <div className="ms-body">
-          <Component />
+          <Suspense fallback={<div className="ms-loading">Loading panel…</div>}>
+            <Component />
+          </Suspense>
         </div>
       )}
     </div>
