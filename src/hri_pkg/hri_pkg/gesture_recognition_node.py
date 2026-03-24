@@ -39,6 +39,12 @@ from std_msgs.msg import Bool, String
 
 try:
     import mediapipe as mp
+    from mediapipe.tasks.python import BaseOptions
+    from mediapipe.tasks.python.vision import (
+        HandLandmarker,
+        HandLandmarkerOptions,
+        RunningMode,
+    )
     MP_AVAILABLE = True
 except ImportError:
     MP_AVAILABLE = False
@@ -67,7 +73,10 @@ class GestureRecognitionNode(Node):
         super().__init__('gesture_recognition_node')
 
         # Parameters
-        self.declare_parameter('min_detection_confidence', 0.7)
+        self.declare_parameter('hand_model_path', '')
+        self.declare_parameter('num_hands', 1)
+        self.declare_parameter('min_hand_detection_confidence', 0.7)
+        self.declare_parameter('min_hand_presence_confidence', 0.5)
         self.declare_parameter('min_tracking_confidence', 0.5)
         self.declare_parameter('visualize', True)
         self.declare_parameter('active_only_on_trigger', True)   # trigger 시에만 활성화
@@ -75,7 +84,10 @@ class GestureRecognitionNode(Node):
         self.declare_parameter('wave_threshold', 0.08)           # WAVE x축 변화 임계값
         self.declare_parameter('gesture_confirm_frames', 3)      # 연속 N프레임 확인 후 발행
 
-        det_conf   = self.get_parameter('min_detection_confidence').value
+        hand_model_path = self.get_parameter('hand_model_path').value
+        num_hands = self.get_parameter('num_hands').value
+        det_conf   = self.get_parameter('min_hand_detection_confidence').value
+        hand_presence_conf = self.get_parameter('min_hand_presence_confidence').value
         trk_conf   = self.get_parameter('min_tracking_confidence').value
         self.visualize          = self.get_parameter('visualize').value
         self.active_on_trigger  = self.get_parameter('active_only_on_trigger').value
@@ -87,17 +99,25 @@ class GestureRecognitionNode(Node):
             self.get_logger().error('mediapipe not installed: pip install mediapipe')
             return
 
-        # MediaPipe initialization
-        self.mp_hands    = mp.solutions.hands
+        # MediaPipe initialization (Tasks API)
         self.mp_drawing  = mp.solutions.drawing_utils
         self.mp_styles   = mp.solutions.drawing_styles
-        self.hands = self.mp_hands.Hands(
-            static_image_mode=False,
-            max_num_hands=1,              # 캠퍼스 안내 상황: 주요 손 1개만
-            min_detection_confidence=det_conf,
+        self.mp_hands_connections = mp.solutions.hands
+        self.hands = None
+        if not hand_model_path:
+            self.get_logger().error(
+                'hand_model_path is empty. Set a valid MediaPipe .task model path.')
+            return
+
+        hand_options = HandLandmarkerOptions(
+            base_options=BaseOptions(model_asset_path=hand_model_path),
+            running_mode=RunningMode.VIDEO,
+            num_hands=num_hands,
+            min_hand_detection_confidence=det_conf,
+            min_hand_presence_confidence=hand_presence_conf,
             min_tracking_confidence=trk_conf,
-            model_complexity=0,           # 0=경량 (Jetson CPU 최적)
         )
+        self.hands = HandLandmarker.create_from_options(hand_options)
 
         # State
         self.is_active: bool = not self.active_on_trigger  # trigger OFF면 항상 활성
@@ -152,9 +172,13 @@ class GestureRecognitionNode(Node):
 
         h, w = cv_image.shape[:2]
         rgb = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
-        results = self.hands.process(rgb)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+        timestamp_ms = int(msg.header.stamp.sec * 1000 + msg.header.stamp.nanosec / 1_000_000)
+        if timestamp_ms <= 0:
+            timestamp_ms = int(time.monotonic() * 1000)
+        results = self.hands.detect_for_video(mp_image, timestamp_ms)
 
-        if not results.multi_hand_landmarks:
+        if not results.hand_landmarks:
             self._gesture_history.append(Gesture.NONE)
             self._wrist_x_history.clear()
             self._publish_gesture(Gesture.NONE, None, None)
@@ -163,8 +187,8 @@ class GestureRecognitionNode(Node):
             return
 
         # 첫 번째 손만 처리
-        hand_landmarks = results.multi_hand_landmarks[0]
-        lm = hand_landmarks.landmark  # 랜드마크 리스트 (0~20)
+        hand_landmarks = results.hand_landmarks[0]
+        lm = hand_landmarks  # 랜드마크 리스트 (0~20)
 
         # 손목 x이력 갱신 (WAVE 감지용) ───────────────────────────
         self._wrist_x_history.append(lm[WRIST].x)
@@ -335,7 +359,7 @@ class GestureRecognitionNode(Node):
             self.mp_drawing.draw_landmarks(
                 annotated,
                 hand_landmarks,
-                self.mp_hands.HAND_CONNECTIONS,
+                self.mp_hands_connections.HAND_CONNECTIONS,
                 self.mp_styles.get_default_hand_landmarks_style(),
                 self.mp_styles.get_default_hand_connections_style(),
             )
@@ -361,7 +385,8 @@ class GestureRecognitionNode(Node):
         self.annotated_pub.publish(ann_msg)
 
     def destroy_node(self):
-        self.hands.close()
+        if self.hands is not None:
+            self.hands.close()
         super().destroy_node()
 
 
