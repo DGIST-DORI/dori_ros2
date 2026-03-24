@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../core/store';
 import { filterTree } from '../panelTree';
 import DoriLogoIcon from '../assets/logo/logo-icon.svg?react';
-import DoriLogoFull from '../assets/logo/logo-full.svg?react';
-import DoriLogoFullDark from '../assets/logo/logo-full-dark.svg?react';
+import DoriLogoText from '../assets/logo/logo-text.svg?react';
+import DoriLogoTextDark from '../assets/logo/logo-text-dark.svg?react';
 // import SidebarIcon  from '../assets/icons/icon-sidebar.svg?react';
 import CloseIcon    from '../assets/icons/icon-close.svg?react';
 import SearchIcon   from '../assets/icons/icon-search.svg?react';
@@ -156,7 +156,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
   }, [expanded, pendingFocus]);
 
   const isDark = themeMode === 'dark' || (themeMode === 'auto' && autoIsDark);
-  const FullLogo = isDark ? DoriLogoFullDark : DoriLogoFull;
+  const LogoText = isDark ? DoriLogoTextDark : DoriLogoText;
 
   return (
     <aside
@@ -167,9 +167,11 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
       <div className="sb-top">
         {expanded ? (
           <>
-            {/* Full logo (icon + text) shown when sidebar is open */}
             <div className="sb-logo">
-              <FullLogo className="sb-logo-svg" aria-label="DORI" />
+              <div className="sb-logo-anchor">
+                <DoriLogoIcon className="sb-icon-svg sb-icon-svg-color" aria-hidden="true" />
+              </div>
+              <LogoText className="sb-logo-text-svg" aria-label="DORI" />
             </div>
             <button
               className="sb-close"
@@ -185,7 +187,9 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
             onClick={e => { e.stopPropagation(); onExpand(); }}
             aria-label="Open sidebar"
           >
-            <DoriLogoIcon className="sb-icon-svg" />
+            <div className="sb-logo-anchor">
+              <DoriLogoIcon className="sb-icon-svg sb-icon-svg-color" />
+            </div>
             <span className="sb-tooltip">Open sidebar</span>
           </button>
         )}
