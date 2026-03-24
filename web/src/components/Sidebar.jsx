@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../core/store';
 import { filterTree } from '../panelTree';
-import DoriLogoIcon from '../assets/logo/logo-icon.svg?react';
+import DoriLogoIconMono from '../assets/logo/logo-icon-mono.svg?react';
+import DoriLogoIconColor from '../assets/logo/logo-icon-color.svg?react';
 import DoriLogoText from '../assets/logo/logo-text.svg?react';
 import DoriLogoTextDark from '../assets/logo/logo-text-dark.svg?react';
 // import SidebarIcon  from '../assets/icons/icon-sidebar.svg?react';
@@ -169,7 +170,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
           <>
             <div className="sb-logo">
               <div className="sb-logo-anchor">
-                <DoriLogoIcon className="sb-icon-svg sb-icon-svg-color" aria-hidden="true" />
+                <DoriLogoIconColor className="sb-icon-svg is-expanded-logo" aria-hidden="true" />
               </div>
               <LogoText className="sb-logo-text-svg" aria-label="DORI" />
             </div>
@@ -188,7 +189,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
             aria-label="Open sidebar"
           >
             <div className="sb-logo-anchor">
-              <DoriLogoIcon className="sb-icon-svg sb-icon-svg-color" />
+              <DoriLogoIconMono className="sb-icon-svg is-collapsed-logo" />
             </div>
             <span className="sb-tooltip">Open sidebar</span>
           </button>
