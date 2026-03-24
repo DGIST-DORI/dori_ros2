@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { LOG_TAGS, useStore } from '../core/store';
 import { connectROS, disconnectROS } from '../core/ros';
 import { startDemo, stopDemo } from '../core/demo';
+import DoriLogoFull     from '../assets/logo/logo-full.svg?react';
+import DoriLogoFullDark from '../assets/logo/logo-full-dark.svg?react';
 import './Header.css';
 
 export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
@@ -12,22 +14,34 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
   const setWsUrl     = useStore(s => s.setWsUrl);
   const addLog       = useStore(s => s.addLog);
 
-  const [urlInput, setUrlInput] = useState(wsUrl);
+  const [urlInput,     setUrlInput]     = useState(wsUrl);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  // 터널 URL 폴링이 완료되면 wsUrl store 가 업데이트됨 → 입력창도 동기화
-  // 단, 사용자가 직접 입력 중이거나 연결된 상태면 덮어쓰지 않음
+  // Sync URL input when wsUrl store updates externally (tunnel detection)
   useEffect(() => {
-    if (!connected && !isConnecting) {
-      setUrlInput(wsUrl);
-    }
+    if (!connected && !isConnecting) setUrlInput(wsUrl);
   }, [wsUrl]);
 
+  // Resolve which logo variant to render based on active theme
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const apply = () => {
+      if (themeMode === 'auto') {
+        setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
+      } else {
+        setIsDark(themeMode === 'dark');
+      }
+    };
+    apply();
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, [themeMode]);
+
   function formatConnectError(error, url, source = 'network') {
-    const message = String(error?.message || error || 'Unknown error');
-    const eventType = error?.type;
-    const target = error?.target;
-    const readyState = target?.readyState;
+    const message    = String(error?.message || error || 'Unknown error');
+    const eventType  = error?.type;
+    const readyState = error?.target?.readyState;
     const stateLabel = readyState === undefined
       ? 'n/a'
       : ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'][readyState] || String(readyState);
@@ -37,54 +51,31 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
       `readyState=${stateLabel}`,
       `message=${message}`,
     ];
-
-    if (source === 'url') {
-      return `Connection failed [url]: Invalid WebSocket URL. ${debugParts.join(', ')}. Use ws:// or wss://.`;
-    }
-    if (source === 'loading' || message.includes('ROSLIB is unavailable') || message.includes('Failed to fetch')) {
-      return `Connection failed [loading]: Failed to load ROS client library. ${debugParts.join(', ')}`;
-    }
+    if (source === 'url')     return `Connection failed [url]: Invalid WebSocket URL. ${debugParts.join(', ')}. Use ws:// or wss://.`;
+    if (source === 'loading') return `Connection failed [loading]: Failed to load ROS client library. ${debugParts.join(', ')}`;
     return `Connection failed [network]: Could not open WebSocket. ${debugParts.join(', ')}`;
   }
 
   async function handleConnect() {
     if (isConnecting) return;
-
     if (connected) {
       disconnectROS(); setConnected(false); addLog(LOG_TAGS.SYS, 'Disconnected from ROS');
     } else {
       try {
-        // quick URL sanity check for clearer user-facing errors
         const parsed = new URL(urlInput);
-        if (!['ws:', 'wss:'].includes(parsed.protocol)) {
-          throw new Error('URL protocol must be ws:// or wss://');
-        }
-
+        if (!['ws:', 'wss:'].includes(parsed.protocol)) throw new Error('URL protocol must be ws:// or wss://');
         setIsConnecting(true);
         setConnected(false);
         stopDemo();
         await connectROS(urlInput, {
-          onConnect: () => {
-            setConnected(true);
-            setIsConnecting(false);
-            addLog(LOG_TAGS.SYS, `Connected → ${urlInput}`);
-          },
-          onError: (e) => {
-            setConnected(false);
-            setIsConnecting(false);
-            addLog(LOG_TAGS.ERROR, formatConnectError(e, urlInput, 'network'));
-          },
-          onClose: () => {
-            setConnected(false);
-            setIsConnecting(false);
-            addLog(LOG_TAGS.SYS, 'Connection closed');
-          },
+          onConnect: () => { setConnected(true);  setIsConnecting(false); addLog(LOG_TAGS.SYS, `Connected → ${urlInput}`); },
+          onError:   e  => { setConnected(false); setIsConnecting(false); addLog(LOG_TAGS.ERROR, formatConnectError(e, urlInput, 'network')); },
+          onClose:   () => { setConnected(false); setIsConnecting(false); addLog(LOG_TAGS.SYS, 'Connection closed'); },
         });
         setWsUrl(urlInput);
       } catch (e) {
         const source = e instanceof TypeError || e.message?.includes('protocol') ? 'url' : 'loading';
-        setConnected(false);
-        setIsConnecting(false);
+        setConnected(false); setIsConnecting(false);
         addLog(LOG_TAGS.ERROR, formatConnectError(e, urlInput, source));
       }
     }
@@ -95,13 +86,12 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
     else { disconnectROS(); setConnected(false); startDemo(); }
   }
 
+  const LogoComponent = isDark ? DoriLogoFullDark : DoriLogoFull;
+
   return (
     <header className="hdr">
-      {/* Logo — click to go Home */}
-      <button className="hdr-logo" onClick={onLogoClick}>
-        <span className="hdr-logo-dori">DORI</span>
-        <span className="hdr-logo-sep">/</span>
-        <span className="hdr-logo-sub">dashboard</span>
+      <button className="hdr-logo" onClick={onLogoClick} aria-label="DORI Dashboard home">
+        <LogoComponent className="hdr-logo-svg" aria-hidden="true" />
       </button>
 
       <div className="hdr-spacer" />
@@ -109,11 +99,7 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
       <div className="hdr-conn">
         <label className="hdr-theme-wrap">
           <span className="hdr-theme-label">theme</span>
-          <select
-            className="hdr-theme"
-            value={themeMode}
-            onChange={e => onThemeModeChange(e.target.value)}
-          >
+          <select className="hdr-theme" value={themeMode} onChange={e => onThemeModeChange(e.target.value)}>
             <option value="light">Light</option>
             <option value="dark">Dark</option>
             <option value="auto">Automatic</option>
@@ -133,7 +119,7 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
           onClick={handleConnect}
           disabled={isDemoMode || isConnecting}
         >
-          {isConnecting ? 'connecting...' : (connected ? '⏏ disconnect' : '⏎ connect')}
+          {isConnecting ? 'connecting...' : connected ? '⏏ disconnect' : '⏎ connect'}
         </button>
         <button className={`hdr-btn demo ${isDemoMode ? 'active' : ''}`} onClick={handleDemo}>
           {isDemoMode ? '■ stop demo' : '▶ demo'}
