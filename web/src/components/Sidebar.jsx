@@ -120,7 +120,7 @@ function CategoryBlock({ node, onSelect, expanded, searchActive, onExpandSidebar
 
 // ── Main Sidebar ──────────────────────────────────────────────────────────────
 
-export default function Sidebar({ expanded, onExpand, onCollapse, activeId, onSelect, tree }) {
+export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, activeId, onSelect, tree }) {
   const connected  = useStore(s => s.connected);
   const isDemoMode = useStore(s => s.isDemoMode);
 
@@ -128,22 +128,18 @@ export default function Sidebar({ expanded, onExpand, onCollapse, activeId, onSe
   const statusClass = connected ? 'connected' : isDemoMode ? 'demo' : '';
 
   // Resolve dark/light for logo variant
-  const [isDark, setIsDark] = useState(() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('theme-mode') : null;
-    if (stored === 'dark')  return true;
-    if (stored === 'light') return false;
-    return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
+  const [autoIsDark, setAutoIsDark] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
 
   useEffect(() => {
-    const stored = localStorage.getItem('theme-mode') || 'auto';
-    if (stored !== 'auto') { setIsDark(stored === 'dark'); return; }
+    if (themeMode !== 'auto') return;
+
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const apply = e => setIsDark(e.matches);
-    setIsDark(mq.matches);
+    const apply = e => setAutoIsDark(e.matches);
     mq.addEventListener('change', apply);
     return () => mq.removeEventListener('change', apply);
-  }, []);
+  }, [themeMode]);
 
   const [query,        setQuery]        = useState('');
   const [pendingFocus, setPendingFocus] = useState(false);
@@ -159,6 +155,7 @@ export default function Sidebar({ expanded, onExpand, onCollapse, activeId, onSe
     }
   }, [expanded, pendingFocus]);
 
+  const isDark = themeMode === 'dark' || (themeMode === 'auto' && autoIsDark);
   const FullLogo = isDark ? DoriLogoFullDark : DoriLogoFull;
 
   return (
