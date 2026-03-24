@@ -119,16 +119,27 @@ def ensure_safe_doc_id(doc_id: str) -> str:
         raise ValueError(f"Unsafe doc_id: {doc_id!r}")
     return safe_id
 
-def fetch_page(url: str) -> str | None:
-    """Fetch a URL and return raw HTML, or None on failure."""
+def sanitize_error_message(err: Exception | str, max_len: int = 400) -> str:
+    """Sanitize exception text for reports (best-effort secret redaction)."""
+    msg = str(err).strip()
+    msg = re.sub(r"(?i)(api[_-]?key|token|secret|password)\s*[=:]\s*\S+",
+                 r"\1=[REDACTED]", msg)
+    msg = re.sub(r"(?i)bearer\s+[a-z0-9\-_\.=]+", "Bearer [REDACTED]", msg)
+    if len(msg) > max_len:
+        msg = msg[:max_len] + "...(truncated)"
+    return msg
+
+
+def fetch_page(url: str) -> tuple[str | None, str | None]:
+    """Fetch a URL and return (raw HTML, error_message)."""
     try:
         resp = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
         resp.raise_for_status()
         resp.encoding = resp.apparent_encoding or "utf-8"
-        return resp.text
+        return resp.text, None
     except Exception as e:
         print(f"  [WARN] Failed to fetch {url}: {e}")
-        return None
+        return None, sanitize_error_message(e)
 
 
 def extract_text(html: str, url: str) -> str:
@@ -161,24 +172,45 @@ def extract_text(html: str, url: str) -> str:
     return raw.strip()
 
 
-def crawl_url(url: str, doc_id: str) -> dict | None:
-    """Crawl one URL and return a raw result dict."""
+def crawl_url(url: str, doc_id: str) -> tuple[dict | None, dict]:
+    """Crawl one URL and return (raw_result_or_none, url_status)."""
+    status = {
+        "fetch": "failed",
+        "extract": "failed",
+        "llm": "skipped",
+        "fallback_used": False,
+        "overall": "failed",
+    }
+    error = None
     print(f"  Fetching: {url}")
-    html = fetch_page(url)
+    html, fetch_error = fetch_page(url)
     if not html:
-        return None
+        if fetch_error:
+            error = {"stage": "fetch", "message": fetch_error}
+        return None, {"status": status, "error": error}
+    status["fetch"] = "success"
 
-    text = extract_text(html, url)
+    try:
+        text = extract_text(html, url)
+    except Exception as e:
+        print(f"  [WARN] Text extraction failed for {url}: {e}")
+        error = {"stage": "extract", "message": sanitize_error_message(e)}
+        return None, {"status": status, "error": error}
+
     if not text:
         print(f"  [WARN] No text extracted from {url}")
-        return None
+        error = {"stage": "extract", "message": "No text extracted"}
+        return None, {"status": status, "error": error}
 
-    return {
+    status["extract"] = "success"
+    status["overall"] = "success"
+
+    return ({
         "url":        url,
         "doc_id":     doc_id,
         "raw_text":   text,
         "fetched_at": datetime.now().isoformat(),
-    }
+    }, {"status": status, "error": error})
 
 
 # LLM refinement
@@ -209,13 +241,13 @@ Rules:
 
 
 def refine_with_llm(raw_text: str, description_ko: str, description_en: str,
-                    url: str) -> dict | None:
+                    url: str) -> tuple[dict | None, str | None]:
     """Call Gemini AI to refine raw crawled text into structured data."""
     try:
         from google import genai
     except ImportError:
         print("  [WARN] google-genai package not installed — skipping LLM refinement.")
-        return None
+        return None, "google-genai package not installed"
 
     try:
         client = genai.Client()
@@ -239,14 +271,14 @@ def refine_with_llm(raw_text: str, description_ko: str, description_en: str,
         # Strip accidental markdown fences
         content = re.sub(r"^```json\s*", "", content)
         content = re.sub(r"\s*```$", "", content)
-        return json.loads(content)
+        return json.loads(content), None
     
     except json.JSONDecodeError as e:
         print(f"  [WARN] LLM returned invalid JSON: {e}")
-        return None
+        return None, sanitize_error_message(e)
     except Exception as e:
         print(f"  [WARN] LLM API error: {e}")
-        return None
+        return None, sanitize_error_message(e)
 
 
 # Output writers
@@ -263,6 +295,7 @@ def save_raw(raw: dict, out_dir: Path):
         f.write("=" * 60 + "\n\n")
         f.write(raw["raw_text"])
     print(f"  [RAW]  -> {path}")
+    return str(path)
 
 
 def save_refined(refined: dict, raw: dict, category: str,
@@ -305,6 +338,7 @@ def save_refined(refined: dict, raw: dict, category: str,
         f.write(f"Source: {raw['url']}\n\n")
         f.write(refined.get("full_text_en", "") + "\n")
     print(f"  [TXT]  -> {txt_path}")
+    return str(json_path), str(txt_path)
 
 
 def save_fallback_txt(raw: dict, category: str,
@@ -319,6 +353,19 @@ def save_fallback_txt(raw: dict, category: str,
         f.write(f"URL: {raw['url']}\n\n")
         f.write(raw["raw_text"])
     print(f"  [TXT]  -> {txt_path} (raw fallback)")
+    return str(txt_path)
+
+
+def save_run_report(report: dict, out_dir: Path, finished_at: datetime) -> str:
+    """Persist per-run crawler report for dashboard API consumption."""
+    reports_dir = out_dir / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    ts = finished_at.strftime("%Y%m%d_%H%M%S")
+    report_path = reports_dir / f"crawl_report_{ts}.json"
+    with open(report_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, ensure_ascii=False, indent=2)
+    print(f"[REPORT] -> {report_path}")
+    return str(report_path)
 
 
 # URL list loader
@@ -373,31 +420,100 @@ def main():
         registry += load_extra_urls(args.urls)
 
     print(f"DORI Crawler — {len(registry)} URL(s) to process\n")
+    started_at = datetime.now()
+    run_report = {
+        "report_version": "1.0",
+        "started_at": started_at.isoformat(),
+        "finished_at": None,
+        "duration_sec": None,
+        "options": {
+            "no_llm": args.no_llm,
+            "delay": args.delay,
+            "urls": args.urls,
+            "output": str(out_dir),
+        },
+        "summary": {
+            "input_url_count": len(registry),
+            "success_count": 0,
+            "failure_count": 0,
+        },
+        "urls": [],
+    }
 
     for url, category, doc_id, desc_ko, desc_en in registry:
         print(f"[{doc_id}] {desc_ko}")
+        entry = {
+            "url": url,
+            "doc_id": doc_id,
+            "category": category,
+            "status": {
+                "fetch": "failed",
+                "extract": "failed",
+                "llm": "skipped",
+                "fallback_used": False,
+                "overall": "failed",
+            },
+            "error": None,
+            "outputs": {
+                "raw_txt": None,
+                "indexed_json": None,
+                "processed_txt": None,
+            },
+        }
 
-        raw = crawl_url(url, doc_id)
+        raw, crawl_meta = crawl_url(url, doc_id)
+        entry["status"].update(crawl_meta["status"])
+        entry["error"] = crawl_meta["error"]
         if not raw:
             print("  [SKIP] Could not fetch page.\n")
+            run_report["summary"]["failure_count"] += 1
+            run_report["urls"].append(entry)
             continue
 
-        save_raw(raw, out_dir)
+        entry["outputs"]["raw_txt"] = save_raw(raw, out_dir)
 
         if not args.no_llm:
             print("  Refining with LLM...")
-            refined = refine_with_llm(raw["raw_text"], desc_ko, desc_en, url)
+            refined, llm_error = refine_with_llm(raw["raw_text"], desc_ko, desc_en, url)
             if refined:
-                save_refined(refined, raw, category, desc_ko, desc_en, out_dir)
+                entry["status"]["llm"] = "success"
+                json_path, txt_path = save_refined(refined, raw, category, desc_ko, desc_en, out_dir)
+                entry["outputs"]["indexed_json"] = json_path
+                entry["outputs"]["processed_txt"] = txt_path
             else:
                 print("  [WARN] LLM refinement failed — saving raw fallback.")
-                save_fallback_txt(raw, category, desc_ko, desc_en, out_dir)
+                entry["status"]["llm"] = "failed"
+                entry["status"]["fallback_used"] = True
+                if llm_error:
+                    entry["error"] = {"stage": "llm", "message": llm_error}
+                entry["outputs"]["processed_txt"] = save_fallback_txt(
+                    raw, category, desc_ko, desc_en, out_dir
+                )
         else:
-            save_fallback_txt(raw, category, desc_ko, desc_en, out_dir)
+            entry["status"]["llm"] = "skipped"
+            entry["status"]["fallback_used"] = True
+            entry["outputs"]["processed_txt"] = save_fallback_txt(
+                raw, category, desc_ko, desc_en, out_dir
+            )
+
+        if (entry["status"]["extract"] == "success" and
+                entry["outputs"]["processed_txt"]):
+            entry["status"]["overall"] = "success"
+            run_report["summary"]["success_count"] += 1
+        else:
+            run_report["summary"]["failure_count"] += 1
+
+        run_report["urls"].append(entry)
 
         time.sleep(args.delay)
 
+    finished_at = datetime.now()
+    run_report["finished_at"] = finished_at.isoformat()
+    run_report["duration_sec"] = round((finished_at - started_at).total_seconds(), 3)
+    report_path = save_run_report(run_report, out_dir, finished_at)
+
     print(f"\nDone. Output -> {out_dir}")
+    print(f"Report -> {report_path}")
 
 
 if __name__ == "__main__":
