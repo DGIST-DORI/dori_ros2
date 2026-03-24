@@ -169,7 +169,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
           <>
             <div className="sb-logo">
               <div className="sb-logo-anchor">
-                <DoriLogoIcon className="sb-icon-svg" aria-hidden="true" />
+                <DoriLogoIcon className="sb-icon-svg sb-icon-svg-color" aria-hidden="true" />
               </div>
               <LogoText className="sb-logo-text-svg" aria-label="DORI" />
             </div>
@@ -188,7 +188,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
             aria-label="Open sidebar"
           >
             <div className="sb-logo-anchor">
-              <DoriLogoIcon className="sb-icon-svg" />
+              <DoriLogoIcon className="sb-icon-svg sb-icon-svg-color" />
             </div>
             <span className="sb-tooltip">Open sidebar</span>
           </button>
