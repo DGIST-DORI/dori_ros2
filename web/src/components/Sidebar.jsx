@@ -156,7 +156,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
 
   const [query,        setQuery]        = useState('');
   const [pendingFocus, setPendingFocus] = useState(false);
-  const [openCategoryId, setOpenCategoryId] = useState(null);
+  const [openCategoryMap, setOpenCategoryMap] = useState({});
   const searchInputRef = useRef(null);
   const searchActive   = query.trim().length > 0;
 
@@ -173,11 +173,14 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
   const LogoText = isDark ? DoriLogoTextDark : DoriLogoText;
 
   function handleToggleCategory(categoryId) {
-    setOpenCategoryId(prev => (prev === categoryId ? null : categoryId));
+    setOpenCategoryMap(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId],
+    }));
   }
 
   function handleOpenFromCollapsed(categoryId) {
-    setOpenCategoryId(categoryId);
+    setOpenCategoryMap({ [categoryId]: true });
   }
 
   return (
@@ -259,7 +262,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
             expanded={expanded}
             searchActive={searchActive}
             onExpandSidebar={onExpand}
-            open={openCategoryId === category.id}
+            open={!!openCategoryMap[category.id]}
             onToggleOpen={handleToggleCategory}
             onOpenFromCollapsed={handleOpenFromCollapsed}
           />
