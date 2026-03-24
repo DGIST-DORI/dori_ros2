@@ -24,6 +24,7 @@ import time
 import re
 import os
 import hashlib
+import random
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
@@ -53,6 +54,8 @@ HEADERS = {
 }
 REQUEST_DELAY = 1.5   # seconds between requests (be polite)
 REQUEST_TIMEOUT = 15
+MAX_RETRIES = 3
+BACKOFF_BASE = 0.5
 
 # Tags whose content we always discard
 STRIP_TAGS = [
@@ -130,16 +133,54 @@ def sanitize_error_message(err: Exception | str, max_len: int = 400) -> str:
     return msg
 
 
-def fetch_page(url: str) -> tuple[str | None, str | None]:
+def fetch_page(url: str, session: requests.Session, timeout: float,
+               retries: int) -> tuple[str | None, str | None]:
     """Fetch a URL and return (raw HTML, error_message)."""
-    try:
-        resp = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
-        resp.raise_for_status()
-        resp.encoding = resp.apparent_encoding or "utf-8"
-        return resp.text, None
-    except Exception as e:
-        print(f"  [WARN] Failed to fetch {url}: {e}")
-        return None, sanitize_error_message(e)
+    attempts = max(1, retries)
+    last_error = None
+    last_status_code = None
+
+    for attempt in range(1, attempts + 1):
+        try:
+            resp = session.get(url, timeout=timeout)
+            last_status_code = resp.status_code
+
+            if resp.status_code == 429 or 500 <= resp.status_code < 600:
+                if attempt < attempts:
+                    backoff = BACKOFF_BASE * (2 ** (attempt - 1))
+                    jitter = random.uniform(0, backoff * 0.2)
+                    time.sleep(backoff + jitter)
+                    continue
+                resp.raise_for_status()
+
+            resp.raise_for_status()
+            resp.encoding = resp.apparent_encoding or "utf-8"
+            return resp.text, None
+        except requests.exceptions.HTTPError as e:
+            last_error = e
+            if attempt < attempts:
+                backoff = BACKOFF_BASE * (2 ** (attempt - 1))
+                jitter = random.uniform(0, backoff * 0.2)
+                time.sleep(backoff + jitter)
+                continue
+            break
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+            last_error = e
+            if attempt < attempts:
+                backoff = BACKOFF_BASE * (2 ** (attempt - 1))
+                jitter = random.uniform(0, backoff * 0.2)
+                time.sleep(backoff + jitter)
+                continue
+            break
+        except Exception as e:
+            last_error = e
+            break
+
+    print(
+        f"  [WARN] Failed to fetch URL={url} attempts={attempts} "
+        f"last_status={last_status_code}: {last_error}"
+    )
+    return None, sanitize_error_message(last_error or "Unknown fetch error")
 
 
 def extract_text(html: str, url: str) -> str:
@@ -172,7 +213,8 @@ def extract_text(html: str, url: str) -> str:
     return raw.strip()
 
 
-def crawl_url(url: str, doc_id: str) -> tuple[dict | None, dict]:
+def crawl_url(url: str, doc_id: str, session: requests.Session,
+              timeout: float, retries: int) -> tuple[dict | None, dict]:
     """Crawl one URL and return (raw_result_or_none, url_status)."""
     status = {
         "fetch": "failed",
@@ -183,7 +225,7 @@ def crawl_url(url: str, doc_id: str) -> tuple[dict | None, dict]:
     }
     error = None
     print(f"  Fetching: {url}")
-    html, fetch_error = fetch_page(url)
+    html, fetch_error = fetch_page(url, session=session, timeout=timeout, retries=retries)
     if not html:
         if fetch_error:
             error = {"stage": "fetch", "message": fetch_error}
@@ -410,7 +452,14 @@ def main():
                         help="Path to extra URL list file")
     parser.add_argument("--delay", type=float, default=REQUEST_DELAY,
                         help=f"Delay between requests in seconds (default {REQUEST_DELAY})")
+    parser.add_argument("--retries", type=int, default=MAX_RETRIES,
+                        help=f"Max fetch attempts for timeout/connection/429/5xx (default {MAX_RETRIES})")
+    parser.add_argument("--timeout", type=float, default=REQUEST_TIMEOUT,
+                        help=f"Request timeout in seconds (default {REQUEST_TIMEOUT})")
     args = parser.parse_args()
+
+    session = requests.Session()
+    session.headers.update(HEADERS)
 
     out_dir = Path(args.output)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -429,6 +478,8 @@ def main():
         "options": {
             "no_llm": args.no_llm,
             "delay": args.delay,
+            "retries": args.retries,
+            "timeout": args.timeout,
             "urls": args.urls,
             "output": str(out_dir),
         },
@@ -461,7 +512,13 @@ def main():
             },
         }
 
-        raw, crawl_meta = crawl_url(url, doc_id)
+        raw, crawl_meta = crawl_url(
+            url,
+            doc_id,
+            session=session,
+            timeout=args.timeout,
+            retries=args.retries,
+        )
         entry["status"].update(crawl_meta["status"])
         entry["error"] = crawl_meta["error"]
         if not raw:
