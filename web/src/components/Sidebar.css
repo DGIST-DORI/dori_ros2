@@ -59,7 +59,8 @@
   display: block;
 }
 
-.sb-icon-svg-color {
+.sb-icon-svg.is-expanded-logo,
+.sb-icon-svg.is-collapsed-logo {
   filter: none;
   opacity: 1;
 }
