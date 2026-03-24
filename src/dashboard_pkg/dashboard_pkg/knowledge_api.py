@@ -58,6 +58,7 @@ args, _ = parser_arg.parse_known_args()
 REPO_ROOT   = Path(args.repo_root)
 PARSER_SCRIPT  = REPO_ROOT / 'tools' / 'parser' / 'parse_cafeteria_menu.py'
 BUILDER_SCRIPT = REPO_ROOT / 'src' / 'llm_pkg' / 'llm_pkg' / 'build_index.py'
+CRAWLER_SCRIPT = REPO_ROOT / 'tools' / 'crawler' / 'crawl_campus.py'
 PROCESSED_DIR  = REPO_ROOT / 'data' / 'campus' / 'processed'
 INDEXED_DIR    = REPO_ROOT / 'data' / 'campus' / 'indexed'
 KNOWLEDGE_FILE = INDEXED_DIR / 'campus_knowledge.json'
@@ -66,6 +67,10 @@ KNOWLEDGE_FILE = INDEXED_DIR / 'campus_knowledge.json'
 
 _jobs: dict[str, dict] = {}
 # job schema: { status: idle|running|done|error, lines: [str], total_chunks: int, error: str }
+
+_crawl_jobs: dict[str, dict] = {}
+# job schema: { status: pending|running|done|error, lines: [str], started_at: str|None,
+#               finished_at: str|None, error: str }
 
 
 # ── App ────────────────────────────────────────────────────────────────────────
@@ -217,6 +222,150 @@ async def build_index_status(job_id: str):
         'status': job['status'],
         'new_lines': job['lines'],
         'total_chunks': job['total_chunks'],
+        'error': job['error'],
+    }
+
+
+# ── /api/knowledge/crawl-campus ───────────────────────────────────────────────
+
+def _utc_now_iso() -> str:
+    return datetime.utcnow().isoformat(timespec='seconds') + 'Z'
+
+
+def _resolve_repo_internal_path(path_value: str | None, *, param_name: str) -> Path | None:
+    if path_value in (None, ''):
+        return None
+
+    # Basic type and character validation before constructing a Path from untrusted input.
+    if not isinstance(path_value, str):
+        raise HTTPException(400, f'{param_name} must be a string path')
+
+    # Normalize separators and trim whitespace to reduce platform-specific edge cases.
+    raw_value = path_value.strip().replace('\\', '/')
+    if raw_value in ('', '.', '/'):
+        raise HTTPException(400, f'{param_name} must be a non-empty relative path')
+
+    # Normalize the path string to eliminate any ".." or "." segments before constructing a Path.
+    normed = os.path.normpath(raw_value)
+    if normed in ('', '.', os.sep):
+        raise HTTPException(400, f'{param_name} must be a non-empty relative path')
+
+    # Reject absolute paths outright; callers must provide repo-internal relative paths.
+    if os.path.isabs(normed):
+        raise HTTPException(400, f'{param_name} must be a relative path inside the repo root')
+
+    # Reject traversal segments after normalization as an extra safety check.
+    # We split on '/' because we normalized backslashes above.
+    parts = [p for p in normed.split('/') if p]
+    if any(part in ('.', '..') for part in parts):
+        raise HTTPException(400, f'{param_name} must not contain "." or ".." path segments')
+    # Construct a repo-internal candidate path and resolve it, ensuring it stays under REPO_ROOT.
+    repo_resolved = REPO_ROOT.resolve()
+    candidate = repo_resolved / normed
+    resolved = candidate.resolve()
+
+    try:
+        resolved.relative_to(repo_resolved)
+    except ValueError as e:
+        raise HTTPException(400, f'{param_name} must stay inside repo root: {repo_resolved}') from e
+
+    return resolved
+
+
+def _build_crawl_command(body: dict) -> list[str]:
+    cmd = [sys.executable, str(CRAWLER_SCRIPT)]
+
+    no_llm = body.get('no_llm', False)
+    if not isinstance(no_llm, bool):
+        raise HTTPException(400, 'no_llm must be a boolean')
+    if no_llm:
+        cmd.append('--no-llm')
+
+    delay = body.get('delay', None)
+    if delay is not None:
+        if not isinstance(delay, (int, float)):
+            raise HTTPException(400, 'delay must be a number')
+        if delay < 0:
+            raise HTTPException(400, 'delay must be >= 0')
+        cmd.extend(['--delay', str(delay)])
+
+    urls_path = _resolve_repo_internal_path(body.get('urls_path'), param_name='urls_path')
+    if urls_path is not None:
+        cmd.extend(['--urls', str(urls_path)])
+
+    output_dir = _resolve_repo_internal_path(body.get('output_dir'), param_name='output_dir')
+    if output_dir is not None:
+        cmd.extend(['--output', str(output_dir)])
+
+    return cmd
+
+
+def _run_crawl_job(job_id: str, cmd: list[str]):
+    job = _crawl_jobs[job_id]
+    job['status'] = 'running'
+    job['started_at'] = _utc_now_iso()
+
+    try:
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            cwd=str(REPO_ROOT),
+        )
+        for line in proc.stdout:
+            job['lines'].append(line.rstrip('\n'))
+        proc.wait()
+        if proc.returncode == 0:
+            job['status'] = 'done'
+        else:
+            job['status'] = 'error'
+            job['error'] = f'Exit code {proc.returncode}'
+    except Exception as e:
+        job['status'] = 'error'
+        job['error'] = str(e)
+    finally:
+        job['finished_at'] = _utc_now_iso()
+
+
+@app.post('/api/knowledge/crawl-campus')
+async def crawl_campus(body: dict):
+    if not CRAWLER_SCRIPT.exists():
+        raise HTTPException(500, f'Crawler script not found: {CRAWLER_SCRIPT}')
+
+    allowed_keys = {'no_llm', 'delay', 'urls_path', 'output_dir'}
+    unknown_keys = sorted(k for k in body.keys() if k not in allowed_keys)
+    if unknown_keys:
+        raise HTTPException(400, f'Unsupported parameters: {", ".join(unknown_keys)}')
+
+    cmd = _build_crawl_command(body)
+
+    job_id = str(uuid.uuid4())[:8]
+    _crawl_jobs[job_id] = {
+        'status': 'pending',
+        'lines': [],
+        'started_at': None,
+        'finished_at': None,
+        'error': '',
+    }
+    t = threading.Thread(target=_run_crawl_job, args=(job_id, cmd), daemon=True)
+    t.start()
+
+    return {'job_id': job_id}
+
+
+@app.get('/api/knowledge/crawl-campus/status/{job_id}')
+async def crawl_campus_status(job_id: str):
+    job = _crawl_jobs.get(job_id)
+    if not job:
+        raise HTTPException(404, 'Job not found')
+
+    return {
+        'status': job['status'],
+        'new_lines': job['lines'],
+        'started_at': job['started_at'],
+        'finished_at': job['finished_at'],
         'error': job['error'],
     }
 
