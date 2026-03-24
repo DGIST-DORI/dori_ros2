@@ -73,6 +73,10 @@
   overflow: hidden;
 }
 
+.sidebar.collapsed .sb-search-cell {
+  overflow: visible;
+}
+
 /* Collapsed: icon button fills the cell */
 .sb-search-btn {
   position: relative;
@@ -154,6 +158,10 @@
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
+}
+
+.sidebar.collapsed .sb-nav {
+  overflow-x: visible;
 }
 
 .sb-empty {
@@ -429,6 +437,7 @@
 }
 
 .sidebar.collapsed .sb-open:hover .sb-tooltip,
+.sidebar.collapsed .sb-search-btn:hover .sb-tooltip,
 .sidebar.collapsed .sb-cat-header:hover .sb-tooltip,
 .sidebar.collapsed .sb-leaf:hover .sb-tooltip,
 .sidebar.collapsed .sb-status:hover .sb-tooltip {
