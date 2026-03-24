@@ -255,13 +255,15 @@ def _resolve_repo_internal_path(path_value: str | None, *, param_name: str) -> P
         raise HTTPException(400, f'{param_name} must be a relative path inside the repo root')
 
     # Reject traversal segments after normalization as an extra safety check.
-    parts = [p for p in normed.split(os.sep) if p]
+    # We split on '/' because we normalized backslashes above.
+    parts = [p for p in normed.split('/') if p]
     if any(part in ('.', '..') for part in parts):
-        raise HTTPException(400, f'{param_name} must not contain \".\" or \"..\" path segments')
+        raise HTTPException(400, f'{param_name} must not contain "." or ".." path segments')
 
-    candidate = REPO_ROOT / Path(normed).expanduser()
-    resolved = candidate.resolve()
+    # Construct a repo-internal candidate path and resolve it, ensuring it stays under REPO_ROOT.
     repo_resolved = REPO_ROOT.resolve()
+    candidate = repo_resolved / normed
+    resolved = candidate.resolve()
 
     try:
         resolved.relative_to(repo_resolved)
