@@ -229,3 +229,106 @@ Use tokens instead of hard-coded px values.
 - Panel-specific styles (classes prefixed with the panel name) stay in the panel's own CSS file
 - If a UI pattern appears in 3 or more panels, move it into `components.css` and share it
 - To change colors or spacing globally, edit only the token files — changes propagate automatically
+
+---
+
+### Logo Conventions
+
+#### File locations
+
+```
+web/public/logo/
+  favicon.svg          ← browser tab icon (SVG, all modern browsers)
+  favicon.ico          ← legacy fallback (generate from favicon.svg when needed)
+
+web/src/assets/logo/
+  logo-icon.svg        ← icon only  — square 1000×1000
+  logo-full.svg        ← icon + text — light mode  (text: #36454f)
+  logo-full-dark.svg   ← icon + text — dark mode   (text: #e2eaf2)
+  logo-text.svg        ← text only  — light mode
+  logo-text-dark.svg   ← text only  — dark mode
+```
+
+All files under `web/src/assets/logo/` are imported as React components via `vite-plugin-svgr`:
+
+```js
+import DoriLogoIcon from '../assets/logo/logo-icon.svg?react';
+```
+
+Files under `web/public/logo/` are served as static assets and referenced by URL path.
+
+#### When to use each variant
+
+| Variant | Use |
+|---|---|
+| `logo-icon.svg` | Sidebar collapsed state, app icon, any square context |
+| `logo-full.svg` / `logo-full-dark.svg` | Sidebar expanded state, header (auto-selects by theme) |
+| `logo-text.svg` / `logo-text-dark.svg` | Standalone text lockup without the icon mark |
+| `favicon.svg` | Browser tab — referenced from `index.html` |
+
+#### Theme-aware rendering
+
+Always render the correct variant based on the active theme.
+Do **not** hard-code one variant for both modes.
+
+```jsx
+// Resolve once at component level
+const LogoComponent = isDark ? DoriLogoFullDark : DoriLogoFull;
+return <LogoComponent className="my-logo" />;
+```
+
+The `isDark` value should be derived from:
+1. `localStorage.getItem('theme-mode')` if it is `'dark'` or `'light'`
+2. `window.matchMedia('(prefers-color-scheme: dark)').matches` if the value is `'auto'`
+
+#### Sizing
+
+Never set an explicit `width` on the logo SVG. Set only `height` and let `width: auto` maintain
+the natural aspect ratio.
+
+```css
+.my-logo-svg {
+  height: 24px;   /* choose height to fit the containing row */
+  width: auto;
+  display: block;
+}
+```
+
+Standard heights in use:
+
+| Context | Height |
+|---|---|
+| Header (`hdr-logo-svg`) | 24px |
+| Sidebar expanded (`sb-logo-svg`) | 22px |
+| Sidebar collapsed (`sb-icon-svg`) | 24px (square icon) |
+
+#### Do not modify the logo SVG source
+
+- Do not change fill colors inside the SVG files — use the correct light/dark variant instead.
+- Do not add CSS filters (`brightness`, `invert`, etc.) to the logo element.
+- Do not scale the logo below 16px height — the mark becomes illegible.
+- The gradient in the icon mark is fixed and intentional; do not override it with `currentColor`.
+
+#### Generating favicon.ico (when needed)
+
+SVG favicons are supported in all modern browsers. A `.ico` fallback is only needed for
+legacy environments. Generate it from `favicon.svg`:
+
+```bash
+# Using Inkscape (recommended)
+inkscape favicon.svg --export-filename=favicon-32.png --export-width=32
+inkscape favicon.svg --export-filename=favicon-16.png --export-width=16
+convert favicon-16.png favicon-32.png favicon.ico
+
+# Using ImageMagick only (lower quality SVG rendering)
+convert -background none -resize 32x32 favicon.svg favicon-32.png
+convert favicon-16.png favicon-32.png favicon.ico
+```
+
+Place the resulting `favicon.ico` in `web/public/logo/` and add a second `<link>` tag
+in `index.html`:
+
+```html
+<link rel="icon" type="image/svg+xml" href="/logo/favicon.svg" />
+<link rel="icon" type="image/x-icon"  href="/logo/favicon.ico" />
+```
