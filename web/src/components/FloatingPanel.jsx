@@ -5,7 +5,7 @@
  * for consistent cross-browser behavior including Safari.
  */
 
-import { useRef } from 'react';
+import { Suspense, useRef } from 'react';
 import { useStore } from '../core/store';
 import { useDraggable } from '../hooks/useDraggable';
 import './FloatingPanel.css';
@@ -113,7 +113,9 @@ export default function FloatingPanel({ panel }) {
       {/* ── Body ── */}
       {!minimized && (
         <div className="fp-body">
-          <Component />
+          <Suspense fallback={<div className="fp-loading">Loading panel…</div>}>
+            <Component />
+          </Suspense>
         </div>
       )}
 
