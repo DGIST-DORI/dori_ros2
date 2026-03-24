@@ -379,10 +379,6 @@
 .sidebar.collapsed .sb-cat-header:hover .sb-tooltip,
 .sidebar.collapsed .sb-leaf:hover .sb-tooltip,
 .sidebar.collapsed .sb-status:hover .sb-tooltip {
-.sidebar.collapsed .sb-open:hover .sb-tooltip,
-.sidebar.collapsed .sb-cat-header:hover .sb-tooltip,
-.sidebar.collapsed .sb-leaf:hover .sb-tooltip,
-.sidebar.collapsed .sb-status:hover .sb-tooltip {
   opacity: 1;
   transform: translateY(-50%) translateX(0);
 }
