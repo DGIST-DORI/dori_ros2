@@ -23,6 +23,7 @@ import json
 import time
 import re
 import os
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
@@ -71,8 +72,52 @@ CONTENT_SELECTORS = [
     ".sub_content",
 ]
 
+SAFE_DOC_ID_RE = re.compile(r"^[a-z0-9_-]+$")
+
 
 # Crawler
+
+def _slugify(value: str) -> str:
+    """Convert arbitrary text to a filesystem-safe slug."""
+    value = value.lower()
+    value = re.sub(r"[/?&=:+.%#]+", "_", value)
+    value = re.sub(r"[^a-z0-9_-]+", "", value)
+    value = re.sub(r"[_-]{2,}", "_", value)
+    return value.strip("_-")
+
+
+def normalize_doc_id(url: str, fallback: str = "page") -> str:
+    """
+    Build a safe doc_id from URL path (+ partial query).
+    Allowed chars: [a-z0-9_-]
+    """
+    parsed = urlparse(url)
+    source = parsed.path or ""
+    if parsed.query:
+        query_tokens = []
+        for pair in parsed.query.split("&")[:4]:
+            if not pair:
+                continue
+            key, _, value = pair.partition("=")
+            if key:
+                query_tokens.append(key)
+            if value:
+                query_tokens.append(value)
+        if query_tokens:
+            source = f"{source}_{'_'.join(query_tokens)}"
+
+    slug = _slugify(source)
+    if len(slug) < 3:
+        slug = _slugify(fallback)
+    return slug or "page"
+
+
+def ensure_safe_doc_id(doc_id: str) -> str:
+    """Validate and return a safe doc_id."""
+    safe_id = _slugify(doc_id)
+    if not safe_id or not SAFE_DOC_ID_RE.fullmatch(safe_id):
+        raise ValueError(f"Unsafe doc_id: {doc_id!r}")
+    return safe_id
 
 def fetch_page(url: str) -> str | None:
     """Fetch a URL and return raw HTML, or None on failure."""
@@ -208,9 +253,10 @@ def refine_with_llm(raw_text: str, description_ko: str, description_en: str,
 
 def save_raw(raw: dict, out_dir: Path):
     """Save raw crawled text for review or re-processing."""
+    doc_id = ensure_safe_doc_id(raw["doc_id"])
     raw_dir = out_dir / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
-    path = raw_dir / f"{raw['doc_id']}.txt"
+    path = raw_dir / f"{doc_id}.txt"
     with open(path, "w", encoding="utf-8") as f:
         f.write(f"URL: {raw['url']}\n")
         f.write(f"Fetched: {raw['fetched_at']}\n")
@@ -222,7 +268,7 @@ def save_raw(raw: dict, out_dir: Path):
 def save_refined(refined: dict, raw: dict, category: str,
                  description_ko: str, description_en: str, out_dir: Path):
     """Save LLM-refined data as JSON + txt."""
-    doc_id = raw["doc_id"]
+    doc_id = ensure_safe_doc_id(raw["doc_id"])
 
     # JSON (structured metadata + key facts)
     json_payload = {
@@ -264,9 +310,10 @@ def save_refined(refined: dict, raw: dict, category: str,
 def save_fallback_txt(raw: dict, category: str,
                       description_ko: str, description_en: str, out_dir: Path):
     """Save raw text as txt when LLM refinement fails/skipped."""
+    doc_id = ensure_safe_doc_id(raw["doc_id"])
     txt_dir = out_dir / "processed" / category
     txt_dir.mkdir(parents=True, exist_ok=True)
-    txt_path = txt_dir / f"{raw['doc_id']}_raw.txt"
+    txt_path = txt_dir / f"{doc_id}_raw.txt"
     with open(txt_path, "w", encoding="utf-8") as f:
         f.write(f"[{description_ko} / {description_en}]\n")
         f.write(f"URL: {raw['url']}\n\n")
@@ -284,6 +331,7 @@ def load_extra_urls(path: str) -> list[tuple]:
     or plain URL lines (category=misc, doc_id auto-generated).
     """
     entries = []
+    seen_doc_ids = set()
     with open(path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -292,9 +340,13 @@ def load_extra_urls(path: str) -> list[tuple]:
             parts = line.split()
             url = parts[0]
             category = parts[1] if len(parts) > 1 else "misc"
-            doc_id   = parts[2] if len(parts) > 2 else (
-                urlparse(url).path.strip("/").replace("/", "_") or "page"
-            )
+            doc_hint = parts[2] if len(parts) > 2 else "page"
+            doc_id = normalize_doc_id(url, fallback=doc_hint)
+
+            if doc_id in seen_doc_ids:
+                suffix = hashlib.sha1(url.encode("utf-8")).hexdigest()[:6]
+                doc_id = f"{doc_id}_{suffix}"
+            seen_doc_ids.add(doc_id)
             entries.append((url, category, doc_id, doc_id, doc_id))
     return entries
 
