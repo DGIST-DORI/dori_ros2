@@ -67,6 +67,16 @@ MIDDLE_TIP   = 12; MIDDLE_PIP   = 10
 RING_TIP     = 16; RING_PIP     = 14
 PINKY_TIP    = 20; PINKY_PIP    = 18
 
+# Hand landmark connections (MediaPipe Hands canonical graph)
+HAND_CONNECTIONS = (
+    (0, 1), (1, 2), (2, 3), (3, 4),
+    (0, 5), (5, 6), (6, 7), (7, 8),
+    (5, 9), (9, 10), (10, 11), (11, 12),
+    (9, 13), (13, 14), (14, 15), (15, 16),
+    (13, 17), (17, 18), (18, 19), (19, 20),
+    (0, 17),
+)
+
 
 class GestureRecognitionNode(Node):
     def __init__(self):
@@ -100,9 +110,6 @@ class GestureRecognitionNode(Node):
             return
 
         # MediaPipe initialization (Tasks API)
-        self.mp_drawing  = mp.solutions.drawing_utils
-        self.mp_styles   = mp.solutions.drawing_styles
-        self.mp_hands_connections = mp.solutions.hands
         self.hands = None
         if not hand_model_path:
             self.get_logger().error(
@@ -183,7 +190,7 @@ class GestureRecognitionNode(Node):
             self._wrist_x_history.clear()
             self._publish_gesture(Gesture.NONE, None, None)
             if self.visualize:
-                self._publish_annotated(cv_image, None, Gesture.NONE, msg)
+                self._safe_publish_annotated(cv_image, None, Gesture.NONE, msg)
             return
 
         # 첫 번째 손만 처리
@@ -215,7 +222,7 @@ class GestureRecognitionNode(Node):
             self.get_logger().info('WAVE detected → interaction_trigger forced publication')
 
         if self.visualize:
-            self._publish_annotated(cv_image, hand_landmarks, confirmed, msg)
+            self._safe_publish_annotated(cv_image, hand_landmarks, confirmed, msg)
 
     def _classify(self, lm, w: int, h: int) -> Gesture:
         """
@@ -353,16 +360,13 @@ class GestureRecognitionNode(Node):
         return None
 
     def _publish_annotated(self, image: np.ndarray, hand_landmarks, gesture: Gesture, original_msg):
+        if not self.visualize:
+            return
+
         annotated = image.copy()
 
         if hand_landmarks:
-            self.mp_drawing.draw_landmarks(
-                annotated,
-                hand_landmarks,
-                self.mp_hands_connections.HAND_CONNECTIONS,
-                self.mp_styles.get_default_hand_landmarks_style(),
-                self.mp_styles.get_default_hand_connections_style(),
-            )
+            self._draw_hand_landmarks(annotated, hand_landmarks)
 
         color = {
             Gesture.STOP:      (0, 0, 255),
@@ -383,6 +387,30 @@ class GestureRecognitionNode(Node):
         ann_msg = self.bridge.cv2_to_imgmsg(annotated, encoding='bgr8')
         ann_msg.header = original_msg.header
         self.annotated_pub.publish(ann_msg)
+
+    def _safe_publish_annotated(self, image: np.ndarray, hand_landmarks,
+                                gesture: Gesture, original_msg):
+        try:
+            self._publish_annotated(image, hand_landmarks, gesture, original_msg)
+        except Exception as e:
+            self.get_logger().warning(f'Gesture annotation failed (inference continues): {e}')
+
+    @staticmethod
+    def _draw_hand_landmarks(image: np.ndarray, hand_landmarks):
+        h, w = image.shape[:2]
+
+        for start_idx, end_idx in HAND_CONNECTIONS:
+            p1 = hand_landmarks[start_idx]
+            p2 = hand_landmarks[end_idx]
+            x1, y1 = int(p1.x * w), int(p1.y * h)
+            x2, y2 = int(p2.x * w), int(p2.y * h)
+            cv2.line(image, (x1, y1), (x2, y2), (80, 180, 255), 2, cv2.LINE_AA)
+
+        for idx, landmark in enumerate(hand_landmarks):
+            cx, cy = int(landmark.x * w), int(landmark.y * h)
+            radius = 4 if idx in (WRIST, THUMB_TIP, INDEX_TIP) else 3
+            color = (0, 255, 0) if idx in (THUMB_TIP, INDEX_TIP, MIDDLE_TIP, RING_TIP, PINKY_TIP) else (255, 255, 255)
+            cv2.circle(image, (cx, cy), radius, color, -1, cv2.LINE_AA)
 
     def destroy_node(self):
         if self.hands is not None:

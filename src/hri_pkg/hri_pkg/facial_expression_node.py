@@ -68,6 +68,21 @@ MOUTH_BOTTOM = 14
 # Nose
 NOSE_TIP = 4
 
+# Face contour segments for stable OpenCV rendering (subset of mesh)
+FACE_CONTOUR_SEGMENTS = (
+    # face oval
+    [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109, 10],
+    # left eye
+    [33, 160, 158, 133, 153, 144, 33],
+    # right eye
+    [362, 385, 387, 263, 373, 380, 362],
+    # eyebrows
+    [70, 63, 105, 66, 107],
+    [300, 293, 334, 296, 336],
+    # lips outer
+    [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 308, 324, 318, 402, 317, 14, 87, 178, 88, 95, 78, 61],
+)
+
 
 class Expression:
     SATISFIED   = 'SATISFIED'
@@ -108,9 +123,6 @@ class FacialExpressionNode(Node):
             return
 
         # MediaPipe Face Landmarker initialization (Tasks API)
-        self.mp_drawing   = mp.solutions.drawing_utils
-        self.mp_styles    = mp.solutions.drawing_styles
-        self.mp_face_mesh_connections = mp.solutions.face_mesh
         self.face_mesh = None
         face_model_path = self.get_parameter('face_model_path').value
         if not face_model_path:
@@ -188,7 +200,7 @@ class FacialExpressionNode(Node):
             self._expr_history.append(Expression.NEUTRAL)
             self._publish_expression(Expression.NEUTRAL, {}, msg)
             if self.visualize:
-                self._publish_annotated(cv_image, None, Expression.NEUTRAL, {}, msg)
+                self._safe_publish_annotated(cv_image, None, Expression.NEUTRAL, {}, msg)
             return
 
         face_lm = results.face_landmarks[0]
@@ -213,7 +225,7 @@ class FacialExpressionNode(Node):
             self._publish_command(confirmed, metrics)
 
         if self.visualize:
-            self._publish_annotated(
+            self._safe_publish_annotated(
                 cv_image, results.face_landmarks[0], confirmed, metrics, msg)
 
     def _extract_metrics(self, lm, w: int, h: int) -> dict:
@@ -317,16 +329,13 @@ class FacialExpressionNode(Node):
 
     def _publish_annotated(self, image: np.ndarray, face_landmarks,
                            expression: str, metrics: dict, original_msg):
+        if not self.visualize:
+            return
+
         annotated = image.copy()
 
         if face_landmarks:
-            self.mp_drawing.draw_landmarks(
-                annotated,
-                face_landmarks,
-                self.mp_face_mesh_connections.FACEMESH_CONTOURS,
-                landmark_drawing_spec=None,
-                connection_drawing_spec=self.mp_styles.get_default_face_mesh_contours_style(),
-            )
+            self._draw_face_contours(annotated, face_landmarks)
 
         color = {
             Expression.SATISFIED: (0, 255, 0),
@@ -353,6 +362,30 @@ class FacialExpressionNode(Node):
         ann_msg = self.bridge.cv2_to_imgmsg(annotated, encoding='bgr8')
         ann_msg.header = original_msg.header
         self.annotated_pub.publish(ann_msg)
+
+    def _safe_publish_annotated(self, image: np.ndarray, face_landmarks,
+                                expression: str, metrics: dict, original_msg):
+        try:
+            self._publish_annotated(image, face_landmarks, expression, metrics, original_msg)
+        except Exception as e:
+            self.get_logger().warning(
+                f'Expression annotation failed (inference continues): {e}')
+
+    @staticmethod
+    def _draw_face_contours(image: np.ndarray, face_landmarks):
+        h, w = image.shape[:2]
+
+        for segment in FACE_CONTOUR_SEGMENTS:
+            points = []
+            for idx in segment:
+                lm = face_landmarks[idx]
+                points.append((int(lm.x * w), int(lm.y * h)))
+            for i in range(len(points) - 1):
+                cv2.line(image, points[i], points[i + 1], (255, 200, 80), 1, cv2.LINE_AA)
+
+        for idx in (NOSE_TIP, MOUTH_LEFT, MOUTH_RIGHT, LEFT_EYEBROW_INNER, RIGHT_EYEBROW_INNER):
+            lm = face_landmarks[idx]
+            cv2.circle(image, (int(lm.x * w), int(lm.y * h)), 2, (0, 255, 0), -1, cv2.LINE_AA)
 
     def destroy_node(self):
         if self.face_mesh is not None:
