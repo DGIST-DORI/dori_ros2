@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { LOG_TAGS, useStore } from '../core/store';
 import { connectROS, disconnectROS } from '../core/ros';
 import { startDemo, stopDemo } from '../core/demo';
-import DoriLogoFull     from '../assets/logo/logo-full.svg?react';
-import DoriLogoFullDark from '../assets/logo/logo-full-dark.svg?react';
+import DoriLogoText     from '../assets/logo/logo-text.svg?react';
+import DoriLogoTextDark from '../assets/logo/logo-text-dark.svg?react';
 import './Header.css';
 
-export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
+export default function Header({ onLogoClick, themeMode, onThemeModeChange, sidebarExpanded }) {
   const connected    = useStore(s => s.connected);
   const isDemoMode   = useStore(s => s.isDemoMode);
   const wsUrl        = useStore(s => s.wsUrl);
@@ -17,21 +17,17 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
   const [urlInput,     setUrlInput]     = useState(wsUrl);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  // Sync URL input when wsUrl store updates externally (tunnel detection)
   useEffect(() => {
     if (!connected && !isConnecting) setUrlInput(wsUrl);
   }, [wsUrl]);
 
-  // Resolve which logo variant to render based on active theme
   const [isDark, setIsDark] = useState(false);
   useEffect(() => {
-    const apply = () => {
-      if (themeMode === 'auto') {
-        setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
-      } else {
-        setIsDark(themeMode === 'dark');
-      }
-    };
+    const apply = () => setIsDark(
+      themeMode === 'auto'
+        ? window.matchMedia('(prefers-color-scheme: dark)').matches
+        : themeMode === 'dark'
+    );
     apply();
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     mq.addEventListener('change', apply);
@@ -86,12 +82,18 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange }) {
     else { disconnectROS(); setConnected(false); startDemo(); }
   }
 
-  const LogoComponent = isDark ? DoriLogoFullDark : DoriLogoFull;
+  const LogoText = isDark ? DoriLogoTextDark : DoriLogoText;
 
   return (
     <header className="hdr">
-      <button className="hdr-logo" onClick={onLogoClick} aria-label="DORI Dashboard home">
-        <LogoComponent className="hdr-logo-svg" aria-hidden="true" />
+      {/* Text logo — visible when sidebar is closed, fades out when sidebar opens */}
+      <button
+        className={`hdr-logo ${sidebarExpanded ? 'hdr-logo--hidden' : ''}`}
+        onClick={onLogoClick}
+        aria-label="DORI Dashboard home"
+        tabIndex={sidebarExpanded ? -1 : 0}
+      >
+        <LogoText className="hdr-logo-svg" aria-hidden="true" />
       </button>
 
       <div className="hdr-spacer" />

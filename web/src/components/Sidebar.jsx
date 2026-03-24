@@ -4,6 +4,7 @@ import { filterTree } from '../panelTree';
 import DoriLogoIcon from '../assets/logo/logo-icon.svg?react';
 import DoriLogoFull from '../assets/logo/logo-full.svg?react';
 import DoriLogoFullDark from '../assets/logo/logo-full-dark.svg?react';
+// import SidebarIcon  from '../assets/icons/icon-sidebar.svg?react';
 import CloseIcon    from '../assets/icons/icon-close.svg?react';
 import SearchIcon   from '../assets/icons/icon-search.svg?react';
 import './Sidebar.css';
@@ -120,19 +121,17 @@ function CategoryBlock({ node, onSelect, expanded, searchActive, onExpandSidebar
 // ── Main Sidebar ──────────────────────────────────────────────────────────────
 
 export default function Sidebar({ expanded, onExpand, onCollapse, activeId, onSelect, tree }) {
-  const connected   = useStore(s => s.connected);
-  const isDemoMode  = useStore(s => s.isDemoMode);
-  const themeMode   = typeof window !== 'undefined'
-    ? (localStorage.getItem('theme-mode') || 'auto')
-    : 'auto';
+  const connected  = useStore(s => s.connected);
+  const isDemoMode = useStore(s => s.isDemoMode);
 
   const statusLabel = connected ? 'LIVE' : isDemoMode ? 'DEMO' : 'OFF';
   const statusClass = connected ? 'connected' : isDemoMode ? 'demo' : '';
 
   // Resolve dark/light for logo variant
   const [isDark, setIsDark] = useState(() => {
-    if (themeMode === 'dark') return true;
-    if (themeMode === 'light') return false;
+    const stored = typeof window !== 'undefined' ? localStorage.getItem('theme-mode') : null;
+    if (stored === 'dark')  return true;
+    if (stored === 'light') return false;
     return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
@@ -167,10 +166,11 @@ export default function Sidebar({ expanded, onExpand, onCollapse, activeId, onSe
       className={`sidebar ${expanded ? 'expanded' : 'collapsed'}`}
       onClick={() => !expanded && onExpand()}
     >
-      {/* ── Top: logo / toggle ── */}
+      {/* ── Top cell ── */}
       <div className="sb-top">
         {expanded ? (
           <>
+            {/* Full logo (icon + text) shown when sidebar is open */}
             <div className="sb-logo">
               <FullLogo className="sb-logo-svg" aria-label="DORI" />
             </div>
@@ -186,6 +186,7 @@ export default function Sidebar({ expanded, onExpand, onCollapse, activeId, onSe
           <button
             className="sb-open"
             onClick={e => { e.stopPropagation(); onExpand(); }}
+            aria-label="Open sidebar"
           >
             <DoriLogoIcon className="sb-icon-svg" />
             <span className="sb-tooltip">Open sidebar</span>
