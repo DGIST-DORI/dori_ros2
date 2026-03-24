@@ -270,7 +270,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
       </nav>
 
       {/* ── Bottom: connection status ── */}
-      <div className="sb-bottom" onClick={e => e.stopPropagation()}>
+      <div className="sb-bottom">
         <div className={`sb-status ${statusClass}`}>
           <div className="sb-status-dot" />
           {expanded  && <span className="sb-status-label">{statusLabel}</span>}
