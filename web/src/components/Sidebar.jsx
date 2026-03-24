@@ -215,7 +215,7 @@ export default function Sidebar({ expanded, onExpand, onCollapse, activeId, onSe
           <button
             className="sb-search-btn"
             onClick={() => { onExpand(); setPendingFocus(true); }}
-            title="Search panels"
+            // title="Search panels"
           >
             <SearchIcon className="sb-search-btn-icon" />
             <span className="sb-tooltip">Search panels</span>
