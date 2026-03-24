@@ -19,11 +19,12 @@ import PieceStatePanel from './panels/control/PieceStatePanel';
 import RotationControlPanel from './panels/control/RotationControlPanel';
 
 import VisionPanel from './panels/perception/VisionPanel';
-import LLMTTSPanel from './panels/perception/LLMTTSPanel';
+import LLMInjectPanel from './panels/perception/LLMInjectPanel';
 import MenuParserPanel from './panels/perception/MenuParserPanel';
 import IndexBuilderPanel from './panels/perception/IndexBuilderPanel';
 import DocumentBrowserPanel from './panels/perception/DocumentBrowserPanel';
 import BuildingEditorPanel from './panels/perception/BuildingEditorPanel';
+import TTSInjectPanel from './panels/hri/TTSInjectPanel';
 
 import TopicDiagnosticsPanel from './panels/system/TopicDiagnosticsPanel';
 import ConnectionInfoPanel from './panels/system/ConnectionInfoPanel';
@@ -55,7 +56,7 @@ export const PANEL_TREE = [
         children: [
           { id: 'stt',      label: 'STT Test',   component: STTPanel },
           { id: 'wakeword', label: 'Wake Word',   component: WakeWordPanel },
-          { id: 'tts',      label: 'TTS Inject',  component: LLMTTSPanel },
+          { id: 'tts',      label: 'TTS Inject',  component: TTSInjectPanel },
         ],
       },
       {
@@ -115,7 +116,7 @@ export const PANEL_TREE = [
       {
         id: 'perc-llm', label: 'LLM', icon: <LLMIcon />,
         children: [
-          { id: 'llm-inject', label: 'LLM Inject', component: LLMTTSPanel },
+          { id: 'llm-inject', label: 'LLM Inject', component: LLMInjectPanel },
         ],
       },
       {
