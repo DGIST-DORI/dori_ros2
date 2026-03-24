@@ -14,6 +14,15 @@
   overflow: hidden;
 }
 
+
+.km-building-list .input-search {
+  flex: 0 0 auto;
+  font-size: var(--font-size-sm);
+  line-height: 1.2;
+  padding: 3px 8px;
+  min-height: 26px;
+}
+
 .km-building-keys {
   flex: 1;
   overflow-y: auto;

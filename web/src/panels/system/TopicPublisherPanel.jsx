@@ -157,10 +157,10 @@ export default function TopicPublisherPanel() {
             <button className={mode === 'periodic' ? 'active' : ''} onClick={() => setMode('periodic')}>Periodic</button>
           </div>
           {mode === 'periodic' && (
-            <>
+            <div className="tp-rate-wrap">
               <label htmlFor="tp-rate">Rate (Hz)</label>
               <input id="tp-rate" value={rateHz} onChange={(e) => setRateHz(e.target.value)} style={{ width: 80 }} />
-            </>
+            </div>
           )}
         </div>
         <div className="tp-footer">
