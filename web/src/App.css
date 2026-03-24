@@ -13,6 +13,7 @@
   grid-template-rows: 44px 1fr;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   transition: grid-template-columns 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -41,13 +42,18 @@
   grid-row: 2;
   overflow: hidden;
   min-height: 0;
+  box-sizing: border-box;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--bg-0);
 }
 
 /* Dimmed area shown when overlay sidebar is open */
 .app-sidebar-backdrop {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: env(safe-area-inset-bottom, 0px);
   border: 0;
   background: rgba(2, 6, 14, 0.52);
   backdrop-filter: blur(1px);
@@ -71,10 +77,20 @@
   top: 0;
   left: 0;
   height: 100vh;
+  height: 100dvh;
   width: 48px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
   transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .app.sb-overlay.sb-expanded .app-sidebar {
   width: min(280px, calc(100vw - 40px));
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
