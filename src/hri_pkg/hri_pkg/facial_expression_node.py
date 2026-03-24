@@ -19,12 +19,14 @@ Subscribe topics:
 
 import json
 import math
+import os
 import time
 from collections import deque
 
 import cv2
 import numpy as np
 import rclpy
+from ament_index_python.packages import get_package_share_directory
 from cv_bridge import CvBridge
 from rclpy.node import Node
 from sensor_msgs.msg import Image
@@ -127,25 +129,50 @@ class FacialExpressionNode(Node):
             self.get_logger().error('mediapipe not installed: pip install mediapipe')
             return
 
-        # MediaPipe Face Landmarker initialization (Tasks API)
-        self.face_mesh = None
         face_model_path = self.get_parameter('face_model_path').value
-        if not face_model_path:
-            self.get_logger().error(
-                'face_model_path is empty. Set a valid MediaPipe .task model path.')
+        resolved_face_model_path = self._resolve_model_path(
+            face_model_path,
+            default_model_filename='face_landmarker.task',
+            parameter_name='face_model_path',
+        )
+        if not resolved_face_model_path:
             return
 
-        face_options = FaceLandmarkerOptions(
-            base_options=BaseOptions(model_asset_path=face_model_path),
-            running_mode=RunningMode.VIDEO,
-            num_faces=1,
-            min_face_detection_confidence=det_conf,
-            min_face_presence_confidence=self.min_face_presence_confidence,
-            min_tracking_confidence=trk_conf,
-            output_face_blendshapes=True,
-            output_facial_transformation_matrixes=False,
-        )
-        self.face_mesh = FaceLandmarker.create_from_options(face_options)
+        # MediaPipe Face Landmarker initialization (Tasks API)
+        self.face_mesh = None
+        try:
+            face_options = FaceLandmarkerOptions(
+                base_options=BaseOptions(model_asset_path=resolved_face_model_path),
+                running_mode=RunningMode.VIDEO,
+                num_faces=1,
+                min_face_detection_confidence=det_conf,
+                min_face_presence_confidence=self.min_face_presence_confidence,
+                min_tracking_confidence=trk_conf,
+                output_face_blendshapes=True,
+                output_facial_transformation_matrixes=False,
+            )
+            self.face_mesh = FaceLandmarker.create_from_options(face_options)
+        except PermissionError as e:
+            self.get_logger().error(
+                f'Permission denied while reading face model: {resolved_face_model_path}. {e}')
+            return
+        except FileNotFoundError as e:
+            self.get_logger().error(
+                f'Face model file not found: {resolved_face_model_path}. {e}')
+            return
+        except OSError as e:
+            self.get_logger().error(
+                f'OS error while opening face model: {resolved_face_model_path}. {e}')
+            return
+        except (ValueError, RuntimeError) as e:
+            self.get_logger().error(
+                f'Failed to load face model (invalid/corrupted model?): '
+                f'{resolved_face_model_path}. {e}')
+            return
+        except Exception as e:
+            self.get_logger().error(
+                f'Unexpected error while creating FaceLandmarker: {e}')
+            return
 
         # State
         self.is_active = not self.active_on_trigger
@@ -172,6 +199,34 @@ class FacialExpressionNode(Node):
                 Image, '/dori/hri/annotated_expression', 10)
 
         self.get_logger().info('Facial Expression Node started')
+
+    def _resolve_model_path(
+        self,
+        model_path: str,
+        default_model_filename: str,
+        parameter_name: str,
+    ) -> str | None:
+        if model_path:
+            candidate = model_path
+        else:
+            share_dir = get_package_share_directory('hri_pkg')
+            candidate = os.path.join(share_dir, 'models', default_model_filename)
+            self.get_logger().info(
+                f'{parameter_name} not provided; trying default model path: {candidate}')
+
+        if not os.path.exists(candidate):
+            self.get_logger().error(
+                f'Model file does not exist: {candidate}. '
+                f'Set "{parameter_name}" or place model under '
+                f'<install-prefix>/share/hri_pkg/models/.')
+            return None
+        if not os.path.isfile(candidate):
+            self.get_logger().error(f'Model path is not a regular file: {candidate}')
+            return None
+        if not os.access(candidate, os.R_OK):
+            self.get_logger().error(f'Model file is not readable (permission error): {candidate}')
+            return None
+        return candidate
 
     # Callbacks
     def _trigger_callback(self, msg: Bool):

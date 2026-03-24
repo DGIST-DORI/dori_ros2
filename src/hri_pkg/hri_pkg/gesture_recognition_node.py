@@ -25,6 +25,7 @@ Subscribe topics:
 
 import json
 import math
+import os
 import time
 from collections import deque
 from enum import Enum
@@ -32,6 +33,7 @@ from enum import Enum
 import cv2
 import numpy as np
 import rclpy
+from ament_index_python.packages import get_package_share_directory
 from cv_bridge import CvBridge
 from rclpy.node import Node
 from sensor_msgs.msg import Image
@@ -115,22 +117,47 @@ class GestureRecognitionNode(Node):
             self.get_logger().error('mediapipe not installed: pip install mediapipe')
             return
 
-        # MediaPipe initialization (Tasks API)
-        self.hands = None
-        if not hand_model_path:
-            self.get_logger().error(
-                'hand_model_path is empty. Set a valid MediaPipe .task model path.')
+        resolved_hand_model_path = self._resolve_model_path(
+            hand_model_path,
+            default_model_filename='hand_landmarker.task',
+            parameter_name='hand_model_path',
+        )
+        if not resolved_hand_model_path:
             return
 
-        hand_options = HandLandmarkerOptions(
-            base_options=BaseOptions(model_asset_path=hand_model_path),
-            running_mode=RunningMode.VIDEO,
-            num_hands=num_hands,
-            min_hand_detection_confidence=det_conf,
-            min_hand_presence_confidence=hand_presence_conf,
-            min_tracking_confidence=trk_conf,
-        )
-        self.hands = HandLandmarker.create_from_options(hand_options)
+        # MediaPipe initialization (Tasks API)
+        self.hands = None
+        try:
+            hand_options = HandLandmarkerOptions(
+                base_options=BaseOptions(model_asset_path=resolved_hand_model_path),
+                running_mode=RunningMode.VIDEO,
+                num_hands=num_hands,
+                min_hand_detection_confidence=det_conf,
+                min_hand_presence_confidence=hand_presence_conf,
+                min_tracking_confidence=trk_conf,
+            )
+            self.hands = HandLandmarker.create_from_options(hand_options)
+        except PermissionError as e:
+            self.get_logger().error(
+                f'Permission denied while reading hand model: {resolved_hand_model_path}. {e}')
+            return
+        except FileNotFoundError as e:
+            self.get_logger().error(
+                f'Hand model file not found: {resolved_hand_model_path}. {e}')
+            return
+        except OSError as e:
+            self.get_logger().error(
+                f'OS error while opening hand model: {resolved_hand_model_path}. {e}')
+            return
+        except (ValueError, RuntimeError) as e:
+            self.get_logger().error(
+                f'Failed to load hand model (invalid/corrupted model?): '
+                f'{resolved_hand_model_path}. {e}')
+            return
+        except Exception as e:
+            self.get_logger().error(
+                f'Unexpected error while creating HandLandmarker: {e}')
+            return
 
         # State
         self.is_active: bool = not self.active_on_trigger  # trigger OFF면 항상 활성
@@ -161,6 +188,34 @@ class GestureRecognitionNode(Node):
             f'Gesture Recognition Node started with parameters: '
             f'(active_on_trigger={self.active_on_trigger})'
         )
+
+    def _resolve_model_path(
+        self,
+        model_path: str,
+        default_model_filename: str,
+        parameter_name: str,
+    ) -> str | None:
+        if model_path:
+            candidate = model_path
+        else:
+            share_dir = get_package_share_directory('hri_pkg')
+            candidate = os.path.join(share_dir, 'models', default_model_filename)
+            self.get_logger().info(
+                f'{parameter_name} not provided; trying default model path: {candidate}')
+
+        if not os.path.exists(candidate):
+            self.get_logger().error(
+                f'Model file does not exist: {candidate}. '
+                f'Set "{parameter_name}" or place model under '
+                f'<install-prefix>/share/hri_pkg/models/.')
+            return None
+        if not os.path.isfile(candidate):
+            self.get_logger().error(f'Model path is not a regular file: {candidate}')
+            return None
+        if not os.access(candidate, os.R_OK):
+            self.get_logger().error(f'Model file is not readable (permission error): {candidate}')
+            return None
+        return candidate
 
     # Callbacks
     def _trigger_callback(self, msg: Bool):

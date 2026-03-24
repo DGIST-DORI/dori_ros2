@@ -18,6 +18,8 @@ setup(
             'config/landmark_db.json',
             'config/data.yaml',
         ]),
+        (os.path.join('share', package_name, 'models'),
+            glob('models/*.task')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

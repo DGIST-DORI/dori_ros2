@@ -24,6 +24,8 @@ def generate_launch_description():
         DeclareLaunchArgument('person_model',      default_value='yolov8n.pt'),
         DeclareLaunchArgument('landmark_model',    default_value='yolov8n.pt'),
         DeclareLaunchArgument('landmark_db',       default_value='landmark_db.json'),
+        DeclareLaunchArgument('hand_model_path',   default_value=''),
+        DeclareLaunchArgument('face_model_path',   default_value=''),
         DeclareLaunchArgument('device',            default_value='cuda'),
         DeclareLaunchArgument('visualize',         default_value='true'),
         DeclareLaunchArgument('enable_landmark',   default_value='true'),
@@ -78,14 +80,22 @@ def generate_launch_description():
     gesture_recognition_node = Node(
         package='hri_pkg', executable='gesture_recognition_node',
         name='gesture_recognition_node', output='screen',
-        parameters=[{'visualize': visualize, 'active_only_on_trigger': True}],
+        parameters=[{
+            'visualize': visualize,
+            'active_only_on_trigger': True,
+            'hand_model_path': LaunchConfiguration('hand_model_path'),
+        }],
         condition=IfCondition(LaunchConfiguration('enable_gesture')),
     )
 
     facial_expression_node = Node(
         package='hri_pkg', executable='facial_expression_node',
         name='facial_expression_node', output='screen',
-        parameters=[{'visualize': visualize, 'active_only_on_trigger': True}],
+        parameters=[{
+            'visualize': visualize,
+            'active_only_on_trigger': True,
+            'face_model_path': LaunchConfiguration('face_model_path'),
+        }],
         condition=IfCondition(LaunchConfiguration('enable_expression')),
     )
 
