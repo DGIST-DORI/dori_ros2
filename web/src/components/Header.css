@@ -6,30 +6,53 @@
   border-bottom: 1px solid var(--border);
   padding: 0 16px;
   gap: 12px;
-  /* no left border — sidebar handles the divider on its right edge */
 }
+
+/* ── Logo button ─────────────────────────────────────────────────────────── */
 
 .hdr-logo {
   display: flex;
-  align-items: baseline;
-  gap: 6px;
+  align-items: center;
   flex-shrink: 0;
   background: transparent;
+  border: none;
+  outline: none;
   padding: 4px 8px;
   border-radius: var(--radius);
-  transition: background 0.12s;
   cursor: pointer;
+  /* Fade + slide in sync with the sidebar transition (0.22s matches App.css) */
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    opacity    0.22s cubic-bezier(0.4, 0, 0.2, 1),
+    transform  0.22s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.12s;
+  /* Reserve space even when hidden so the conn row doesn't jump */
+  overflow: hidden;
 }
 .hdr-logo:hover { background: var(--bg-2); }
-.hdr-logo-dori { font-size: 15px; font-weight: 600; color: var(--accent); letter-spacing: 2px; }
-.hdr-logo-sep  { color: var(--text-2); font-size: 13px; }
-.hdr-logo-sub  { color: var(--text-1); font-size: 11px; letter-spacing: 1px; }
+
+/* Sidebar open — logo slides left and fades out */
+.hdr-logo--hidden {
+  opacity: 0;
+  transform: translateX(-8px);
+  pointer-events: none;
+}
+
+/* SVG text logo — height only, width auto to preserve aspect ratio */
+.hdr-logo-svg {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+
+/* ── Spacer + connection row ─────────────────────────────────────────────── */
 
 .hdr-spacer { flex: 1; }
 
 .hdr-conn { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-.hdr-theme-wrap { display: flex; align-items: center; gap: 6px; }
+.hdr-theme-wrap  { display: flex; align-items: center; gap: 6px; }
 .hdr-theme-label { color: var(--text-2); font-size: 10px; letter-spacing: 0.3px; }
 
 .hdr-theme {
@@ -69,71 +92,27 @@
   white-space: nowrap;
   transition: background 0.12s, border-color 0.12s, color 0.12s;
 }
-.hdr-btn:hover       { border-color: var(--border-bright); color: var(--text-0); }
-.hdr-btn.connected   { border-color: var(--green);  color: var(--green);  background: var(--green-dim); }
-.hdr-btn.demo:hover  { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-dim); }
-.hdr-btn.demo.active { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-dim); }
+.hdr-btn:hover          { border-color: var(--border-bright); color: var(--text-0); }
+.hdr-btn.connected      { border-color: var(--green);  color: var(--green);  background: var(--green-dim); }
+.hdr-btn.demo:hover     { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-dim); }
+.hdr-btn.demo.active    { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-dim); }
 
+/* ── Responsive ──────────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
-  .hdr {
-    padding: 0 10px;
-    gap: 8px;
-  }
-
-  .hdr-logo {
-    padding: 4px 6px;
-  }
-
-  .hdr-logo-dori {
-    font-size: 13px;
-    letter-spacing: 1px;
-  }
-
-  .hdr-logo-sub,
-  .hdr-logo-sep {
-    display: none;
-  }
-
-  .hdr-conn {
-    gap: 6px;
-    min-width: 0;
-  }
-
-  .hdr-theme-label {
-    display: none;
-  }
-
-  .hdr-theme {
-    min-width: 72px;
-    padding: 4px 6px;
-  }
-
-  .hdr-url {
-    width: min(34vw, 140px);
-    min-width: 0;
-  }
-
-  .hdr-btn {
-    padding: 4px 8px;
-  }
+  .hdr { padding: 0 10px; gap: 8px; }
+  .hdr-logo { padding: 4px 6px; }
+  .hdr-logo-svg { height: 18px; }
+  .hdr-conn { gap: 6px; min-width: 0; }
+  .hdr-theme-label { display: none; }
+  .hdr-theme { min-width: 72px; padding: 4px 6px; }
+  .hdr-url { width: min(34vw, 140px); min-width: 0; }
+  .hdr-btn { padding: 4px 8px; }
 }
 
 @media (max-width: 640px) {
-  .hdr {
-    padding: 0 8px;
-  }
-
-  .hdr-theme-wrap {
-    display: none;
-  }
-
-  .hdr-url {
-    width: min(40vw, 120px);
-  }
-
-  .hdr-btn {
-    font-size: 9px;
-    padding: 4px 6px;
-  }
+  .hdr { padding: 0 8px; }
+  .hdr-theme-wrap { display: none; }
+  .hdr-url { width: min(40vw, 120px); }
+  .hdr-btn { font-size: 9px; padding: 4px 6px; }
 }

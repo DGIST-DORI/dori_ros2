@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="dori-logo-gradient" x1="67.24" y1="249.4" x2="933.41" y2="749.48" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d8e7f7"/>
+      <stop offset=".06" stop-color="#cee3f5"/>
+      <stop offset=".16" stop-color="#b5d8f0"/>
+      <stop offset=".29" stop-color="#8bc7e9"/>
+      <stop offset=".44" stop-color="#52afdf"/>
+      <stop offset=".57" stop-color="#1f9ad7"/>
+      <stop offset=".87" stop-color="#006cba"/>
+      <stop offset=".99" stop-color="#00599b"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#dori-logo-gradient)" d="M220,914.3C87.25,824.4,0,672.39,0,500S87.8,174.64,221.26,84.86M500,0c-40.96,0-80.77,4.93-118.88,14.22v971.56c38.1,9.29,77.91,14.22,118.88,14.22,276.14,0,500-223.86,500-500S776.14,0,500,0Z"/>
+</svg>

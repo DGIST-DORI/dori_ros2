@@ -20,31 +20,66 @@
   overflow: visible;
 }
 
+/* Collapsed: top cell은 48px 고정 너비로 아이콘을 중앙에 고정 */
+.sidebar.collapsed .sb-top {
+  width: 48px;
+  justify-content: center;
+}
+
 .sb-open {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
   height: 100%;
   background: transparent;
   color: var(--text-1);
   font-size: 16px;
   overflow: visible;
+  border: none;
+  padding: 0;
+  appearance: none;
   transition: background 0.12s, color 0.12s;
 }
 .sb-open:hover { background: var(--bg-2); color: var(--text-0); }
 
+.sb-logo-anchor {
+  width: 48px;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Icon-only logo (collapsed state) */
+.sb-icon-svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.sb-icon-svg.is-expanded-logo,
+.sb-icon-svg.is-collapsed-logo {
+  filter: none;
+  opacity: 1;
+}
+
+/* Expanded: full logo (icon + text) + close button */
 .sb-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-left: 14px;
   flex: 1;
-  animation: sb-fade-in 0.18s ease;
+  min-width: 0;
 }
-.sb-logo-mark { font-size: 16px; color: var(--accent); opacity: 0.8; }
-.sb-logo-text { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 2px; }
+
+.sb-logo-text-svg {
+  height: 24px;
+  width: auto;
+  display: block;
+  max-width: 100%;
+  margin-left: 0px;
+}
 
 .sb-close {
   display: flex;
@@ -60,7 +95,6 @@
   transition: background 0.12s, color 0.12s;
 }
 .sb-close:hover { background: var(--red-dim); color: var(--red); }
-.sb-open svg  { width: 18px; height: 18px; }
 .sb-close svg { width: 13px; height: 13px; }
 
 /* ── Search bar ── */
@@ -71,6 +105,12 @@
   align-items: center;
   border-bottom: 1px solid var(--border);
   overflow: hidden;
+}
+
+/* Collapsed: search cell도 48px 고정 너비로 아이콘을 중앙에 고정 */
+.sidebar.collapsed .sb-search-cell {
+  width: 48px;
+  overflow: visible;
 }
 
 /* Collapsed: icon button fills the cell */
@@ -428,7 +468,9 @@
   border-right-color: var(--bg-3);
 }
 
+/* 툴팁 표시: 접힌 상태에서 모든 인터랙티브 요소에 hover 시 표시 */
 .sidebar.collapsed .sb-open:hover .sb-tooltip,
+.sidebar.collapsed .sb-search-btn:hover .sb-tooltip,
 .sidebar.collapsed .sb-cat-header:hover .sb-tooltip,
 .sidebar.collapsed .sb-leaf:hover .sb-tooltip,
 .sidebar.collapsed .sb-status:hover .sb-tooltip {

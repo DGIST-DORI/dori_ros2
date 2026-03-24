@@ -9,7 +9,7 @@ import { PANEL_TREE, findLeaf } from './panelTree';
 import './index.css';
 import './App.css';
 
-const MOBILE_BP = 768; // px
+const MOBILE_BP = 768;
 
 export default function App() {
   const [sidebarExpanded,  setSidebarExpanded]  = useState(false);
@@ -79,6 +79,7 @@ export default function App() {
     <div className={`app ${sidebarExpanded ? 'sb-expanded' : ''} ${isOverlaySidebar ? 'sb-overlay' : ''}`}>
       <div className="app-sidebar">
         <Sidebar
+          themeMode={themeMode}
           expanded={sidebarExpanded}
           onExpand={() => setSidebarExpanded(true)}
           onCollapse={() => setSidebarExpanded(false)}
@@ -100,13 +101,13 @@ export default function App() {
         <Header
           themeMode={themeMode}
           onThemeModeChange={setThemeMode}
+          sidebarExpanded={sidebarExpanded}
         />
       </div>
 
       <main className="app-main">
         <FloatingWorkspace isMobile={isMobile} />
       </main>
-
     </div>
   );
 }

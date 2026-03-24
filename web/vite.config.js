@@ -6,7 +6,21 @@ import svgr from 'vite-plugin-svgr'
 export default defineConfig({
   plugins: [
     react(),
-    svgr(),
+    svgr({
+      svgrOptions: {
+        svgoConfig: {
+          plugins: [
+            {
+              name: 'prefixIds',
+              params: {
+                prefix: 'dori',
+                delim: '-',
+              },
+            },
+          ],
+        },
+      },
+    }),
     {
       name: 'strip-roslib-cdn',
       transform(code, id) {

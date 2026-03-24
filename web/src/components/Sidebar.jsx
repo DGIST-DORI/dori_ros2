@@ -1,24 +1,17 @@
-/**
- * components/Sidebar.jsx — Tree-structured panel navigator
- *
- * Collapsed: icon-only rail (48px), tooltip on hover
- * Expanded:  search bar + 2-level collapsible tree
- *
- * Tree depth: category → subcategory → leaf (max 2 visible levels)
- * Subcategories with label=null are rendered flat (no header row).
- */
-
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../core/store';
 import { filterTree } from '../panelTree';
-import SidebarIcon  from '../assets/icons/icon-sidebar.svg?react';
+import DoriLogoIconMono from '../assets/logo/logo-icon-mono.svg?react';
+import DoriLogoIconColor from '../assets/logo/logo-icon-color.svg?react';
+import DoriLogoText from '../assets/logo/logo-text.svg?react';
+import DoriLogoTextDark from '../assets/logo/logo-text-dark.svg?react';
+// import SidebarIcon  from '../assets/icons/icon-sidebar.svg?react';
 import CloseIcon    from '../assets/icons/icon-close.svg?react';
 import SearchIcon   from '../assets/icons/icon-search.svg?react';
 import './Sidebar.css';
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-/** Single leaf row — brief click flash only, no persistent highlight */
 function LeafItem({ node, onSelect, expanded }) {
   const [flashing, setFlashing] = useState(false);
 
@@ -47,14 +40,11 @@ function LeafItem({ node, onSelect, expanded }) {
   );
 }
 
-/** Subcategory block (label may be null → flat) */
 function SubcategoryBlock({ node, onSelect, expanded, searchActive }) {
-  const [open, setOpen] = useState(false);  // default: closed
-
+  const [open, setOpen] = useState(false);
   const isOpen = searchActive ? true : open;
 
   if (!node.label) {
-    // Flat — render leaves directly without a header
     return (
       <div className="sb-flat-group">
         {node.children.map(leaf => (
@@ -84,20 +74,13 @@ function SubcategoryBlock({ node, onSelect, expanded, searchActive }) {
   );
 }
 
-/** Top-level category block */
 function CategoryBlock({ node, onSelect, expanded, searchActive, onExpandSidebar }) {
-  const [open, setOpen] = useState(false);  // default: closed
-
+  const [open, setOpen] = useState(false);
   const isOpen = searchActive ? true : open;
 
   function handleHeaderClick() {
-    if (!expanded) {
-      // Collapsed: expand sidebar first, then open this category
-      onExpandSidebar();
-      setOpen(true);
-    } else if (!searchActive) {
-      setOpen(o => !o);
-    }
+    if (!expanded) { onExpandSidebar(); setOpen(true); }
+    else if (!searchActive) setOpen(o => !o);
   }
 
   return (
@@ -138,30 +121,34 @@ function CategoryBlock({ node, onSelect, expanded, searchActive, onExpandSidebar
 
 // ── Main Sidebar ──────────────────────────────────────────────────────────────
 
-export default function Sidebar({
-  expanded,
-  onExpand,
-  onCollapse,
-  activeId,
-  onSelect,
-  tree,
-}) {
-  const connected   = useStore(s => s.connected);
-  const isDemoMode  = useStore(s => s.isDemoMode);
+export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, activeId, onSelect, tree }) {
+  const connected  = useStore(s => s.connected);
+  const isDemoMode = useStore(s => s.isDemoMode);
+
   const statusLabel = connected ? 'LIVE' : isDemoMode ? 'DEMO' : 'OFF';
   const statusClass = connected ? 'connected' : isDemoMode ? 'demo' : '';
 
-  const [query, setQuery] = useState('');
-  const searchActive   = query.trim().length > 0;
-  const searchInputRef = useRef(null);
-  const [pendingFocus, setPendingFocus] = useState(false);
-
-  const visibleTree = useMemo(
-    () => filterTree(tree, query),
-    [tree, query],
+  // Resolve dark/light for logo variant
+  const [autoIsDark, setAutoIsDark] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
   );
 
-  // expanded로 전환된 직후 검색창에 포커스 (검색 아이콘 클릭 시)
+  useEffect(() => {
+    if (themeMode !== 'auto') return;
+
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const apply = e => setAutoIsDark(e.matches);
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, [themeMode]);
+
+  const [query,        setQuery]        = useState('');
+  const [pendingFocus, setPendingFocus] = useState(false);
+  const searchInputRef = useRef(null);
+  const searchActive   = query.trim().length > 0;
+
+  const visibleTree = useMemo(() => filterTree(tree, query), [tree, query]);
+
   useEffect(() => {
     if (expanded && pendingFocus) {
       searchInputRef.current?.focus();
@@ -169,18 +156,23 @@ export default function Sidebar({
     }
   }, [expanded, pendingFocus]);
 
+  const isDark = themeMode === 'dark' || (themeMode === 'auto' && autoIsDark);
+  const LogoText = isDark ? DoriLogoTextDark : DoriLogoText;
+
   return (
     <aside
       className={`sidebar ${expanded ? 'expanded' : 'collapsed'}`}
       onClick={() => !expanded && onExpand()}
     >
-      {/* ── Top: logo / toggle ── */}
+      {/* ── Top cell ── */}
       <div className="sb-top">
         {expanded ? (
           <>
             <div className="sb-logo">
-              <span className="sb-logo-mark">◎</span>
-              <span className="sb-logo-text">DORI</span>
+              <div className="sb-logo-anchor">
+                <DoriLogoIconColor className="sb-icon-svg is-expanded-logo" aria-hidden="true" />
+              </div>
+              <LogoText className="sb-logo-text-svg" aria-label="DORI" />
             </div>
             <button
               className="sb-close"
@@ -194,8 +186,11 @@ export default function Sidebar({
           <button
             className="sb-open"
             onClick={e => { e.stopPropagation(); onExpand(); }}
+            aria-label="Open sidebar"
           >
-            <SidebarIcon />
+            <div className="sb-logo-anchor">
+              <DoriLogoIconMono className="sb-icon-svg is-collapsed-logo" />
+            </div>
             <span className="sb-tooltip">Open sidebar</span>
           </button>
         )}
@@ -222,7 +217,7 @@ export default function Sidebar({
           <button
             className="sb-search-btn"
             onClick={() => { onExpand(); setPendingFocus(true); }}
-            title="Search panels"
+            // title="Search panels"
           >
             <SearchIcon className="sb-search-btn-icon" />
             <span className="sb-tooltip">Search panels</span>
@@ -240,7 +235,7 @@ export default function Sidebar({
             key={category.id}
             node={category}
             activeId={activeId}
-            onSelect={id => { onSelect(id); }}
+            onSelect={id => onSelect(id)}
             expanded={expanded}
             searchActive={searchActive}
             onExpandSidebar={onExpand}
