@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import './CampusCrawlerPanel.css';
 
 const API = '/api/knowledge';
+const MAX_LOG_LINES = 1000;
+const JOB_STORAGE_KEY = 'km.campusCrawler.activeJobId';
+const POLL_INTERVAL_MS = 1000;
+const MAX_NETWORK_RETRIES = 3;
+const RETRY_BACKOFF_MS = 1200;
 
 function StatusBadge({ status }) {
   const map = {
@@ -38,15 +43,25 @@ function CampusCrawlerPanel() {
   const [summary, setSummary] = useState(null);
   const pollRef = useRef(null);
   const linesSeenRef = useRef(0);
+  const retryRef = useRef(0);
 
   function appendLog(msg) {
-    setLog((prev) => [...prev, `${new Date().toLocaleTimeString()}  ${msg}`]);
+    setLog((prev) => {
+      const next = [...prev, `${new Date().toLocaleTimeString()}  ${msg}`];
+      return next.length > MAX_LOG_LINES ? next.slice(next.length - MAX_LOG_LINES) : next;
+    });
   }
 
   function resetPolling() {
-    clearInterval(pollRef.current);
+    clearTimeout(pollRef.current);
     pollRef.current = null;
     linesSeenRef.current = 0;
+    retryRef.current = 0;
+  }
+
+  function setActiveJobId(jobId) {
+    if (jobId) localStorage.setItem(JOB_STORAGE_KEY, jobId);
+    else localStorage.removeItem(JOB_STORAGE_KEY);
   }
 
   function summarize(lines, finalStatus, errorMessage = '') {
@@ -60,6 +75,63 @@ function CampusCrawlerPanel() {
       fallbackCount,
       errorMessage,
     };
+  }
+
+  function setErrorSummary(message) {
+    setSummary({
+      finalStatus: 'error',
+      processedCount: 0,
+      fallbackUsed: false,
+      fallbackCount: 0,
+      errorMessage: message,
+    });
+  }
+
+  function finishJob(nextStatus, lines = [], errorMessage = '') {
+    resetPolling();
+    setActiveJobId(null);
+    setStatus(nextStatus);
+    setSummary(summarize(lines, nextStatus, errorMessage));
+  }
+
+  function schedulePoll(jobId, delayMs = POLL_INTERVAL_MS) {
+    pollRef.current = setTimeout(() => pollJobStatus(jobId), delayMs);
+  }
+
+  async function pollJobStatus(jobId) {
+    try {
+      const res = await fetch(`${API}/crawl-campus/status/${jobId}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail ?? res.statusText);
+
+      retryRef.current = 0;
+      const lines = data.new_lines ?? [];
+      const newLines = lines.slice(linesSeenRef.current);
+      linesSeenRef.current = lines.length;
+      newLines.forEach((line) => appendLog(line));
+
+      if (data.status === 'done') {
+        appendLog('[OK] Campus crawl completed.');
+        finishJob('ok', lines);
+      } else if (data.status === 'error') {
+        appendLog(`[ERR] Crawl failed: ${data.error}`);
+        finishJob('error', lines, data.error);
+      } else {
+        setStatus('running');
+        schedulePoll(jobId);
+      }
+    } catch (e) {
+      retryRef.current += 1;
+      if (retryRef.current <= MAX_NETWORK_RETRIES) {
+        appendLog(`[WARN] Status request failed (retry ${retryRef.current}/${MAX_NETWORK_RETRIES}): ${e.message}`);
+        schedulePoll(jobId, RETRY_BACKOFF_MS * retryRef.current);
+      } else {
+        appendLog(`ERROR: ${e.message}`);
+        resetPolling();
+        setStatus('error');
+        setErrorSummary(e.message);
+      }
+    }
   }
 
   async function handleRun() {
@@ -87,56 +159,27 @@ function CampusCrawlerPanel() {
       if (!res.ok) throw new Error(data.detail ?? res.statusText);
 
       const jobId = data.job_id;
+      setActiveJobId(jobId);
       appendLog(`Job started: ${jobId}`);
-
-      pollRef.current = setInterval(async () => {
-        try {
-          const r = await fetch(`${API}/crawl-campus/status/${jobId}`);
-          const d = await r.json();
-          if (!r.ok) throw new Error(d.detail ?? r.statusText);
-
-          const newLines = d.new_lines?.slice(linesSeenRef.current) ?? [];
-          linesSeenRef.current += newLines.length;
-          newLines.forEach((line) => appendLog(line));
-
-          if (d.status === 'done') {
-            resetPolling();
-            setStatus('ok');
-            appendLog('[OK] Campus crawl completed.');
-            setSummary(summarize(d.new_lines ?? [], 'ok'));
-          } else if (d.status === 'error') {
-            resetPolling();
-            setStatus('error');
-            appendLog(`[ERR] Crawl failed: ${d.error}`);
-            setSummary(summarize(d.new_lines ?? [], 'error', d.error));
-          }
-        } catch (e) {
-          resetPolling();
-          setStatus('error');
-          appendLog(`ERROR: ${e.message}`);
-          setSummary({
-            finalStatus: 'error',
-            processedCount: 0,
-            fallbackUsed: false,
-            fallbackCount: 0,
-            errorMessage: e.message,
-          });
-        }
-      }, 1000);
+      schedulePoll(jobId, 0);
     } catch (e) {
       appendLog(`ERROR: ${e.message}`);
       setStatus('error');
-      setSummary({
-        finalStatus: 'error',
-        processedCount: 0,
-        fallbackUsed: false,
-        fallbackCount: 0,
-        errorMessage: e.message,
-      });
+      setErrorSummary(e.message);
     }
   }
 
-  useEffect(() => () => resetPolling(), []);
+  useEffect(() => {
+    const activeJobId = localStorage.getItem(JOB_STORAGE_KEY);
+    if (activeJobId) {
+      setStatus('running');
+      setSummary(null);
+      setLog((prev) => [...prev, `${new Date().toLocaleTimeString()}  Resuming job: ${activeJobId}`]);
+      setActiveJobId(activeJobId);
+      schedulePoll(activeJobId, 0);
+    }
+    return () => resetPolling();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="layout-panel-body km-campus-crawler-panel">
@@ -192,8 +235,9 @@ function CampusCrawlerPanel() {
             className="btn btn-sm btn-primary"
             disabled={status === 'running'}
             onClick={handleRun}
+            aria-busy={status === 'running'}
           >
-            {status === 'running' ? 'Crawling…' : 'Run Campus Crawl'}
+            {status === 'running' ? 'RUNNING…' : 'Run Campus Crawl'}
           </button>
           <StatusBadge status={status} />
         </div>
