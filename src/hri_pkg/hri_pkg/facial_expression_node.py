@@ -32,6 +32,12 @@ from std_msgs.msg import Bool, String
 
 try:
     import mediapipe as mp
+    from mediapipe.tasks.python import BaseOptions
+    from mediapipe.tasks.python.vision import (
+        FaceLandmarker,
+        FaceLandmarkerOptions,
+        RunningMode,
+    )
     MP_AVAILABLE = True
 except ImportError:
     MP_AVAILABLE = False
@@ -74,6 +80,7 @@ class FacialExpressionNode(Node):
         super().__init__('facial_expression_node')
 
         # Parameters
+        self.declare_parameter('face_model_path', '')
         self.declare_parameter('min_detection_confidence', 0.5)
         self.declare_parameter('min_tracking_confidence', 0.5)
         self.declare_parameter('visualize', True)
@@ -100,17 +107,28 @@ class FacialExpressionNode(Node):
             self.get_logger().error('mediapipe not installed: pip install mediapipe')
             return
 
-        # MediaPipe Face Mesh initialization
-        self.mp_face_mesh = mp.solutions.face_mesh
+        # MediaPipe Face Landmarker initialization (Tasks API)
         self.mp_drawing   = mp.solutions.drawing_utils
         self.mp_styles    = mp.solutions.drawing_styles
-        self.face_mesh = self.mp_face_mesh.FaceMesh(
-            static_image_mode=False,
-            max_num_faces=1,
-            refine_landmarks=False,
-            min_detection_confidence=det_conf,
+        self.mp_face_mesh_connections = mp.solutions.face_mesh
+        self.face_mesh = None
+        face_model_path = self.get_parameter('face_model_path').value
+        if not face_model_path:
+            self.get_logger().error(
+                'face_model_path is empty. Set a valid MediaPipe .task model path.')
+            return
+
+        face_options = FaceLandmarkerOptions(
+            base_options=BaseOptions(model_asset_path=face_model_path),
+            running_mode=RunningMode.VIDEO,
+            num_faces=1,
+            min_face_detection_confidence=det_conf,
+            min_face_presence_confidence=det_conf,
             min_tracking_confidence=trk_conf,
+            output_face_blendshapes=False,
+            output_facial_transformation_matrixes=False,
         )
+        self.face_mesh = FaceLandmarker.create_from_options(face_options)
 
         # State
         self.is_active = not self.active_on_trigger
@@ -160,16 +178,20 @@ class FacialExpressionNode(Node):
 
         h, w = cv_image.shape[:2]
         rgb = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
-        results = self.face_mesh.process(rgb)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+        timestamp_ms = int(msg.header.stamp.sec * 1000 + msg.header.stamp.nanosec / 1_000_000)
+        if timestamp_ms <= 0:
+            timestamp_ms = int(time.monotonic() * 1000)
+        results = self.face_mesh.detect_for_video(mp_image, timestamp_ms)
 
-        if not results.multi_face_landmarks:
+        if not results.face_landmarks:
             self._expr_history.append(Expression.NEUTRAL)
             self._publish_expression(Expression.NEUTRAL, {}, msg)
             if self.visualize:
                 self._publish_annotated(cv_image, None, Expression.NEUTRAL, {}, msg)
             return
 
-        face_lm = results.multi_face_landmarks[0].landmark
+        face_lm = results.face_landmarks[0]
         metrics = self._extract_metrics(face_lm, w, h)
         expression = self._classify(metrics)
 
@@ -192,7 +214,7 @@ class FacialExpressionNode(Node):
 
         if self.visualize:
             self._publish_annotated(
-                cv_image, results.multi_face_landmarks[0], confirmed, metrics, msg)
+                cv_image, results.face_landmarks[0], confirmed, metrics, msg)
 
     def _extract_metrics(self, lm, w: int, h: int) -> dict:
         nose_y = lm[NOSE_TIP].y
@@ -301,7 +323,7 @@ class FacialExpressionNode(Node):
             self.mp_drawing.draw_landmarks(
                 annotated,
                 face_landmarks,
-                self.mp_face_mesh.FACEMESH_CONTOURS,
+                self.mp_face_mesh_connections.FACEMESH_CONTOURS,
                 landmark_drawing_spec=None,
                 connection_drawing_spec=self.mp_styles.get_default_face_mesh_contours_style(),
             )
@@ -333,7 +355,8 @@ class FacialExpressionNode(Node):
         self.annotated_pub.publish(ann_msg)
 
     def destroy_node(self):
-        self.face_mesh.close()
+        if self.face_mesh is not None:
+            self.face_mesh.close()
         super().destroy_node()
 
 
