@@ -1,7 +1,7 @@
 <br>
 <p align="center">
   <img
-    src="https://raw.githubusercontent.com/DGIST-DORI/dori/master/assets/icon/dori_text.svg"
+    src="https://raw.githubusercontent.com/DGIST-DORI/dori/master/web/src/assets/logo/logo-full.svg"
     alt="dori logo"
     width="300">
 </p>
