@@ -22,19 +22,7 @@ web/src/styles/
   components.css  ← reusable UI: buttons, badges, inputs, log panes, etc.
 ```
 
-`index.css` globally imports all three, so each panel CSS only needs to import what it uses.
-
-```css
-/* Panel that only needs layout */
-@import "../../styles/layout.css";
-
-/* Panel that only needs components (buttons, badges, etc.) */
-@import "../../styles/components.css";
-
-/* Panel that needs both */
-@import "../../styles/layout.css";
-@import "../../styles/components.css";
-```
+`index.css` globally imports all three.
 
 ---
 
@@ -298,8 +286,8 @@ Standard heights in use:
 
 | Context | Height |
 |---|---|
-| Header (`hdr-logo-svg`) | 24px |
-| Sidebar expanded (`sb-logo-svg`) | 22px |
+| Header (`hdr-logo-svg`) | 18px |
+| Sidebar expanded (`sb-icon-svg`, `sb-logo-text-svg`) | 24px, 18px |
 | Sidebar collapsed (`sb-icon-svg`) | 24px (square icon) |
 
 #### Do not modify the logo SVG source
@@ -308,27 +296,3 @@ Standard heights in use:
 - Do not add CSS filters (`brightness`, `invert`, etc.) to the logo element.
 - Do not scale the logo below 16px height — the mark becomes illegible.
 - The gradient in the icon mark is fixed and intentional; do not override it with `currentColor`.
-
-#### Generating favicon.ico (when needed)
-
-SVG favicons are supported in all modern browsers. A `.ico` fallback is only needed for
-legacy environments. Generate it from `favicon.svg`:
-
-```bash
-# Using Inkscape (recommended)
-inkscape favicon.svg --export-filename=favicon-32.png --export-width=32
-inkscape favicon.svg --export-filename=favicon-16.png --export-width=16
-convert favicon-16.png favicon-32.png favicon.ico
-
-# Using ImageMagick only (lower quality SVG rendering)
-convert -background none -resize 32x32 favicon.svg favicon-32.png
-convert favicon-16.png favicon-32.png favicon.ico
-```
-
-Place the resulting `favicon.ico` in `web/public/logo/` and add a second `<link>` tag
-in `index.html`:
-
-```html
-<link rel="icon" type="image/svg+xml" href="/logo/favicon.svg" />
-<link rel="icon" type="image/x-icon"  href="/logo/favicon.ico" />
-```

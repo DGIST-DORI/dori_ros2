@@ -17,7 +17,7 @@
     "E1": {
       "bldg_no": "E1",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "대학본부",
       "name_en": "Main Administration",
       "description_ko": "",
       "description_en": "",
@@ -31,7 +31,7 @@
     "E2": {
       "bldg_no": "E2",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "신물질과학관",
       "name_en": "Emerging Materials Science",
       "description_ko": "",
       "description_en": "",
@@ -45,7 +45,7 @@
     "E3": {
       "bldg_no": "E3",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "정보통신융합공학관",
       "name_en": "Information & Communication Engineering",
       "description_ko": "",
       "description_en": "",
@@ -59,7 +59,7 @@
     "E4": {
       "bldg_no": "E4",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "뇌과학관",
       "name_en": "Brain Science",
       "description_ko": "",
       "description_en": "",
@@ -73,7 +73,7 @@
     "E5": {
       "bldg_no": "E5",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "로봇공학관",
       "name_en": "Robotics Engineering",
       "description_ko": "",
       "description_en": "",
@@ -87,7 +87,7 @@
     "E6": {
       "bldg_no": "E6",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "에너지시스템공학관",
       "name_en": "Energy System Engineering",
       "description_ko": "",
       "description_en": "",
@@ -101,7 +101,7 @@
     "E7": {
       "bldg_no": "E7",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "컨실리언스홀",
       "name_en": "Consilience Hall",
       "description_ko": "",
       "description_en": "",
@@ -129,7 +129,7 @@
     "E9": {
       "bldg_no": "E9",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "실험동물센터",
       "name_en": "",
       "description_ko": "",
       "description_en": "",
@@ -143,7 +143,7 @@
     "E10": {
       "bldg_no": "E10",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "중앙기기센터",
       "name_en": "",
       "description_ko": "",
       "description_en": "",
@@ -157,7 +157,7 @@
     "E14": {
       "bldg_no": "E14",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "온실",
       "name_en": "",
       "description_ko": "",
       "description_en": "",
@@ -171,7 +171,7 @@
     "E15": {
       "bldg_no": "E15",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "야외음악당",
       "name_en": "",
       "description_ko": "",
       "description_en": "",
@@ -185,7 +185,7 @@
     "E16": {
       "bldg_no": "E16",
       "class": "E",
-      "name_ko": "",
+      "name_ko": "비슬창의융합관",
       "name_en": "",
       "description_ko": "",
       "description_en": "",
@@ -195,27 +195,7 @@
       "hours": "00:00-00:00",
       "facilities": ["", ""],
       "url": ""
-    },
-    "학생식당": {
-      "name": "학생식당",
-      "name_en": "Student Cafeteria",
-      "description": "학생식당입니다. 조식 -시, 중식 11:30-13:30, 석식 17:30-19:00 운영합니다.",
-      "coordinates": [37.5100, 127.0100],
-      "floor": 1,
-      "keywords": ["식당", "밥", "식사", "cafeteria", "먹", "점심", "저녁"],
-      "hours": "조식 08:00-09:00, 중식 11:30-13:30, 석식 17:30-19:00",
-      "menu_url": "https://cafeteria.example.edu"
     }
-  },
-  "faqs": {
-    "운영시간": "저는 평일 오전 9시부터 오후 6시까지 캠퍼스 투어를 제공합니다.",
-    "기능": "캠퍼스 안내, 길 찾기, 건물 정보 제공, 주요 시설 소개 등을 할 수 있습니다.",
-    "와이파이": "캠퍼스 전역에서 'DGIST-Guest' 네트워크를 사용하실 수 있습니다.",
-    "주차": "방문자 주차장은 ?에 있으며, 시간당 ?원입니다."
-  },
-  "events": {
-    "축제": "매년 월과 월에 대학 축제가 열립니다.",
-    "입학식": "입학식은 매년 2월 말에 대강당에서 열립니다."
   }
 }
 
