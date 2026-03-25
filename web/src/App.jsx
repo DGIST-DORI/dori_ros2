@@ -80,7 +80,7 @@ export default function App() {
   }
 
   function handleSettingsOpen() {
-    setActiveMainView('settings');
+    setActiveMainView(activeMainView === 'settings' ? 'workspace' : 'settings');
     if (isOverlaySidebar) setSidebarExpanded(false);
   }
 
