@@ -128,6 +128,12 @@ source install/setup.bash
 ### Full Robot (without Dashboard)
 
 ```bash
+ros2 launch bringup robot.launch.py
+```
+
+or
+
+```bash
 ros2 launch bringup robot_dev.launch.py enable_dashboard:=false
 ```
 
@@ -149,12 +155,6 @@ ros2 launch bringup robot_dev.launch.py
 # Equivalent explicit form
 ros2 launch bringup robot_dev.launch.py enable_dashboard:=true
 ```
-
-### Dashboard only (standalone)
-
-```bash
-ros2 launch dashboard_pkg dashboard.launch.py
-```
  
 Dashboard access:
  
@@ -165,6 +165,10 @@ http://localhost:3000
 # Remote (another device on the same network)
 http://[Robot IP]:3000
 ```
+
+or
+
+[Cloudflare Server](https://dash.dgist-dori.xyz)
 
 ---
 
