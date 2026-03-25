@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { LOG_TAGS, useStore } from '../../core/store';
 import { publishROS } from '../../core/ros';
+import { useI18n } from '../../core/i18n';
 import './VisionPanel.css';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -39,6 +40,7 @@ function SectionLabel({ children }) {
 // ── Vision Test Panel ─────────────────────────────────────────────────────────
 
 function VisionPanel() {
+  const { t } = useI18n();
   const connected   = useStore(s => s.connected);
   const isDemoMode  = useStore(s => s.isDemoMode);
   const addLog      = useStore(s => s.addLog);
@@ -187,8 +189,7 @@ function VisionPanel() {
       </div>
 
       <p className="hint-text">
-        프레임은 <code>sensor_msgs/msg/CompressedImage</code>로 publish됩니다.
-        person_detection, gesture, expression 노드가 구독 중이라면 실시간 비전 테스트가 가능합니다.
+        {t('panel.vision.hint')}
       </p>
     </div>
   );

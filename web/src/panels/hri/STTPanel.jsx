@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 import { LOG_TAGS, useStore } from '../../core/store';
 import { publishROS } from '../../core/ros';
+import { useI18n } from '../../core/i18n';
 import './STTPanel.css';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -35,6 +36,7 @@ function SectionLabel({ children }) {
 // ── STT Panel ─────────────────────────────────────────────────────────────────
 
 function STTPanel() {
+  const { t } = useI18n();
   const connected  = useStore(s => s.connected);
   const isDemoMode = useStore(s => s.isDemoMode);
   const addLog     = useStore(s => s.addLog);
@@ -138,7 +140,7 @@ function STTPanel() {
       <textarea
         className="input-text"
         rows={2}
-        placeholder="테스트할 발화를 입력하세요 (예: 도서관 어디야)"
+        placeholder={t('panel.stt.placeholder')}
         value={text}
         onChange={e => setText(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleTextInject(); } }}
@@ -201,8 +203,7 @@ function STTPanel() {
       </div>
 
       <p className="hint-text">
-        녹음된 오디오는 <code>/dori/debug/audio_blob</code>으로 publish됩니다.
-        Jetson 측에서 이 토픽을 구독해 Whisper로 전달하면 실제 STT 테스트가 가능합니다.
+        {t('panel.stt.hint')}
       </p>
     </div>
   );
