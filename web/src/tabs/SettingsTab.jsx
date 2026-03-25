@@ -63,9 +63,9 @@ export default function SettingsTab({ themeMode, onThemeModeChange, onClose }) {
   ];
 
   const langOptions = [
-    { value: 'auto', label: t('settings.lang.auto') },
     { value: 'ko',   label: t('settings.lang.ko') },
     { value: 'en',   label: t('settings.lang.en') },
+    { value: 'auto', label: t('settings.lang.auto') },
   ];
 
   return (
