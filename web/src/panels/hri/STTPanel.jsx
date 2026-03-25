@@ -43,7 +43,7 @@ function STTPanel() {
   const canPublish = connected || isDemoMode;
 
   const [text,          setText]          = useState('');
-  const [lang,          setLang]          = useState('ko');
+  const [lang,          setLang]          = useState('auto');
   const [conf,          setConf]          = useState('0.95');
   const [lastResult,    setLastResult]    = useState(null);
 
