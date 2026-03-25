@@ -254,6 +254,21 @@ export function translateKey(key, effectiveLang) {
 }
 
 /**
+ * Get both Korean and English translations for a key.
+ * If key is missing in both languages, both fields return fallback text.
+ */
+export function translateKeyBoth(key, fallback = '') {
+  const en = translateKey(key, 'en');
+  const ko = translateKey(key, 'ko');
+  const hasAnyTranslation = en !== key || ko !== key;
+  if (!hasAnyTranslation) return { en: fallback, ko: fallback };
+  return {
+    en: en === key ? fallback : en,
+    ko: ko === key ? fallback : ko,
+  };
+}
+
+/**
  * React hook — returns a `t(key)` function that re-renders when language changes.
  */
 export function useI18n() {

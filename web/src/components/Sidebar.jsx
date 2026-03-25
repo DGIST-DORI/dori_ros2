@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../core/store';
-import { useI18n } from '../core/i18n';
+import { translateKeyBoth, useI18n } from '../core/i18n';
 import { filterTree } from '../panelTree';
 import DoriLogoIconMono  from '../assets/logo/logo-icon-mono.svg?react';
 import DoriLogoIconColor from '../assets/logo/logo-icon-color.svg?react';
@@ -178,16 +178,41 @@ export default function Sidebar({
   // Build a translated version of the tree for display
   // The tree nodes themselves carry their own labels; we remap them with i18n keys.
   const translatedTree = useMemo(() => {
+    function getNodeI18nKey(node) {
+      return (node.component || node.placeholder)
+        ? `panel.${node.id}`
+        : `sidebar.${node.id.replace(/-/g, '.')}`;
+    }
+
+    function buildSearchTexts(currentLabel, originalLabel, i18nKey) {
+      const { ko, en } = translateKeyBoth(i18nKey, originalLabel || currentLabel || '');
+      return [
+        currentLabel,
+        originalLabel,
+        ko,
+        en,
+      ].filter(Boolean);
+    }
+
     function translateNode(node) {
+      const i18nKey = getNodeI18nKey(node);
+      const originalLabel = node.label;
       if (node.component || node.placeholder) {
-        return { ...node, label: t(`panel.${node.id}`) || node.label, _soonLabel: t('sidebar.soon') };
+        const translatedLabel = t(i18nKey) || originalLabel;
+        return {
+          ...node,
+          label: translatedLabel,
+          _soonLabel: t('sidebar.soon'),
+          searchTexts: buildSearchTexts(translatedLabel, originalLabel, i18nKey),
+        };
       }
       // Category or subcategory — try specific i18n key, fall back to original label
-      const i18nKey = `sidebar.${node.id.replace(/-/g, '.')}`;
-      const translatedLabel = t(i18nKey) !== i18nKey ? t(i18nKey) : node.label;
+      const translatedByKey = t(i18nKey);
+      const translatedLabel = translatedByKey !== i18nKey ? translatedByKey : originalLabel;
       return {
         ...node,
         label: translatedLabel,
+        searchTexts: buildSearchTexts(translatedLabel, originalLabel, i18nKey),
         children: node.children ? node.children.map(translateNode) : undefined,
       };
     }
