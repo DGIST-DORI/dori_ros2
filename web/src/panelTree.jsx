@@ -34,6 +34,8 @@ const EventLogPanel = lazy(() => import('./panels/system/EventLogPanel'));
 const TopicPublisherPanel = lazy(() => import('./panels/system/TopicPublisherPanel'));
 const DeployStatusPanel = lazy(() => import('./panels/system/DeployStatusPanel'));
 
+const SettingsPanel = lazy(() => import('./panels/system/SettingsPanel'));
+
 import HriIcon        from './assets/icons/icon-hri.svg?react';
 import ControlIcon    from './assets/icons/icon-control.svg?react';
 import SystemIcon     from './assets/icons/icon-system.svg?react';
@@ -48,6 +50,7 @@ import MapIcon          from './assets/icons/icon-map.svg?react';
 import CubeIcon         from './assets/icons/icon-cube.svg?react';
 import VisionIcon       from './assets/icons/icon-vision.svg?react';
 import LLMIcon          from './assets/icons/icon-llm.svg?react';
+import SettingsIcon     from './assets/icons/icon-settings.svg?react';
 
 export const PANEL_TREE = [
   {
@@ -145,6 +148,17 @@ export const PANEL_TREE = [
           { id: 'event-log',      label: 'Event Log',         component: EventLogPanel },
           { id: 'sys-topic-publisher', label: 'Topic Publisher', component: TopicPublisherPanel },
           { id: 'sys-deploy', label: 'Deploy Status', component: DeployStatusPanel },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'settings-cat', label: 'Settings', icon: <SettingsIcon />,
+    children: [
+      {
+        id: 'settings-flat', label: null,
+        children: [
+          { id: 'settings', label: 'Settings', component: SettingsPanel },
         ],
       },
     ],

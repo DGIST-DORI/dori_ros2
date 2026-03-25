@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../core/store';
+import { useI18n } from '../core/i18n';
 import { filterTree } from '../panelTree';
-import DoriLogoIconMono from '../assets/logo/logo-icon-mono.svg?react';
+import DoriLogoIconMono  from '../assets/logo/logo-icon-mono.svg?react';
 import DoriLogoIconColor from '../assets/logo/logo-icon-color.svg?react';
-import DoriLogoText from '../assets/logo/logo-text.svg?react';
-import DoriLogoTextDark from '../assets/logo/logo-text-dark.svg?react';
-// import SidebarIcon  from '../assets/icons/icon-sidebar.svg?react';
-import CloseIcon    from '../assets/icons/icon-close.svg?react';
-import SearchIcon   from '../assets/icons/icon-search.svg?react';
+import DoriLogoText      from '../assets/logo/logo-text.svg?react';
+import DoriLogoTextDark  from '../assets/logo/logo-text-dark.svg?react';
+import CloseIcon         from '../assets/icons/icon-close.svg?react';
+import SearchIcon        from '../assets/icons/icon-search.svg?react';
+import SettingsIcon      from '../assets/icons/icon-settings.svg?react';
 import './Sidebar.css';
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -32,10 +33,10 @@ function LeafItem({ node, onSelect, expanded }) {
       {expanded && (
         <span className="sb-leaf-label">
           {node.label}
-          {node.placeholder && <span className="sb-placeholder-tag">soon</span>}
+          {node.placeholder && <span className="sb-placeholder-tag">{node._soonLabel || 'soon'}</span>}
         </span>
       )}
-      {!expanded && <span className="sb-tooltip">{node.label}{node.placeholder ? ' (soon)' : ''}</span>}
+      {!expanded && <span className="sb-tooltip">{node.label}{node.placeholder ? ` (${node._soonLabel || 'soon'})` : ''}</span>}
     </button>
   );
 }
@@ -133,11 +134,26 @@ function CategoryBlock({
 
 // ── Main Sidebar ──────────────────────────────────────────────────────────────
 
-export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, activeId, onSelect, tree }) {
+export default function Sidebar({
+  themeMode,
+  onThemeModeChange,
+  expanded,
+  onExpand,
+  onCollapse,
+  activeId,
+  onSelect,
+  tree,
+  onSettingsOpen,
+}) {
+  const { t } = useI18n();
   const connected  = useStore(s => s.connected);
   const isDemoMode = useStore(s => s.isDemoMode);
 
-  const statusLabel = connected ? 'LIVE' : isDemoMode ? 'DEMO' : 'OFF';
+  const statusLabel = connected
+    ? t('status.connected')
+    : isDemoMode
+      ? t('status.demo')
+      : t('status.offline');
   const statusClass = connected ? 'connected' : isDemoMode ? 'demo' : '';
 
   // Resolve dark/light for logo variant
@@ -147,7 +163,6 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
 
   useEffect(() => {
     if (themeMode !== 'auto') return;
-
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const apply = e => setAutoIsDark(e.matches);
     mq.addEventListener('change', apply);
@@ -160,7 +175,26 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
   const searchInputRef = useRef(null);
   const searchActive   = query.trim().length > 0;
 
-  const visibleTree = useMemo(() => filterTree(tree, query), [tree, query]);
+  // Build a translated version of the tree for display
+  // The tree nodes themselves carry their own labels; we remap them with i18n keys.
+  const translatedTree = useMemo(() => {
+    function translateNode(node) {
+      if (node.component || node.placeholder) {
+        return { ...node, label: t(`panel.${node.id}`) || node.label, _soonLabel: t('sidebar.soon') };
+      }
+      // Category or subcategory — try specific i18n key, fall back to original label
+      const i18nKey = `sidebar.${node.id.replace(/-/g, '.')}`;
+      const translatedLabel = t(i18nKey) !== i18nKey ? t(i18nKey) : node.label;
+      return {
+        ...node,
+        label: translatedLabel,
+        children: node.children ? node.children.map(translateNode) : undefined,
+      };
+    }
+    return tree.map(translateNode);
+  }, [tree, t]);
+
+  const visibleTree = useMemo(() => filterTree(translatedTree, query), [translatedTree, query]);
 
   useEffect(() => {
     if (expanded && pendingFocus) {
@@ -173,10 +207,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
   const LogoText = isDark ? DoriLogoTextDark : DoriLogoText;
 
   function handleToggleCategory(categoryId) {
-    setOpenCategoryMap(prev => ({
-      ...prev,
-      [categoryId]: !prev[categoryId],
-    }));
+    setOpenCategoryMap(prev => ({ ...prev, [categoryId]: !prev[categoryId] }));
   }
 
   function handleOpenFromCollapsed(categoryId) {
@@ -184,9 +215,8 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
   }
 
   return (
-    <aside
-      className={`sidebar ${expanded ? 'expanded' : 'collapsed'}`}
-    >
+    <aside className={`sidebar ${expanded ? 'expanded' : 'collapsed'}`}>
+
       {/* ── Top cell ── */}
       <div className="sb-top">
         {expanded ? (
@@ -200,7 +230,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
             <button
               className="sb-close"
               onClick={e => { e.stopPropagation(); onCollapse(); }}
-              title="Close sidebar"
+              title={t('sidebar.close')}
             >
               <CloseIcon />
             </button>
@@ -209,12 +239,12 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
           <button
             className="sb-open"
             onClick={e => { e.stopPropagation(); onExpand(); }}
-            aria-label="Open sidebar"
+            aria-label={t('sidebar.open')}
           >
             <div className="sb-logo-anchor">
               <DoriLogoIconMono className="sb-icon-svg is-collapsed-logo" />
             </div>
-            <span className="sb-tooltip">Open sidebar</span>
+            <span className="sb-tooltip">{t('sidebar.open')}</span>
           </button>
         )}
       </div>
@@ -228,7 +258,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
               ref={searchInputRef}
               className="sb-search-input"
               type="text"
-              placeholder="Search panels..."
+              placeholder={t('sidebar.search.placeholder')}
               value={query}
               onChange={e => setQuery(e.target.value)}
             />
@@ -240,10 +270,9 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
           <button
             className="sb-search-btn"
             onClick={() => { onExpand(); setPendingFocus(true); }}
-            // title="Search panels"
           >
             <SearchIcon className="sb-search-btn-icon" />
-            <span className="sb-tooltip">Search panels</span>
+            <span className="sb-tooltip">{t('sidebar.search.placeholder')}</span>
           </button>
         )}
       </div>
@@ -251,7 +280,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
       {/* ── Nav tree ── */}
       <nav className="sb-nav" onClick={e => e.stopPropagation()}>
         {visibleTree.length === 0 && expanded && (
-          <div className="sb-empty">No panels found</div>
+          <div className="sb-empty">{t('sidebar.search.empty')}</div>
         )}
         {visibleTree.map(category => (
           <CategoryBlock
@@ -269,6 +298,22 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
         ))}
       </nav>
 
+      {/* ── Settings button ── */}
+      <div className="sb-settings-cell" onClick={e => e.stopPropagation()}>
+        <button
+          className="sb-settings-btn"
+          onClick={() => {
+            onSettingsOpen?.();
+            if (!expanded) onExpand();
+          }}
+          title={!expanded ? t('panel.settings') : undefined}
+        >
+          <span className="sb-settings-icon"><SettingsIcon /></span>
+          {expanded && <span className="sb-settings-label">{t('panel.settings')}</span>}
+          {!expanded && <span className="sb-tooltip">{t('panel.settings')}</span>}
+        </button>
+      </div>
+
       {/* ── Bottom: connection status ── */}
       <div className="sb-bottom">
         <div className={`sb-status ${statusClass}`}>
@@ -277,6 +322,7 @@ export default function Sidebar({ themeMode, expanded, onExpand, onCollapse, act
           {!expanded && <span className="sb-tooltip sb-tooltip-status">{statusLabel}</span>}
         </div>
       </div>
+
     </aside>
   );
 }

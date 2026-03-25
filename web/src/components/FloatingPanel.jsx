@@ -50,7 +50,7 @@ function useResizable({ w, h, onResize }) {
   return { onResizeStart };
 }
 
-export default function FloatingPanel({ panel }) {
+export default function FloatingPanel({ panel, themeMode, onThemeModeChange }) {
   const { id, label, component: Component, x, y, w, h, minimized, zIndex } = panel;
 
   const closePanel    = useStore(s => s.closePanel);
@@ -70,12 +70,14 @@ export default function FloatingPanel({ panel }) {
     onResize: (nw, nh) => resizePanel(id, nw, nh),
   });
 
-  // Snapshot height before minimizing so restore returns to user's resized size
   const heightBeforeMinimize = useRef(h);
   function handleMinimize() {
     if (!minimized) heightBeforeMinimize.current = h;
     minimizePanel(id);
   }
+
+  // Settings panel gets theme props injected
+  const isSettings = id === 'settings';
 
   return (
     <div
@@ -114,7 +116,10 @@ export default function FloatingPanel({ panel }) {
       {!minimized && (
         <div className="fp-body">
           <Suspense fallback={<div className="fp-loading">Loading panel…</div>}>
-            <Component />
+            {isSettings
+              ? <Component themeMode={themeMode} onThemeModeChange={onThemeModeChange} />
+              : <Component />
+            }
           </Suspense>
         </div>
       )}

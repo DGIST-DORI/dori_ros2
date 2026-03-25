@@ -71,7 +71,22 @@ export default function App() {
   function handlePanelSelect(id) {
     const leaf = findLeaf(PANEL_TREE, id);
     if (!leaf || leaf.placeholder) return;
+    // Settings panel receives themeMode + setter via openPanel component prop injection
     openPanel(leaf);
+    if (isOverlaySidebar) setSidebarExpanded(false);
+  }
+
+  function handleSettingsOpen() {
+    // Find and open the settings leaf, injecting themeMode props
+    const leaf = findLeaf(PANEL_TREE, 'settings');
+    if (!leaf) return;
+    // We pass themeMode down via a wrapper component stored in the leaf
+    openPanel({
+      ...leaf,
+      // The SettingsPanel reads themeMode from the leaf's extraProps
+      _themeMode: themeMode,
+      _onThemeModeChange: setThemeMode,
+    });
     if (isOverlaySidebar) setSidebarExpanded(false);
   }
 
@@ -80,10 +95,12 @@ export default function App() {
       <div className="app-sidebar">
         <Sidebar
           themeMode={themeMode}
+          onThemeModeChange={setThemeMode}
           expanded={sidebarExpanded}
           onExpand={() => setSidebarExpanded(true)}
           onCollapse={() => setSidebarExpanded(false)}
           onSelect={handlePanelSelect}
+          onSettingsOpen={handleSettingsOpen}
           tree={PANEL_TREE}
         />
       </div>
@@ -106,7 +123,7 @@ export default function App() {
       </div>
 
       <main className="app-main">
-        <FloatingWorkspace isMobile={isMobile} />
+        <FloatingWorkspace isMobile={isMobile} themeMode={themeMode} onThemeModeChange={setThemeMode} />
       </main>
     </div>
   );

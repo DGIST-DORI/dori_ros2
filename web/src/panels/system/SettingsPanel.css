@@ -1,0 +1,187 @@
+/* ── SettingsPanel.css ─────────────────────────────────────────────────────── */
+
+.sp-root {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: var(--space-4);
+}
+
+/* ── Section ─────────────────────────────────────────────────────────────── */
+
+.sp-section {
+  border-bottom: 1px solid var(--border-default);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sp-section:last-child {
+  border-bottom: none;
+}
+
+.sp-section-title {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+}
+
+.sp-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ── Row ─────────────────────────────────────────────────────────────────── */
+
+.sp-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.sp-row-label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+  padding-top: 5px;
+}
+
+.sp-label {
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.sp-hint {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.sp-row-control {
+  flex-shrink: 0;
+}
+
+/* ── Segmented control ───────────────────────────────────────────────────── */
+
+.sp-seg {
+  display: inline-flex;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.sp-seg-btn {
+  padding: 5px 14px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border-default);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+
+.sp-seg-btn:last-child {
+  border-right: none;
+}
+
+.sp-seg-btn:hover:not(.active) {
+  background: var(--surface-overlay);
+  color: var(--text-primary);
+}
+
+.sp-seg-btn.active {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+  font-weight: 600;
+}
+
+/* ── WebSocket row ───────────────────────────────────────────────────────── */
+
+.sp-ws-row {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.sp-ws-input {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-mono);
+  padding: 5px 8px;
+  width: 200px;
+  transition: border-color 0.12s;
+}
+
+.sp-ws-input:focus {
+  outline: none;
+  border-color: var(--border-bright);
+}
+
+.sp-ws-input:disabled {
+  opacity: 0.5;
+}
+
+.sp-ws-input::placeholder {
+  color: var(--text-muted);
+}
+
+.sp-ws-save {
+  padding: 5px 12px;
+  background: var(--color-info-bg);
+  border: 1px solid var(--color-info);
+  border-radius: var(--radius);
+  color: var(--color-info);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+
+.sp-ws-save:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-info) 20%, var(--surface-raised));
+}
+
+.sp-ws-save:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .sp-row {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .sp-row-label {
+    padding-top: 0;
+  }
+
+  .sp-ws-input {
+    width: 100%;
+  }
+
+  .sp-ws-row {
+    width: 100%;
+  }
+}

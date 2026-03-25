@@ -16,6 +16,7 @@ import {
   resolveROSOrStateEmotion,
 } from './emotion';
 import { floatingPanelsSlice } from './floatingPanels';
+import { i18nSlice } from './i18nSlice';
 
 const FACE_KEYS = ['U', 'R', 'F', 'D', 'L', 'B'];
 const FACE_COLORS = Object.freeze({
@@ -636,4 +637,5 @@ export const useStore = create((set, get) => ({
 
   // ── Floating Panels ─────────────────────────────────────────────────
   ...floatingPanelsSlice(set, get),
+  ...i18nSlice(set),
 }));

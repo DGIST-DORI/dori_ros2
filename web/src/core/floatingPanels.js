@@ -44,6 +44,7 @@ const PANEL_SIZES = {
   'sys-metrics':        [360, 340],
   'vision-test':        [480, 460],
   'llm-inject':         [420, 250],
+  'settings': [600, 300],
 };
 
 let zCounter = 10;
