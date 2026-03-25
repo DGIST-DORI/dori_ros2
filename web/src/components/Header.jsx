@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { LOG_TAGS, useStore } from '../core/store';
 import { connectROS, disconnectROS } from '../core/ros';
 import { startDemo, stopDemo } from '../core/demo';
-import DoriLogoText     from '../assets/logo/logo-text.svg?react';
-import DoriLogoTextDark from '../assets/logo/logo-text-dark.svg?react';
+import DashLogoText     from '../assets/logo/dash-text.svg?react';
+import DashLogoTextDark from '../assets/logo/dash-text-dark.svg?react';
 import './Header.css';
 
 export default function Header({ onLogoClick, themeMode, onThemeModeChange, sidebarExpanded }) {
@@ -82,7 +82,7 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange, side
     else { disconnectROS(); setConnected(false); startDemo(); }
   }
 
-  const LogoText = isDark ? DoriLogoTextDark : DoriLogoText;
+  const LogoText = isDark ? DashLogoTextDark : DashLogoText;
 
   return (
     <header className="hdr">
