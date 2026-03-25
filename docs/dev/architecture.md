@@ -59,7 +59,9 @@ Last updated: March 10, 2026.
 
 ```
 src/
-├── hri_pkg/              # Perception: person detection, gesture, expression, landmark
+├── perception_pkg/       # Perception: camera, person detection, gesture, expression, landmark
+├── interaction_pkg/      # Interaction coordinator (HRI manager state machine)
+├── hri_pkg/              # Legacy launch wrappers / auxiliary HRI nodes
 ├── stt_pkg/              # Wake word (Porcupine) + transcription (Whisper)
 ├── llm_pkg/              # Intent classification + RAG + LLM response
 ├── tts_pkg/              # Text-to-speech playback
@@ -126,19 +128,19 @@ IDLE ─────────────────────────
 
 ## Node Reference
 
-### `hri_manager_node`
+### `hri_manager_node` (`interaction_pkg`)
 Central coordinator. Manages the state machine and routes messages between all HRI subsystems.
 
-### `person_detection_node`
+### `person_detection_node` (`perception_pkg`)
 YOLOv8 + ByteTrack full-body person detection with depth-based distance estimation. Publishes tracking state and follow offset for navigation.
 
-### `gesture_recognition_node`
+### `gesture_recognition_node` (`perception_pkg`)
 MediaPipe Hands — classifies STOP / POINT / WAVE / THUMBS_UP from 21-point hand landmarks. CPU-only; activates only after interaction trigger.
 
-### `facial_expression_node`
+### `facial_expression_node` (`perception_pkg`)
 MediaPipe Face Mesh — classifies SATISFIED / CONFUSED / NEUTRAL from 468-point face landmarks. Activates only after interaction trigger.
 
-### `landmark_detection_node`
+### `landmark_detection_node` (`perception_pkg`)
 YOLOv8 landmark detection for SLAM drift correction and LLM location context. Fine-tunable on campus-specific dataset.
 
 ### `stt_node`

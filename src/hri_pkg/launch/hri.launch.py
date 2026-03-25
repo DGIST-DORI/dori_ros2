@@ -1,6 +1,6 @@
 """
-Single RealSense + all HRI perception nodes.
-Use this for standalone HRI development without the full bringup stack.
+Single RealSense + HRI perception nodes.
+Use this for standalone perception development without the full bringup stack.
 
 For actual robot operation, use:
   ros2 launch bringup robot.launch.py
@@ -42,7 +42,7 @@ def generate_launch_description():
     debug         = LaunchConfiguration('debug')
 
     depth_camera_node = Node(
-        package='hri_pkg', executable='depth_camera_node', name='depth_camera_node',
+        package='perception_pkg', executable='depth_camera_node', name='depth_camera_node',
         output='screen',
         parameters=[{
             'width':                LaunchConfiguration('width'),
@@ -54,7 +54,7 @@ def generate_launch_description():
     )
 
     person_detection_node = Node(
-        package='hri_pkg', executable='person_detection_node',
+        package='perception_pkg', executable='person_detection_node',
         name='person_detection_node', output='screen',
         parameters=[{
             'model_path':           LaunchConfiguration('person_model'),
@@ -66,7 +66,7 @@ def generate_launch_description():
     )
 
     landmark_detection_node = Node(
-        package='hri_pkg', executable='landmark_detection_node',
+        package='perception_pkg', executable='landmark_detection_node',
         name='landmark_detection_node', output='screen',
         parameters=[{
             'model_path':      LaunchConfiguration('landmark_model'),
@@ -78,7 +78,7 @@ def generate_launch_description():
     )
 
     gesture_recognition_node = Node(
-        package='hri_pkg', executable='gesture_recognition_node',
+        package='perception_pkg', executable='gesture_recognition_node',
         name='gesture_recognition_node', output='screen',
         parameters=[{
             'visualize': visualize,
@@ -89,7 +89,7 @@ def generate_launch_description():
     )
 
     facial_expression_node = Node(
-        package='hri_pkg', executable='facial_expression_node',
+        package='perception_pkg', executable='facial_expression_node',
         name='facial_expression_node', output='screen',
         parameters=[{
             'visualize': visualize,
@@ -97,12 +97,6 @@ def generate_launch_description():
             'face_model_path': LaunchConfiguration('face_model_path'),
         }],
         condition=IfCondition(LaunchConfiguration('enable_expression')),
-    )
-
-    hri_manager_node = Node(
-        package='hri_pkg', executable='hri_manager_node',
-        name='hri_manager_node', output='screen',
-        parameters=[{'idle_timeout_sec': 10.0}],
     )
 
     # Debug: rqt image viewers
@@ -138,7 +132,6 @@ def generate_launch_description():
         landmark_detection_node,
         gesture_recognition_node,
         facial_expression_node,
-        hri_manager_node,
         rqt_person,
         rqt_gesture,
         rqt_expression,
