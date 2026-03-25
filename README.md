@@ -67,25 +67,25 @@ pip3 install -r requirements.txt
 
 ### 3-2. Download and Place MediaPipe `.task` Models (HRI)
 
-`hri_pkg` gesture/expression nodes use MediaPipe Tasks models that are **not** bundled by default.
+`perception_pkg` gesture/expression nodes use MediaPipe Tasks models that are **not** bundled by default.
 
 1. Create the model asset directory:
 
 ```bash
-mkdir -p src/hri_pkg/models
+mkdir -p src/perception_pkg/models
 ```
 
 2. Download required `.task` files and place them in that directory:
 
 ```text
-src/hri_pkg/models/hand_landmarker.task
-src/hri_pkg/models/face_landmarker.task
+src/perception_pkg/models/hand_landmarker.task
+src/perception_pkg/models/face_landmarker.task
 ```
 
 3. Build/install the workspace so models are copied to:
 
 ```text
-<install-prefix>/share/hri_pkg/models/
+<install-prefix>/share/perception_pkg/models/
 ```
 
 4. Launch with explicit model paths (recommended) or rely on default share-directory lookup:

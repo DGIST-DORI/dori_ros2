@@ -60,14 +60,14 @@ class NavigatorNode(Node):
         
         # Publishers
         self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.global_path_pub = self.create_publisher(Path, '/navigation/global_path', 10)
-        self.local_path_pub = self.create_publisher(Path, '/navigation/local_path', 10)
-        self.status_pub = self.create_publisher(String, '/navigation/status', 10)
+        self.global_path_pub = self.create_publisher(Path, '/dori/nav/global_path', 10)
+        self.local_path_pub = self.create_publisher(Path, '/dori/nav/local_path', 10)
+        self.status_pub = self.create_publisher(String, '/dori/nav/status', 10)
         
         # Subscribers
         self.goal_sub = self.create_subscription(
             PoseStamped,
-            '/navigation/destination',
+            '/dori/nav/destination',
             self.goal_callback,
             10
         )
@@ -95,7 +95,7 @@ class NavigatorNode(Node):
         
         self.cancel_sub = self.create_subscription(
             Bool,
-            '/navigation/cancel',
+            '/dori/nav/cancel',
             self.cancel_callback,
             10
         )

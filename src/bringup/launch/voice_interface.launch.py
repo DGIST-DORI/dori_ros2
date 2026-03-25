@@ -2,7 +2,7 @@
 Voice interface + HRI Manager.
 
 Nodes started:
-  hri_manager_node   (hri_pkg)  - central HRI state machine
+  hri_manager_node   (interaction_pkg)  - central HRI state machine
   stt_node           (stt_pkg)  - wake word + speech transcription
   llm_node           (llm_pkg)  - intent classification + RAG + LLM
   tts_node           (tts_pkg)  - text-to-speech playback
@@ -122,7 +122,7 @@ def generate_launch_description():
 
     # HRI Manager Node
     hri_manager_node = Node(
-        package='hri_pkg',
+        package='interaction_pkg',
         executable='hri_manager_node',
         name='hri_manager_node',
         output='screen',
