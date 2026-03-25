@@ -125,15 +125,16 @@ source install/setup.bash
 
 ## Usage
 
-### Full Robot
+### Full Robot (without Dashboard)
 
 ```bash
-ros2 launch bringup robot.launch.py
+ros2 launch bringup robot_dev.launch.py enable_dashboard:=false
 ```
 
 ### Full Robot (with Dashboard)
  
-Launches the full robot stack together with the web dashboard (rosbridge + HTTP server + knowledge API).
+Launches the full robot stack via `robot_dev.launch.py`, together with the web dashboard (rosbridge + HTTP server + knowledge API).
+`robot.launch.py` is not responsible for dashboard orchestration in the current setup.
 The dashboard frontend must be built before the first run.
  
 ```bash
@@ -142,8 +143,17 @@ cd web && npm ci && npm run build && cd ..
 colcon build --symlink-install
 source install/setup.bash
  
-# Launch
-ros2 launch bringup robot.launch.py enable_dashboard:=true
+# Launch (default includes dashboard)
+ros2 launch bringup robot_dev.launch.py
+
+# Equivalent explicit form
+ros2 launch bringup robot_dev.launch.py enable_dashboard:=true
+```
+
+### Dashboard only (standalone)
+
+```bash
+ros2 launch dashboard_pkg dashboard.launch.py
 ```
  
 Dashboard access:
