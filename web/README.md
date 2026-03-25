@@ -99,7 +99,5 @@ System panels include `Event Log` and `Topic Publisher`, located at
 - `FloatingPanel` and `MobileStack` own the window title and minimize/close controls.
   Panels rendered inside them must be **content-only roots** and must not recreate an
   internal `Panel` header.
-- Sidebar or fixed tab layouts may still use `web/src/components/Panel.jsx` when a local
-  card header/body shell is needed.
 - When moving a panel between layouts, keep header responsibility in exactly one layer and
   move any padding, overflow, or badge UI into the panel-specific root or CSS.
