@@ -1,15 +1,7 @@
-/**
- * panels/system/SettingsPanel.jsx
- * Unified settings panel — theme, language, connection.
- * Moved from: Header theme selector.
- */
-
-import { useEffect, useState } from 'react';
-import { useStore } from '../../core/store';
-import { useI18n, detectBrowserLang, LANG_LABELS } from '../../core/i18n';
-import './SettingsPanel.css';
-
-// ── Section wrapper ───────────────────────────────────────────────────────────
+import { useState } from 'react';
+import { useStore } from '../core/store';
+import { useI18n, detectBrowserLang, LANG_LABELS } from '../core/i18n';
+import './SettingsTab.css';
 
 function Section({ title, children }) {
   return (
@@ -19,8 +11,6 @@ function Section({ title, children }) {
     </div>
   );
 }
-
-// ── Row ───────────────────────────────────────────────────────────────────────
 
 function Row({ label, hint, children }) {
   return (
@@ -33,8 +23,6 @@ function Row({ label, hint, children }) {
     </div>
   );
 }
-
-// ── Segmented control ─────────────────────────────────────────────────────────
 
 function Seg({ options, value, onChange }) {
   return (
@@ -52,9 +40,7 @@ function Seg({ options, value, onChange }) {
   );
 }
 
-// ── Main panel ────────────────────────────────────────────────────────────────
-
-export default function SettingsPanel({ themeMode, onThemeModeChange }) {
+export default function SettingsTab({ themeMode, onThemeModeChange }) {
   const { t, langPref } = useI18n();
   const setLangPref = useStore(s => s.setLangPref);
   const wsUrl       = useStore(s => s.wsUrl);
@@ -64,10 +50,6 @@ export default function SettingsPanel({ themeMode, onThemeModeChange }) {
   const [wsInput, setWsInput] = useState(wsUrl);
   const detectedLang = detectBrowserLang();
 
-  // Keep wsInput in sync when store changes externally
-  useEffect(() => {
-    if (!connected) setWsInput(wsUrl);
-  }, [wsUrl, connected]);
 
   function handleWsSave() {
     setWsUrl(wsInput.trim());
@@ -87,15 +69,12 @@ export default function SettingsPanel({ themeMode, onThemeModeChange }) {
 
   return (
     <div className="sp-root">
-
-      {/* ── Appearance ── */}
       <Section title={t('settings.section.appearance')}>
         <Row label={t('settings.theme.label')}>
           <Seg options={themeOptions} value={themeMode} onChange={onThemeModeChange} />
         </Row>
       </Section>
 
-      {/* ── Language ── */}
       <Section title={t('settings.section.language')}>
         <Row
           label={t('settings.lang.label')}
@@ -107,7 +86,6 @@ export default function SettingsPanel({ themeMode, onThemeModeChange }) {
         </Row>
       </Section>
 
-      {/* ── Connection ── */}
       <Section title={t('settings.section.connection')}>
         <Row label={t('settings.ws.label')} hint={t('settings.ws.hint')}>
           <div className="sp-ws-row">
@@ -130,9 +108,6 @@ export default function SettingsPanel({ themeMode, onThemeModeChange }) {
           </div>
         </Row>
       </Section>
-
     </div>
   );
 }
-
-export { SettingsPanel };

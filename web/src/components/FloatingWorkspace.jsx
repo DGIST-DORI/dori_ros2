@@ -11,7 +11,7 @@ import FloatingPanel from './FloatingPanel';
 import MobileStack   from './MobileStack';
 import './FloatingWorkspace.css';
 
-export default function FloatingWorkspace({ isMobile, themeMode, onThemeModeChange }) {
+export default function FloatingWorkspace({ isMobile }) {
   const openPanels = useStore(s => s.openPanels);
 
   if (openPanels.length === 0) {
@@ -23,7 +23,7 @@ export default function FloatingWorkspace({ isMobile, themeMode, onThemeModeChan
   }
 
   if (isMobile) {
-    return <MobileStack panels={openPanels} themeMode={themeMode} onThemeModeChange={onThemeModeChange} />;
+    return <MobileStack panels={openPanels} />;
   }
 
   return (
@@ -32,8 +32,6 @@ export default function FloatingWorkspace({ isMobile, themeMode, onThemeModeChan
         <FloatingPanel
           key={panel.id}
           panel={panel}
-          themeMode={themeMode}
-          onThemeModeChange={onThemeModeChange}
         />
       ))}
     </div>

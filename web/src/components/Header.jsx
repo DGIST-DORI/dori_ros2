@@ -102,7 +102,7 @@ export default function Header({ onLogoClick, themeMode, sidebarExpanded }) {
       <div className="hdr-spacer" />
 
       <div className="hdr-conn">
-        {/* URL input — synced with SettingsPanel but kept here for quick access */}
+        {/* URL input — synced with Settings tab but kept here for quick access */}
         <input
           className="hdr-url"
           value={urlInput}
