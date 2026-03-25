@@ -10,6 +10,7 @@ Usage:
 """
 
 import os
+import logging
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -51,7 +52,10 @@ def generate_launch_description():
                 condition=IfCondition(LaunchConfiguration('enable_dashboard')),
             )
         )
-    except Exception:
-        pass
+    except Exception as exc:
+        # Dashboard is an optional development tool; skip it if the package is unavailable.
+        logging.getLogger(__name__).warning(
+            "Failed to include optional dashboard launch: %s", exc
+        )
 
     return LaunchDescription(launch_list)
