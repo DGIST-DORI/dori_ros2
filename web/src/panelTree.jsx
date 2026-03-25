@@ -50,7 +50,6 @@ import MapIcon          from './assets/icons/icon-map.svg?react';
 import CubeIcon         from './assets/icons/icon-cube.svg?react';
 import VisionIcon       from './assets/icons/icon-vision.svg?react';
 import LLMIcon          from './assets/icons/icon-llm.svg?react';
-import SettingsIcon     from './assets/icons/icon-settings.svg?react';
 
 export const PANEL_TREE = [
   {
@@ -152,18 +151,13 @@ export const PANEL_TREE = [
       },
     ],
   },
-  {
-    id: 'settings-cat', label: 'Settings', icon: <SettingsIcon />,
-    children: [
-      {
-        id: 'settings-flat', label: null,
-        children: [
-          { id: 'settings', label: 'Settings', component: SettingsPanel },
-        ],
-      },
-    ],
-  },
 ];
+
+export const SETTINGS_LEAF = {
+  id: 'settings',
+  label: 'Settings',
+  component: SettingsPanel,
+};
 
 export function flattenLeaves(tree) {
   const leaves = [];

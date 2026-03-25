@@ -4,7 +4,7 @@ import Sidebar            from './components/Sidebar';
 import FloatingWorkspace  from './components/FloatingWorkspace';
 import { useStore, TOPIC_META } from './core/store';
 import { fetchTopicDiagnostics, subscribeROS } from './core/ros';
-import { PANEL_TREE, findLeaf } from './panelTree';
+import { PANEL_TREE, SETTINGS_LEAF, findLeaf } from './panelTree';
 
 import './index.css';
 import './App.css';
@@ -71,19 +71,13 @@ export default function App() {
   function handlePanelSelect(id) {
     const leaf = findLeaf(PANEL_TREE, id);
     if (!leaf || leaf.placeholder) return;
-    // Settings panel receives themeMode + setter via openPanel component prop injection
     openPanel(leaf);
     if (isOverlaySidebar) setSidebarExpanded(false);
   }
 
   function handleSettingsOpen() {
-    // Find and open the settings leaf, injecting themeMode props
-    const leaf = findLeaf(PANEL_TREE, 'settings');
-    if (!leaf) return;
-    // We pass themeMode down via a wrapper component stored in the leaf
     openPanel({
-      ...leaf,
-      // The SettingsPanel reads themeMode from the leaf's extraProps
+      ...SETTINGS_LEAF,
       _themeMode: themeMode,
       _onThemeModeChange: setThemeMode,
     });
