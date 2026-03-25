@@ -11,7 +11,7 @@ This launch only assembles subsystem launch files:
 import os
 
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
+from launch import LaunchDescription, get_logger
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -162,7 +162,9 @@ def generate_launch_description():
                 condition=IfCondition(LaunchConfiguration('enable_navigation')),
             )
         )
-    except Exception:
-        pass
+    except Exception as exc:
+        get_logger().warning(
+            f"navigation_pkg not available; skipping navigation.launch.py: {exc}"
+        )
 
     return LaunchDescription(launch_list)
