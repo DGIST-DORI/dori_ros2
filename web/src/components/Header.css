@@ -41,7 +41,7 @@
 
 /* SVG text logo — height only, width auto to preserve aspect ratio */
 .hdr-logo-svg {
-  height: 20px;
+  height: 18px; /* 20px */
   width: auto;
   display: block;
 }
