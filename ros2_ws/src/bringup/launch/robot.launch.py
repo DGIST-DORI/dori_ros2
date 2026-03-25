@@ -17,6 +17,15 @@ from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 
+try:
+    from llm_pkg.paths import is_repo_root
+except Exception:
+    def is_repo_root(parent):
+        has_readme = (parent / 'README.md').exists()
+        has_ros2_src = (parent / 'ros2_ws' / 'src').is_dir()
+        has_git = (parent / '.git').exists()
+        return has_readme and (has_ros2_src or has_git)
+
 
 def _resolve_path(share_relative: str, pkg_name: str, data_relative: str) -> str:
     """Resolve an asset path from installed share first, then repository root."""
@@ -31,7 +40,7 @@ def _resolve_path(share_relative: str, pkg_name: str, data_relative: str) -> str
 
     this_file = pathlib.Path(__file__).resolve()
     for parent in this_file.parents:
-        if (parent / 'src').is_dir() and (parent / 'README.md').exists():
+        if is_repo_root(parent):
             candidate = parent / data_relative
             if candidate.exists():
                 return str(candidate)
