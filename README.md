@@ -48,10 +48,6 @@ cd dori
 
 ### 3. Install Python Dependencies
 
-#### Required (Common)
-
-Install all dependencies for the core voice interface packages (`stt_pkg`, `tts_pkg`, `llm_pkg`, `hri_pkg`, `dashboard_pkg`, `system_monitor_pkg`) in a single step below.
-
 ```bash
 pip3 install -r requirements.txt
 ```
