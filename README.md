@@ -52,7 +52,14 @@ cd dori
 pip3 install -r requirements.txt
 ```
 
-### 3-1. Download and Place MediaPipe `.task` Models (HRI)
+### 3-1. Download and Place Porcupine `.pv` Models (STT)
+
+1. Download the model
+[Porcupine Wake Word GitHub repository](https://github.com/Picovoice/porcupine/tree/master/lib/common)
+
+2. Put it in src/stt_pkg/models
+
+### 3-2. Download and Place MediaPipe `.task` Models (HRI)
 
 `hri_pkg` gesture/expression nodes use MediaPipe Tasks models that are **not** bundled by default.
 
