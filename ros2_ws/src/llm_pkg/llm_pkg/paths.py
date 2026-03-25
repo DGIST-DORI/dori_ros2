@@ -13,11 +13,24 @@ Usage:
 from pathlib import Path
 
 
+def is_repo_root(parent: Path) -> bool:
+    """Return True when parent matches repository-root markers."""
+    has_readme = (parent / 'README.md').exists()
+    has_ros2_src = (parent / 'ros2_ws' / 'src').is_dir()
+    has_git = (parent / '.git').exists()
+    return has_readme and (has_ros2_src or has_git)
+
+
 def find_repo_root(start: Path = None) -> Path:
-    """Walk up from start until we find the repo root (contains README.md + src/)."""
+    """Walk up from start until we find the repo root.
+
+    Root markers:
+      - ros2_ws/src directory + README.md
+      - OR .git + README.md
+    """
     start = start or Path(__file__).resolve().parent
     for parent in [start, *start.parents]:
-        if (parent / 'src').is_dir() and (parent / 'README.md').exists():
+        if is_repo_root(parent):
             return parent
     return start
 
@@ -70,6 +83,5 @@ def get_rag_index_dir() -> Path:
     Dev:  data/campus/indexed/
     """
     return find_repo_root() / 'data' / 'campus' / 'indexed'
-
 
 

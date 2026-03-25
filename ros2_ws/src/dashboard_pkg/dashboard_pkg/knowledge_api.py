@@ -37,12 +37,28 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+try:
+    from llm_pkg.paths import find_repo_root as _shared_find_repo_root
+except Exception:
+    _shared_find_repo_root = None
+
 # ── Path resolution ────────────────────────────────────────────────────────────
 
 def find_repo_root(start: Path) -> Path:
-    """Walk up from start until we find the repo root (contains README.md + src/)."""
+    """Walk up from start until we find the repo root.
+
+    Root markers:
+      - ros2_ws/src directory + README.md
+      - OR .git + README.md
+    """
+    if _shared_find_repo_root is not None:
+        return _shared_find_repo_root(start)
+
     for parent in [start, *start.parents]:
-        if (parent / 'src').is_dir() and (parent / 'README.md').exists():
+        has_readme = (parent / 'README.md').exists()
+        has_ros2_src = (parent / 'ros2_ws' / 'src').is_dir()
+        has_git = (parent / '.git').exists()
+        if has_readme and (has_ros2_src or has_git):
             return parent
     return start  # fallback
 
@@ -57,7 +73,7 @@ args, _ = parser_arg.parse_known_args()
 
 REPO_ROOT   = Path(args.repo_root)
 PARSER_SCRIPT  = REPO_ROOT / 'tools' / 'parser' / 'parse_cafeteria_menu.py'
-BUILDER_SCRIPT = REPO_ROOT / 'src' / 'llm_pkg' / 'llm_pkg' / 'build_index.py'
+BUILDER_SCRIPT = REPO_ROOT / 'ros2_ws' / 'src' / 'llm_pkg' / 'llm_pkg' / 'build_index.py'
 CRAWLER_SCRIPT = REPO_ROOT / 'tools' / 'crawler' / 'crawl_campus.py'
 PROCESSED_DIR  = REPO_ROOT / 'data' / 'campus' / 'processed'
 INDEXED_DIR    = REPO_ROOT / 'data' / 'campus' / 'indexed'
