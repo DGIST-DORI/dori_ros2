@@ -55,37 +55,37 @@ MAX_BUFFER_SEC  = 10.0
 MIN_SPEECH_SEC  = 0.5
 
 
-def _resolve_ppn_path(ppn_param: str) -> str:
-    """
-    Resolve the Porcupine .ppn model file path.
-
-    Priority:
-      1) Explicit parameter value (if the file exists at that path)
-      2) stt_pkg share directory: share/stt_pkg/models/<basename>
-      3) Return the param value as-is and let Porcupine raise a clear error
-
-    Args:
-        ppn_param: value of the 'wake_word_paths' ROS parameter
-
-    Returns:
-        Resolved absolute path string
-    """
-    # Priority 1: explicit parameter path
-    if ppn_param and Path(ppn_param).exists():
-        return ppn_param
-
-    # Priority 2: share directory (installed via setup.py models/ glob)
+def _resolve_model_path_from_share(filename: str) -> str | None:
+    """Resolve a model path from stt_pkg share/models directory if present."""
     try:
         from ament_index_python.packages import get_package_share_directory
-        filename = Path(ppn_param).name if ppn_param else 'doridori_ko_linux_v4_0_0.ppn'
+
         share_path = Path(get_package_share_directory('stt_pkg')) / 'models' / filename
         if share_path.exists():
             return str(share_path)
     except Exception:
         pass
 
-    # Priority 3: return as-is (Porcupine will raise a clear FileNotFoundError)
-    return ppn_param
+    return None
+
+
+def _resolve_ppn_path(ppn_param: str) -> str:
+    """Resolve Porcupine .ppn model path using explicit path then share fallback."""
+    if ppn_param and Path(ppn_param).exists():
+        return ppn_param
+
+    shared = _resolve_model_path_from_share(
+        Path(ppn_param).name if ppn_param else 'doridori_ko_linux_v4_0_0.ppn'
+    )
+    return shared if shared else ppn_param
+
+
+def _resolve_pv_path(pv_param: str) -> str | None:
+    """Resolve Porcupine .pv path with explicit path first, then share default."""
+    if pv_param and Path(pv_param).exists():
+        return pv_param
+
+    return _resolve_model_path_from_share('porcupine_params_ko.pv')
 
 
 class STTState:
@@ -100,6 +100,7 @@ class STTNode(Node):
         # Parameters
         self.declare_parameter('wake_word', 'porcupine')
         self.declare_parameter('wake_word_paths', 'doridori_ko_linux_v4_0_0.ppn')
+        self.declare_parameter('porcupine_model_path', '')
         self.declare_parameter('whisper_model', 'small')
         self.declare_parameter('whisper_device', 'cpu')
         self.declare_parameter('vad_threshold', 0.5)
@@ -107,6 +108,7 @@ class STTNode(Node):
 
         wake_word        = self.get_parameter('wake_word').value
         wake_word_paths  = self.get_parameter('wake_word_paths').value
+        porcupine_model_path = self.get_parameter('porcupine_model_path').value
         model_size       = self.get_parameter('whisper_model').value
         device           = self.get_parameter('whisper_device').value
         self.vad_threshold   = self.get_parameter('vad_threshold').value
@@ -137,14 +139,42 @@ class STTNode(Node):
 
         try:
             resolved_ppn = _resolve_ppn_path(wake_word_paths)
+            resolved_pv = _resolve_pv_path(porcupine_model_path)
 
             if Path(resolved_ppn).exists():
-                self.get_logger().info(f'Using custom wake word model: {resolved_ppn}')
-                self.porcupine = pvporcupine.create(
-                    access_key=os.getenv('PORCUPINE_ACCESS_KEY', ''),
-                    keyword_paths=[resolved_ppn],
-                    model_path=[resolved_ppn.replace('doridori_ko_linux_v4_0_0.ppn', 'porcupine_params_ko.pv')], # TODO: this is a bit hacky, ideally the user should specify the model path separately
-                )
+                if resolved_pv:
+                    keyword_paths = [resolved_ppn]
+                    model_path = resolved_pv
+                    self.get_logger().info(
+                        f'Using custom wake word model: keyword_paths={keyword_paths}, model_path={model_path}'
+                    )
+                    try:
+                        self.porcupine = pvporcupine.create(
+                            access_key=os.getenv('PORCUPINE_ACCESS_KEY', ''),
+                            keyword_paths=keyword_paths,
+                            model_path=model_path,
+                        )
+                    except Exception as e:
+                        self.get_logger().error(
+                            f'Custom Porcupine init failed: {e} '
+                            f'(keyword_paths={keyword_paths}, model_path={model_path}). '
+                            f'Falling back to built-in keyword: "{wake_word}"'
+                        )
+                        self.porcupine = pvporcupine.create(
+                            access_key=os.getenv('PORCUPINE_ACCESS_KEY', ''),
+                            keywords=[wake_word],
+                        )
+                else:
+                    self.get_logger().error(
+                        'Porcupine model path (.pv) not found. '
+                        f'porcupine_model_path="{porcupine_model_path}". '
+                        f'keyword_paths={[resolved_ppn]}, model_path={resolved_pv}. '
+                        f'Falling back to built-in keyword: "{wake_word}"'
+                    )
+                    self.porcupine = pvporcupine.create(
+                        access_key=os.getenv('PORCUPINE_ACCESS_KEY', ''),
+                        keywords=[wake_word],
+                    )
             else:
                 self.get_logger().info(
                     f'Wake word model not found at "{resolved_ppn}". '
@@ -155,7 +185,10 @@ class STTNode(Node):
                     keywords=[wake_word],
                 )
         except Exception as e:
-            self.get_logger().error(f'Porcupine init failed: {e}')
+            self.get_logger().error(
+                f'Porcupine init failed: {e} '
+                f'(wake_word_paths="{wake_word_paths}", porcupine_model_path="{porcupine_model_path}")'
+            )
             return
 
         # Silero VAD
