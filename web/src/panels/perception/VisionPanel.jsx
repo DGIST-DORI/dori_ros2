@@ -99,7 +99,7 @@ function VisionPanel() {
       ctx.drawImage(videoRef.current, 0, 0, CAM_WIDTH, CAM_HEIGHT);
       const dataUrl = canvasRef.current.toDataURL('image/jpeg', quality);
       const b64 = dataUrl.split(',')[1];
-      pub(topic, 'sensor_msgs/CompressedImage', {
+      pub(topic, 'sensor_msgs/msg/CompressedImage', {
         header: { stamp: { sec: Math.floor(Date.now() / 1000), nanosec: 0 }, frame_id: 'camera_color_frame' },
         format: 'jpeg',
         data:   b64,
@@ -187,7 +187,7 @@ function VisionPanel() {
       </div>
 
       <p className="hint-text">
-        프레임은 <code>sensor_msgs/CompressedImage</code>로 publish됩니다.
+        프레임은 <code>sensor_msgs/msg/CompressedImage</code>로 publish됩니다.
         person_detection, gesture, expression 노드가 구독 중이라면 실시간 비전 테스트가 가능합니다.
       </p>
     </div>
