@@ -7,6 +7,44 @@
   padding-bottom: var(--space-4);
 }
 
+.sp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.sp-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+}
+
+.sp-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.sp-close-btn:hover {
+  background: var(--red-dim);
+  color: var(--red);
+}
+
+.sp-close-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
 .sp-section {
   border-bottom: 1px solid var(--border-default);
   padding: var(--space-3) var(--space-4);
