@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../core/store';
 import { useI18n, detectBrowserLang, LANG_LABELS } from '../core/i18n';
+import CloseIcon from '../assets/icons/icon-close.svg?react';
 import './SettingsTab.css';
 
 function Section({ title, children }) {
@@ -40,7 +41,7 @@ function Seg({ options, value, onChange }) {
   );
 }
 
-export default function SettingsTab({ themeMode, onThemeModeChange }) {
+export default function SettingsTab({ themeMode, onThemeModeChange, onClose }) {
   const { t, langPref } = useI18n();
   const setLangPref = useStore(s => s.setLangPref);
   const wsUrl       = useStore(s => s.wsUrl);
@@ -69,6 +70,13 @@ export default function SettingsTab({ themeMode, onThemeModeChange }) {
 
   return (
     <div className="sp-root">
+      <header className="sp-header">
+        <h2 className="sp-title">{t('settings.title')}</h2>
+        <button className="sp-close-btn" onClick={onClose} aria-label={t('sidebar.close')}>
+          <CloseIcon />
+        </button>
+      </header>
+
       <Section title={t('settings.section.appearance')}>
         <Row label={t('settings.theme.label')}>
           <Seg options={themeOptions} value={themeMode} onChange={onThemeModeChange} />

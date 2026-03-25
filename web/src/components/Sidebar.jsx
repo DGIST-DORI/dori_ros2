@@ -304,7 +304,6 @@ export default function Sidebar({
           className="sb-settings-btn"
           onClick={() => {
             onSettingsOpen?.();
-            if (!expanded) onExpand();
           }}
           title={!expanded ? t('panel.settings') : undefined}
         >

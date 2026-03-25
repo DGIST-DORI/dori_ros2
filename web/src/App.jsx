@@ -84,6 +84,10 @@ export default function App() {
     if (isOverlaySidebar) setSidebarExpanded(false);
   }
 
+  function handleSettingsClose() {
+    setActiveMainView('workspace');
+  }
+
   return (
     <div className={`app ${sidebarExpanded ? 'sb-expanded' : ''} ${isOverlaySidebar ? 'sb-overlay' : ''}`}>
       <div className="app-sidebar">
@@ -118,7 +122,11 @@ export default function App() {
 
       <main className="app-main">
         {activeMainView === 'settings' ? (
-          <SettingsTab themeMode={themeMode} onThemeModeChange={setThemeMode} />
+          <SettingsTab
+            themeMode={themeMode}
+            onThemeModeChange={setThemeMode}
+            onClose={handleSettingsClose}
+          />
         ) : (
           <FloatingWorkspace isMobile={isMobile} />
         )}
