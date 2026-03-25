@@ -73,9 +73,10 @@
 }
 
 .sb-logo-text-svg {
-  height: 24px;
+  height: 20px;
   width: auto;
   display: block;
+  align-items: center;
   max-width: 100%;
   margin-left: 0px;
 }
