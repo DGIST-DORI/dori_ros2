@@ -34,8 +34,6 @@ const EventLogPanel = lazy(() => import('./panels/system/EventLogPanel'));
 const TopicPublisherPanel = lazy(() => import('./panels/system/TopicPublisherPanel'));
 const DeployStatusPanel = lazy(() => import('./panels/system/DeployStatusPanel'));
 
-const SettingsPanel = lazy(() => import('./panels/system/SettingsPanel'));
-
 import HriIcon        from './assets/icons/icon-hri.svg?react';
 import ControlIcon    from './assets/icons/icon-control.svg?react';
 import SystemIcon     from './assets/icons/icon-system.svg?react';
@@ -153,11 +151,6 @@ export const PANEL_TREE = [
   },
 ];
 
-export const SETTINGS_LEAF = {
-  id: 'settings',
-  label: 'Settings',
-  component: SettingsPanel,
-};
 
 export function flattenLeaves(tree) {
   const leaves = [];

@@ -343,6 +343,10 @@ export const useStore = create((set, get) => ({
     set({ wsUrl: v });
   },
 
+  // ── Main view (workspace/settings) ─────────────────────────────────────
+  activeMainView: 'workspace',
+  setActiveMainView: (view) => set({ activeMainView: view }),
+
   // ── Cube Sim ────────────────────────────────────────────────────────────
   cubeState: createSolvedCube(),
   cubeMoveHistory: [],
