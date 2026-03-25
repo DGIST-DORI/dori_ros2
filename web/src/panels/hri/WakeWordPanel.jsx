@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Zap } from 'lucide-react';
 import { LOG_TAGS, useStore } from '../../core/store';
 import { publishROS } from '../../core/ros';
+import { useI18n } from '../../core/i18n';
 import './WakeWordPanel.css';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -26,6 +27,7 @@ function SectionLabel({ children }) {
 // ── Wake Word Panel ───────────────────────────────────────────────────────────
 
 function WakeWordPanel() {
+  const { t } = useI18n();
   const connected  = useStore(s => s.connected);
   const isDemoMode = useStore(s => s.isDemoMode);
   const hriState   = useStore(s => s.hriState);
@@ -57,7 +59,7 @@ function WakeWordPanel() {
         {lastTs && <span className="hint-inline">fired at {lastTs}</span>}
       </div>
       <p className="hint-text">
-        HRI Manager가 IDLE일 때만 반응합니다. LISTENING → RESPONDING → IDLE 사이클을 테스트할 수 있습니다.
+        {t('panel.wakeword.hint')}
       </p>
     </div>
   );
