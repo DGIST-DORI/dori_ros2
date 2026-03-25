@@ -29,7 +29,10 @@ export default function FloatingWorkspace({ isMobile }) {
   return (
     <div className="fw-workspace">
       {openPanels.map(panel => (
-        <FloatingPanel key={panel.id} panel={panel} />
+        <FloatingPanel
+          key={panel.id}
+          panel={panel}
+        />
       ))}
     </div>
   );

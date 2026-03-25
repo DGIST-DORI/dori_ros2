@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { LOG_TAGS, useStore } from '../../core/store';
 import { publishROS } from '../../core/ros';
+import { useI18n } from '../../core/i18n';
 
 function pub(topic, msgType, data) {
   try {
@@ -17,6 +18,7 @@ function SectionLabel({ children }) {
 }
 
 function LLMInjectPanel() {
+  const { t } = useI18n();
   const connected = useStore(s => s.connected);
   const isDemoMode = useStore(s => s.isDemoMode);
   const addLog = useStore(s => s.addLog);
@@ -48,7 +50,7 @@ function LLMInjectPanel() {
       <textarea
         className="input-text"
         rows={2}
-        placeholder="질문 (예: 학생식당 어디에 있어요?)"
+        placeholder={t('panel.llm.query.placeholder')}
         value={llmQuery}
         onChange={e => setLlmQuery(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleLLM(); } }}
@@ -58,7 +60,7 @@ function LLMInjectPanel() {
         <input
           className="input input-full"
           type="text"
-          placeholder="예: E7 건물 앞"
+          placeholder={t('panel.llm.location.placeholder')}
           value={locCtx}
           onChange={e => setLocCtx(e.target.value)}
         />

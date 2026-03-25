@@ -480,6 +480,77 @@
   transform: translateY(-50%) translateX(0);
 }
 
+/* ── Settings cell ── */
+.sb-settings-cell {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  overflow: visible;
+}
+ 
+.sidebar.collapsed .sb-settings-cell {
+  width: 48px;
+  overflow: visible;
+}
+ 
+.sb-settings-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 40px;
+  padding: 0 0 0 17px;
+  background: transparent;
+  border: none;
+  color: var(--text-2);
+  font-size: var(--font-size-md);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  cursor: pointer;
+  overflow: visible;
+  transition: background 0.12s, color 0.12s;
+}
+ 
+.sb-settings-btn:hover {
+  background: var(--bg-2);
+  color: var(--text-0);
+}
+ 
+.sidebar.collapsed .sb-settings-btn {
+  justify-content: center;
+  padding: 0;
+}
+ 
+.sb-settings-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform 0.4s ease;
+}
+ 
+.sb-settings-icon svg {
+  width: 15px;
+  height: 15px;
+}
+ 
+.sb-settings-btn:hover .sb-settings-icon {
+  transform: rotate(60deg);
+}
+ 
+.sb-settings-label {
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  animation: sb-fade-in 0.15s ease;
+}
+ 
+.sidebar.collapsed .sb-settings-label {
+  display: none;
+}
+
 /* ── Bottom status ── */
 .sb-bottom {
   border-top: 1px solid var(--border);

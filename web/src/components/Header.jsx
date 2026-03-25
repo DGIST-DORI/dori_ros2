@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { LOG_TAGS, useStore } from '../core/store';
+import { useI18n } from '../core/i18n';
 import { connectROS, disconnectROS } from '../core/ros';
 import { startDemo, stopDemo } from '../core/demo';
 import DashLogoText     from '../assets/logo/dash-text.svg?react';
 import DashLogoTextDark from '../assets/logo/dash-text-dark.svg?react';
 import './Header.css';
 
-export default function Header({ onLogoClick, themeMode, onThemeModeChange, sidebarExpanded }) {
+export default function Header({ onLogoClick, themeMode, sidebarExpanded }) {
+  const { t } = useI18n();
   const connected    = useStore(s => s.connected);
   const isDemoMode   = useStore(s => s.isDemoMode);
   const wsUrl        = useStore(s => s.wsUrl);
@@ -17,6 +19,7 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange, side
   const [urlInput,     setUrlInput]     = useState(wsUrl);
   const [isConnecting, setIsConnecting] = useState(false);
 
+  // Keep URL input in sync when wsUrl changes (e.g. tunnel auto-detection)
   useEffect(() => {
     if (!connected && !isConnecting) setUrlInput(wsUrl);
   }, [wsUrl]);
@@ -99,15 +102,7 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange, side
       <div className="hdr-spacer" />
 
       <div className="hdr-conn">
-        <label className="hdr-theme-wrap">
-          <span className="hdr-theme-label">theme</span>
-          <select className="hdr-theme" value={themeMode} onChange={e => onThemeModeChange(e.target.value)}>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-            <option value="auto">Automatic</option>
-          </select>
-        </label>
-
+        {/* URL input — synced with Settings tab but kept here for quick access */}
         <input
           className="hdr-url"
           value={urlInput}
@@ -121,10 +116,17 @@ export default function Header({ onLogoClick, themeMode, onThemeModeChange, side
           onClick={handleConnect}
           disabled={isDemoMode || isConnecting}
         >
-          {isConnecting ? 'connecting...' : connected ? '⏏ disconnect' : '⏎ connect'}
+          {isConnecting
+            ? t('header.connecting')
+            : connected
+              ? t('header.disconnect')
+              : t('header.connect')}
         </button>
-        <button className={`hdr-btn demo ${isDemoMode ? 'active' : ''}`} onClick={handleDemo}>
-          {isDemoMode ? '■ stop demo' : '▶ demo'}
+        <button
+          className={`hdr-btn demo ${isDemoMode ? 'active' : ''}`}
+          onClick={handleDemo}
+        >
+          {isDemoMode ? t('header.demo.stop') : t('header.demo.start')}
         </button>
       </div>
     </header>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { LOG_TAGS, useStore } from '../../core/store';
 import { publishROS } from '../../core/ros';
+import { useI18n } from '../../core/i18n';
 
 function pub(topic, msgType, data) {
   try {
@@ -17,6 +18,7 @@ function SectionLabel({ children }) {
 }
 
 function TTSInjectPanel() {
+  const { t } = useI18n();
   const connected = useStore(s => s.connected);
   const isDemoMode = useStore(s => s.isDemoMode);
   const addLog = useStore(s => s.addLog);
@@ -39,7 +41,7 @@ function TTSInjectPanel() {
       <textarea
         className="input-text"
         rows={3}
-        placeholder="로봇이 말할 텍스트 (예: 안녕하세요, 도리입니다.)"
+        placeholder={t('panel.tts.placeholder')}
         value={ttsText}
         onChange={e => setTtsText(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleTTS(); } }}

@@ -70,7 +70,6 @@ export default function FloatingPanel({ panel }) {
     onResize: (nw, nh) => resizePanel(id, nw, nh),
   });
 
-  // Snapshot height before minimizing so restore returns to user's resized size
   const heightBeforeMinimize = useRef(h);
   function handleMinimize() {
     if (!minimized) heightBeforeMinimize.current = h;

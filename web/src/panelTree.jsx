@@ -151,6 +151,7 @@ export const PANEL_TREE = [
   },
 ];
 
+
 export function flattenLeaves(tree) {
   const leaves = [];
   function walk(nodes) {
@@ -167,14 +168,22 @@ export function findLeaf(tree, id) {
   return flattenLeaves(tree).find(l => l.id === id) ?? null;
 }
 
-export function filterTree(tree, query) {
+export function filterTree(tree, query, getSearchTexts = null) {
   if (!query.trim()) return tree;
   const q = query.trim().toLowerCase();
+  const resolveSearchTexts = (node) => {
+    const customTexts = getSearchTexts?.(node);
+    const sourceTexts = customTexts ?? node.searchTexts ?? [node.label];
+    return sourceTexts
+      .filter(Boolean)
+      .map(text => String(text).trim().toLowerCase())
+      .filter(Boolean);
+  };
   function filterNodes(nodes) {
     const result = [];
     for (const node of nodes) {
       if (node.component || node.placeholder) {
-        if (node.label.toLowerCase().includes(q)) result.push(node);
+        if (resolveSearchTexts(node).some(text => text.includes(q))) result.push(node);
       } else if (node.children) {
         const fc = filterNodes(node.children);
         if (fc.length > 0) result.push({ ...node, children: fc });

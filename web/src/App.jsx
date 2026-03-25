@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Header             from './components/Header';
 import Sidebar            from './components/Sidebar';
 import FloatingWorkspace  from './components/FloatingWorkspace';
+import SettingsTab        from './tabs/SettingsTab';
 import { useStore, TOPIC_META } from './core/store';
 import { fetchTopicDiagnostics, subscribeROS } from './core/ros';
 import { PANEL_TREE, findLeaf } from './panelTree';
@@ -27,6 +28,8 @@ export default function App() {
   const handleROSMessage = useStore(s => s.handleROSMessage);
   const setTopicMeta     = useStore(s => s.setTopicMeta);
   const openPanel        = useStore(s => s.openPanel);
+  const activeMainView   = useStore(s => s.activeMainView);
+  const setActiveMainView = useStore(s => s.setActiveMainView);
 
   useEffect(() => {
     if (!connected) return;
@@ -72,7 +75,17 @@ export default function App() {
     const leaf = findLeaf(PANEL_TREE, id);
     if (!leaf || leaf.placeholder) return;
     openPanel(leaf);
+    setActiveMainView('workspace');
     if (isOverlaySidebar) setSidebarExpanded(false);
+  }
+
+  function handleSettingsOpen() {
+    setActiveMainView(activeMainView === 'settings' ? 'workspace' : 'settings');
+    if (isOverlaySidebar) setSidebarExpanded(false);
+  }
+
+  function handleSettingsClose() {
+    setActiveMainView('workspace');
   }
 
   return (
@@ -80,10 +93,12 @@ export default function App() {
       <div className="app-sidebar">
         <Sidebar
           themeMode={themeMode}
+          onThemeModeChange={setThemeMode}
           expanded={sidebarExpanded}
           onExpand={() => setSidebarExpanded(true)}
           onCollapse={() => setSidebarExpanded(false)}
           onSelect={handlePanelSelect}
+          onSettingsOpen={handleSettingsOpen}
           tree={PANEL_TREE}
         />
       </div>
@@ -106,7 +121,15 @@ export default function App() {
       </div>
 
       <main className="app-main">
-        <FloatingWorkspace isMobile={isMobile} />
+        {activeMainView === 'settings' ? (
+          <SettingsTab
+            themeMode={themeMode}
+            onThemeModeChange={setThemeMode}
+            onClose={handleSettingsClose}
+          />
+        ) : (
+          <FloatingWorkspace isMobile={isMobile} />
+        )}
       </main>
     </div>
   );
