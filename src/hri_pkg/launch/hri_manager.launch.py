@@ -4,7 +4,7 @@ Launches only the HRI Manager node in isolation.
 Use this for testing the HRI state machine without perception nodes.
 
 Nodes started:
-  hri_manager_node  (hri_pkg)  - central HRI state machine
+  hri_manager_node  (interaction_pkg)  - central HRI state machine
 
 Topic flow (expected counterparts):
   /dori/stt/wake_word_detected  (Bool)   ← stt_node or manual publish
@@ -43,7 +43,7 @@ def generate_launch_description():
     ]
 
     hri_manager_node = Node(
-        package='hri_pkg',
+        package='interaction_pkg',
         executable='hri_manager_node',
         name='hri_manager_node',
         output='screen',

@@ -10,7 +10,7 @@ how to use:
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, LogInfo
-from launch.conditions import IfCondition, UnlessCondition
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -34,7 +34,7 @@ def generate_launch_description():
     visualize      = LaunchConfiguration('visualize')
 
     depth_camera_node = Node(
-        package='hri_pkg',
+        package='perception_pkg',
         executable='depth_camera_node',
         name='depth_camera_node',
         output='screen',
@@ -49,7 +49,7 @@ def generate_launch_description():
     )
 
     person_detection_node = Node(
-        package='hri_pkg',
+        package='perception_pkg',
         executable='person_detection_node',
         name='person_detection_node',
         output='screen',
@@ -64,7 +64,7 @@ def generate_launch_description():
     )
 
     landmark_detection_node = Node(
-        package='hri_pkg',
+        package='perception_pkg',
         executable='landmark_detection_node',
         name='landmark_detection_node',
         output='screen',

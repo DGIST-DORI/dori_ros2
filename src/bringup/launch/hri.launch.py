@@ -3,11 +3,11 @@ Camera input + HRI perception pipeline.
 Starts RealSense nodes and all HRI perception nodes.
 
 Nodes started:
-  depth_camera_node           (hri_pkg) × 2  - front / rear cameras
-  person_detection_node    (hri_pkg)
-  landmark_detection_node  (hri_pkg)
-  gesture_recognition_node (hri_pkg)
-  facial_expression_node   (hri_pkg)
+  depth_camera_node           (perception_pkg) × 2  - front / rear cameras
+  person_detection_node    (perception_pkg)
+  landmark_detection_node  (perception_pkg)
+  gesture_recognition_node (perception_pkg)
+  facial_expression_node   (perception_pkg)
 
 Note: hri_manager_node is started in voice_interface.launch.py
       because it bridges perception ↔ voice interface.
@@ -26,8 +26,8 @@ from launch_ros.actions import Node
 def generate_launch_description():
 
     try:
-        hri_pkg_dir = get_package_share_directory('hri_pkg')
-        landmark_db_default = os.path.join(hri_pkg_dir, 'config', 'landmark_db.json')
+        perception_pkg_dir = get_package_share_directory('perception_pkg')
+        landmark_db_default = os.path.join(perception_pkg_dir, 'config', 'landmark_db.json')
     except Exception:
         landmark_db_default = 'landmark_db.json'
 
@@ -82,7 +82,7 @@ def generate_launch_description():
     # Rear camera: secondary (obstacle avoidance, wider coverage)
     # Each camera publishes on its own namespace.
     depth_camera_front = Node(
-        package='hri_pkg',
+        package='perception_pkg',
         executable='depth_camera_node',
         name='depth_camera_front',
         namespace='dori/camera/front',
@@ -102,7 +102,7 @@ def generate_launch_description():
     )
 
     depth_camera_rear = Node(
-        package='hri_pkg',
+        package='perception_pkg',
         executable='depth_camera_node',
         name='depth_camera_rear',
         namespace='dori/camera/rear',
@@ -123,7 +123,7 @@ def generate_launch_description():
 
     # Perception nodes
     person_detection_node = Node(
-        package='hri_pkg',
+        package='perception_pkg',
         executable='person_detection_node',
         name='person_detection_node',
         output='screen',
@@ -139,7 +139,7 @@ def generate_launch_description():
     )
 
     landmark_detection_node = Node(
-        package='hri_pkg',
+        package='perception_pkg',
         executable='landmark_detection_node',
         name='landmark_detection_node',
         output='screen',
@@ -153,7 +153,7 @@ def generate_launch_description():
     )
 
     gesture_recognition_node = Node(
-        package='hri_pkg',
+        package='perception_pkg',
         executable='gesture_recognition_node',
         name='gesture_recognition_node',
         output='screen',
@@ -165,7 +165,7 @@ def generate_launch_description():
     )
 
     facial_expression_node = Node(
-        package='hri_pkg',
+        package='perception_pkg',
         executable='facial_expression_node',
         name='facial_expression_node',
         output='screen',
