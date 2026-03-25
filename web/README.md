@@ -22,10 +22,22 @@ source install/setup.bash
 
 ## Launch
  
-The dashboard is launched as part of the main robot stack via the `enable_dashboard` flag:
+The dashboard can be launched in three clear modes:
+
+- Full stack + dashboard (default): `ros2 launch bringup robot_dev.launch.py`
+  - Equivalent explicit form: `ros2 launch bringup robot_dev.launch.py enable_dashboard:=true`
+- Full stack without dashboard: `ros2 launch bringup robot_dev.launch.py enable_dashboard:=false`
+- Dashboard only (standalone): `ros2 launch dashboard_pkg dashboard.launch.py`
  
 ```bash
-ros2 launch bringup robot.launch.py enable_dashboard:=true
+# Full stack + dashboard (default)
+ros2 launch bringup robot_dev.launch.py
+
+# Full stack + dashboard (explicit)
+ros2 launch bringup robot_dev.launch.py enable_dashboard:=true
+
+# Full stack without dashboard
+ros2 launch bringup robot_dev.launch.py enable_dashboard:=false
 ```
  
 If you need to run the dashboard standalone (without the full robot stack):
