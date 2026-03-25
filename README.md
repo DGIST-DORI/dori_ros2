@@ -56,8 +56,6 @@ Install all dependencies for the core voice interface packages (`stt_pkg`, `tts_
 pip3 install -r requirements.txt
 ```
 
-The root `requirements.txt` refers to the following files:
-
 ### 3-1. Download and Place MediaPipe `.task` Models (HRI)
 
 `hri_pkg` gesture/expression nodes use MediaPipe Tasks models that are **not** bundled by default.
