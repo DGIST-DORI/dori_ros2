@@ -55,7 +55,7 @@ function Seg({ options, value, onChange }) {
 // ── Main panel ────────────────────────────────────────────────────────────────
 
 export default function SettingsPanel({ themeMode, onThemeModeChange }) {
-  const { t, langPref, effectiveLang } = useI18n();
+  const { t, langPref } = useI18n();
   const setLangPref = useStore(s => s.setLangPref);
   const wsUrl       = useStore(s => s.wsUrl);
   const setWsUrl    = useStore(s => s.setWsUrl);
