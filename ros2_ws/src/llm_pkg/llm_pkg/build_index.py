@@ -292,7 +292,7 @@ class Retriever:
 
 def main():
     parser = argparse.ArgumentParser(description="DORI RAG Index Builder")
-    parser.add_argument("--docs",        required=True,
+    parser.add_argument("--docs",        required=True, #TODO: default="./data/campus/processed",
                         help="Directory containing .txt document files")
     parser.add_argument("--output",      default="./data/campus/indexed",
                         help="Directory to save FAISS index + metadata")
