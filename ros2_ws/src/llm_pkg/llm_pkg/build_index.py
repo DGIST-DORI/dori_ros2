@@ -86,14 +86,19 @@ def chunk_text(text: str, size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) 
 def load_documents(docs_dir: Path) -> list[dict]:
     """
     Recursively load all .txt files under docs_dir.
-    Returns list of {source, text} dicts.
+    Returns list of {source, source_key, text} dicts.
     """
+    docs_dir = docs_dir.resolve()
     docs = []
     for path in sorted(docs_dir.rglob("*.txt")):
         try:
             text = path.read_text(encoding="utf-8").strip()
             if text:
-                docs.append({"source": str(path), "text": text})
+                docs.append({
+                    "source": str(path),  # user-visible path
+                    "source_key": path.relative_to(docs_dir).as_posix(),  # canonical internal key
+                    "text": text,
+                })
         except Exception as e:
             print(f"  [WARN] Could not read {path}: {e}")
     return docs
@@ -158,6 +163,61 @@ class IndexBuilder:
         except Exception as e:
             raise RuntimeError(f"existing index/meta load failed: {e}") from e
 
+    @staticmethod
+    def _meta_source_key(meta: dict, docs_dir: Path) -> str:
+        """Resolve canonical source_key from metadata (backward compatible)."""
+        if "source_key" in meta and meta["source_key"]:
+            return meta["source_key"]
+
+        source = meta.get("source")
+        if not source:
+            return ""
+
+        src_path = Path(source)
+        if not src_path.is_absolute():
+            src_path = (Path.cwd() / src_path).resolve()
+        else:
+            src_path = src_path.resolve()
+
+        try:
+            return src_path.relative_to(docs_dir).as_posix()
+        except ValueError:
+            return str(source)
+
+    def _migrate_hashes(self, docs_dir: Path, docs: list[dict]) -> None:
+        """
+        Migrate legacy file_hashes keys (absolute/legacy path) to source_key.
+        Unknown keys are preserved as-is.
+        """
+        if not self._hashes:
+            return
+
+        alias_to_key = {}
+        for doc in docs:
+            source = doc["source"]
+            source_key = doc["source_key"]
+            src_path = Path(source)
+
+            alias_to_key[source_key] = source_key
+            alias_to_key[source] = source_key
+            alias_to_key[str(src_path)] = source_key
+            alias_to_key[str(src_path.resolve())] = source_key
+            alias_to_key[str((docs_dir / source_key).resolve())] = source_key
+
+        migrated = {}
+        for old_key, h in self._hashes.items():
+            new_key = alias_to_key.get(old_key)
+            if new_key is None:
+                old_path = Path(old_key)
+                if old_path.is_absolute():
+                    try:
+                        new_key = old_path.resolve().relative_to(docs_dir).as_posix()
+                    except ValueError:
+                        new_key = None
+            migrated[new_key or old_key] = h
+
+        self._hashes = migrated
+
     # Build / rebuild
 
     def build(
@@ -178,9 +238,11 @@ class IndexBuilder:
             print("[ERROR] No .txt files found.")
             return False
 
+        docs_dir = docs_dir.resolve()
         if incremental:
             try:
                 self._load_existing()
+                self._migrate_hashes(docs_dir, docs)
             except Exception as e:
                 print(f"[ERROR] {e}")
                 return False
@@ -189,7 +251,7 @@ class IndexBuilder:
         to_index = []
         for doc in docs:
             h = file_hash(doc["source"])
-            if incremental and self._hashes.get(doc["source"]) == h:
+            if incremental and self._hashes.get(doc["source_key"]) == h:
                 continue   # unchanged
             to_index.append((doc, h))
 
@@ -201,9 +263,9 @@ class IndexBuilder:
 
         # If incremental, remove old chunks for files being re-indexed
         if incremental and self._meta:
-            stale_sources = {doc["source"] for doc, _ in to_index}
+            stale_sources = {doc["source_key"] for doc, _ in to_index}
             keep_idx = [i for i, m in enumerate(self._meta)
-                        if m["source"] not in stale_sources]
+                        if self._meta_source_key(m, docs_dir) not in stale_sources]
             if keep_idx:
                 kept_vecs = faiss.extract_index_ivf if False else None
                 # Rebuild a fresh index from kept vectors
@@ -230,10 +292,11 @@ class IndexBuilder:
                 all_chunks.append(chunk)
                 chunk_metas.append({
                     "source":   doc["source"],
+                    "source_key": doc["source_key"],
                     "chunk_id": i,
                     "text":     chunk,
                 })
-            self._hashes[doc["source"]] = h
+            self._hashes[doc["source_key"]] = h
             print(f"  Chunked {Path(doc['source']).name}: {len(chunks)} chunks")
 
         if not all_chunks:
