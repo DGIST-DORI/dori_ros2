@@ -49,6 +49,18 @@ class HRIManagerNode(Node):
         # Parameters
         self.declare_parameter('greeting_text', '안녕하세요! 저는 캠퍼스 안내 로봇 도리입니다. 어디로 안내해드릴까요?')
         self.declare_parameter('idle_timeout_sec', 10.0)
+        self.declare_parameter('topics.wake_word_sub', '/dori/stt/wake_word_detected')
+        self.declare_parameter('topics.stt_result_sub', '/dori/stt/result')
+        self.declare_parameter('topics.tracking_state_sub', '/dori/hri/tracking_state')
+        self.declare_parameter('topics.gesture_command_sub', '/dori/hri/gesture_command')
+        self.declare_parameter('topics.expression_command_sub', '/dori/hri/expression_command')
+        self.declare_parameter('topics.landmark_context_sub', '/dori/landmark/context')
+        self.declare_parameter('topics.tts_done_sub', '/dori/tts/done')
+        self.declare_parameter('topics.follow_mode_pub', '/dori/hri/set_follow_mode')
+        self.declare_parameter('topics.manager_state_pub', '/dori/hri/manager_state')
+        self.declare_parameter('topics.llm_query_pub', '/dori/llm/query')
+        self.declare_parameter('topics.tts_text_pub', '/dori/tts/text')
+        self.declare_parameter('topics.nav_command_pub', '/dori/nav/command')
 
         self.greeting_text = self.get_parameter('greeting_text').value
         self.idle_timeout  = self.get_parameter('idle_timeout_sec').value
@@ -59,28 +71,41 @@ class HRIManagerNode(Node):
         self.landmark_context: str  = ''
         self.tracking_state: dict   = {}
 
+        wake_word_topic = self.get_parameter('topics.wake_word_sub').value
+        stt_result_topic = self.get_parameter('topics.stt_result_sub').value
+        tracking_state_topic = self.get_parameter('topics.tracking_state_sub').value
+        gesture_command_topic = self.get_parameter('topics.gesture_command_sub').value
+        expression_command_topic = self.get_parameter('topics.expression_command_sub').value
+        landmark_context_topic = self.get_parameter('topics.landmark_context_sub').value
+        tts_done_topic = self.get_parameter('topics.tts_done_sub').value
+        follow_mode_topic = self.get_parameter('topics.follow_mode_pub').value
+        manager_state_topic = self.get_parameter('topics.manager_state_pub').value
+        llm_query_topic = self.get_parameter('topics.llm_query_pub').value
+        tts_text_topic = self.get_parameter('topics.tts_text_pub').value
+        nav_command_topic = self.get_parameter('topics.nav_command_pub').value
+
         # Subscribers
         self.create_subscription(
-            Bool, '/dori/stt/wake_word_detected', self._on_wake_word, 10)
+            Bool, wake_word_topic, self._on_wake_word, 10)
         self.create_subscription(
-            String, '/dori/stt/result', self._on_stt_result, 10)
+            String, stt_result_topic, self._on_stt_result, 10)
         self.create_subscription(
-            String, '/dori/hri/tracking_state', self._on_tracking_state, 10)
+            String, tracking_state_topic, self._on_tracking_state, 10)
         self.create_subscription(
-            String, '/dori/hri/gesture_command', self._on_gesture_command, 10)
+            String, gesture_command_topic, self._on_gesture_command, 10)
         self.create_subscription(
-            String, '/dori/hri/expression_command', self._on_expression_command, 10)
+            String, expression_command_topic, self._on_expression_command, 10)
         self.create_subscription(
-            String, '/dori/landmark/context', self._on_landmark_context, 10)
+            String, landmark_context_topic, self._on_landmark_context, 10)
         self.create_subscription(
-            Bool, '/dori/tts/done', self._on_tts_done, 10)
+            Bool, tts_done_topic, self._on_tts_done, 10)
 
         # Publishers
-        self.follow_mode_pub   = self.create_publisher(Bool,   '/dori/hri/set_follow_mode', 10)
-        self.manager_state_pub = self.create_publisher(String, '/dori/hri/manager_state', 10)
-        self.llm_query_pub     = self.create_publisher(String, '/dori/llm/query', 10)
-        self.tts_pub           = self.create_publisher(String, '/dori/tts/text', 10)
-        self.nav_command_pub   = self.create_publisher(String, '/dori/nav/command', 10)
+        self.follow_mode_pub = self.create_publisher(Bool, follow_mode_topic, 10)
+        self.manager_state_pub = self.create_publisher(String, manager_state_topic, 10)
+        self.llm_query_pub = self.create_publisher(String, llm_query_topic, 10)
+        self.tts_pub = self.create_publisher(String, tts_text_topic, 10)
+        self.nav_command_pub = self.create_publisher(String, nav_command_topic, 10)
 
         # State publish timer (1 Hz)
         self.create_timer(1.0, self._publish_state)

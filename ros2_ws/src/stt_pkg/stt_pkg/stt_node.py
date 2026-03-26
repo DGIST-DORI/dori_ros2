@@ -105,6 +105,9 @@ class STTNode(Node):
         self.declare_parameter('whisper_device', 'cpu')
         self.declare_parameter('vad_threshold', 0.5)
         self.declare_parameter('silence_duration', 1.2)
+        self.declare_parameter('topics.wake_word_pub', '/dori/stt/wake_word_detected')
+        self.declare_parameter('topics.result_pub', '/dori/stt/result')
+        self.declare_parameter('topics.tts_speaking_sub', '/dori/tts/speaking')
 
         wake_word        = self.get_parameter('wake_word').value
         wake_word_paths  = self.get_parameter('wake_word_paths').value
@@ -114,13 +117,17 @@ class STTNode(Node):
         self.vad_threshold   = self.get_parameter('vad_threshold').value
         self.vad_silence_sec = self.get_parameter('silence_duration').value
 
+        wake_word_topic = self.get_parameter('topics.wake_word_pub').value
+        result_topic = self.get_parameter('topics.result_pub').value
+        tts_speaking_topic = self.get_parameter('topics.tts_speaking_sub').value
+
         # Publishers
-        self.wake_word_pub = self.create_publisher(Bool,   '/dori/stt/wake_word_detected', 10)
-        self.result_pub    = self.create_publisher(String, '/dori/stt/result', 10)
+        self.wake_word_pub = self.create_publisher(Bool, wake_word_topic, 10)
+        self.result_pub = self.create_publisher(String, result_topic, 10)
 
         # Subscribers
         self.create_subscription(
-            Bool, '/dori/tts/speaking', self._on_tts_speaking, 10)
+            Bool, tts_speaking_topic, self._on_tts_speaking, 10)
 
         # State
         self.state           = STTState.IDLE

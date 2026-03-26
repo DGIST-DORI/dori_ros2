@@ -29,12 +29,20 @@ def generate_launch_description():
             default_value='true',
             description='Launch rosbridge + web dashboard (development only)',
         ),
+        DeclareLaunchArgument(
+            'dori_namespace',
+            default_value='/dori',
+            description='Base namespace for all DORI topics',
+        ),
     ]
 
     robot_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(bringup_dir, 'launch', 'robot.launch.py')
         ),
+        launch_arguments={
+            'dori_namespace': LaunchConfiguration('dori_namespace'),
+        }.items(),
     )
 
     launch_list = [

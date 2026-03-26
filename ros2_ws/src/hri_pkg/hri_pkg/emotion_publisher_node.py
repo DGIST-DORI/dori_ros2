@@ -56,19 +56,27 @@ class EmotionPublisherNode(Node):
     def __init__(self):
         super().__init__('emotion_publisher_node')
 
+        self.declare_parameter('topics.manager_state_sub', '/dori/hri/manager_state')
+        self.declare_parameter('topics.emotion_override_sub', '/dori/hri/emotion_override')
+        self.declare_parameter('topics.emotion_pub', '/dori/hri/emotion')
+
         # State
         self._hri_state: str = 'IDLE'
         self._override_emotion: str | None = None
         self._override_until: float = 0.0
 
+        manager_state_topic = self.get_parameter('topics.manager_state_sub').value
+        emotion_override_topic = self.get_parameter('topics.emotion_override_sub').value
+        emotion_topic = self.get_parameter('topics.emotion_pub').value
+
         # Subscribers
         self.create_subscription(
-            String, '/dori/hri/manager_state', self._on_manager_state, 10)
+            String, manager_state_topic, self._on_manager_state, 10)
         self.create_subscription(
-            String, '/dori/hri/emotion_override', self._on_emotion_override, 10)
+            String, emotion_override_topic, self._on_emotion_override, 10)
 
         # Publisher
-        self._emotion_pub = self.create_publisher(String, '/dori/hri/emotion', 10)
+        self._emotion_pub = self.create_publisher(String, emotion_topic, 10)
 
         # Publish at 2 Hz (face animation polling rate)
         self.create_timer(0.5, self._publish_emotion)

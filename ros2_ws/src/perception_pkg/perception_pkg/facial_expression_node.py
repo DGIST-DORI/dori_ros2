@@ -105,6 +105,11 @@ class FacialExpressionNode(Node):
         self.declare_parameter('confirm_frames', 5)
         self.declare_parameter('publish_cooldown_sec', 3.0)
         self.declare_parameter('min_face_presence_confidence', 0.5)
+        self.declare_parameter('topics.color_image_sub', '/dori/camera/color/image_raw')
+        self.declare_parameter('topics.interaction_trigger_sub', '/dori/hri/interaction_trigger')
+        self.declare_parameter('topics.expression_pub', '/dori/hri/expression')
+        self.declare_parameter('topics.expression_command_pub', '/dori/hri/expression_command')
+        self.declare_parameter('topics.annotated_pub', '/dori/hri/annotated_expression')
 
         # Face expression thresholds (needs to be tuned)
         self.declare_parameter('smile_threshold', 0.02)
@@ -185,18 +190,24 @@ class FacialExpressionNode(Node):
         self._last_published_command: str | None = None
         self._last_command_publish_time: float = 0.0
 
+        color_image_topic = self.get_parameter('topics.color_image_sub').value
+        interaction_trigger_topic = self.get_parameter('topics.interaction_trigger_sub').value
+        expression_topic = self.get_parameter('topics.expression_pub').value
+        expression_command_topic = self.get_parameter('topics.expression_command_pub').value
+        annotated_topic = self.get_parameter('topics.annotated_pub').value
+
         # Subscribers
         self.create_subscription(
-            Image, '/dori/camera/color/image_raw', self.image_callback, 10)
+            Image, color_image_topic, self.image_callback, 10)
         self.create_subscription(
-            Bool, '/dori/hri/interaction_trigger', self._trigger_callback, 10)
+            Bool, interaction_trigger_topic, self._trigger_callback, 10)
 
         # Publishers
-        self.expression_pub = self.create_publisher(String, '/dori/hri/expression', 10)
-        self.command_pub    = self.create_publisher(String, '/dori/hri/expression_command', 10)
+        self.expression_pub = self.create_publisher(String, expression_topic, 10)
+        self.command_pub = self.create_publisher(String, expression_command_topic, 10)
         if self.visualize:
             self.annotated_pub = self.create_publisher(
-                Image, '/dori/hri/annotated_expression', 10)
+                Image, annotated_topic, 10)
 
         self.get_logger().info('Facial Expression Node started')
 

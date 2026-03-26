@@ -14,10 +14,10 @@ class SystemMonitorNode(Node):
     def __init__(self) -> None:
         super().__init__('system_monitor_node')
 
-        self.declare_parameter('publish_topic', '/dori/system/metrics')
+        self.declare_parameter('topics.metrics_pub', '/dori/system/metrics')
         self.declare_parameter('interval_sec', 1.0)
 
-        topic = self.get_parameter('publish_topic').get_parameter_value().string_value
+        topic = self.get_parameter('topics.metrics_pub').get_parameter_value().string_value
         interval_sec = self.get_parameter('interval_sec').get_parameter_value().double_value
 
         self.publisher_ = self.create_publisher(String, topic, 10)

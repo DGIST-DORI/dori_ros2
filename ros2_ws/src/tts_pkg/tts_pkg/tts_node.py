@@ -55,6 +55,10 @@ class TTSNode(Node):
         self.declare_parameter('language', 'ko')
         self.declare_parameter('speech_rate', 150)
         self.declare_parameter('volume', 0.9)
+        self.declare_parameter('topics.speaking_pub', '/dori/tts/speaking')
+        self.declare_parameter('topics.done_pub', '/dori/tts/done')
+        self.declare_parameter('topics.llm_response_sub', '/dori/llm/response')
+        self.declare_parameter('topics.tts_text_sub', '/dori/tts/text')
 
         self.engine_name  = self.get_parameter('tts_engine').value
         self.language     = self.get_parameter('language').value
@@ -66,17 +70,22 @@ class TTSNode(Node):
         self.text_queue    = queue.Queue()
         self.speak_lock    = threading.Lock()
 
+        speaking_topic = self.get_parameter('topics.speaking_pub').value
+        done_topic = self.get_parameter('topics.done_pub').value
+        llm_response_topic = self.get_parameter('topics.llm_response_sub').value
+        tts_text_topic = self.get_parameter('topics.tts_text_sub').value
+
         # Publishers
-        self.speaking_pub = self.create_publisher(Bool, '/dori/tts/speaking', 10)
-        self.done_pub     = self.create_publisher(Bool, '/dori/tts/done', 10)
+        self.speaking_pub = self.create_publisher(Bool, speaking_topic, 10)
+        self.done_pub = self.create_publisher(Bool, done_topic, 10)
 
         # Subscribers
         # LLM response (main path)
         self.create_subscription(
-            String, '/dori/llm/response', self._on_text, 10)
+            String, llm_response_topic, self._on_text, 10)
         # Direct TTS from HRI Manager (greetings, system messages)
         self.create_subscription(
-            String, '/dori/tts/text', self._on_text, 10)
+            String, tts_text_topic, self._on_text, 10)
 
         # Engine init
         self._init_engine()
