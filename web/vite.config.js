@@ -5,6 +5,7 @@ import svgr from 'vite-plugin-svgr'
 
 export default defineConfig({
   build: {
+    manifest: 'manifest.json',
     rollupOptions: {
       output: {
         manualChunks(id) {
