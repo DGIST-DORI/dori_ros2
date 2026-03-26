@@ -1,2 +1,0 @@
-- User Guide → ./user/
-- Developer Guide → ./dev/
