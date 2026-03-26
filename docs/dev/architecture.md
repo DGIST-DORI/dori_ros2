@@ -76,65 +76,11 @@ ros2_ws/src/
 
 ### ROS2 Topic List (Actual Nodes)
 
-#### Topic List source of truth
+The detailed API reference for ROS2 topics is managed as a single source at `docs/dev/topics.adoc`.
 
-- Source file: `config/ros2_topic.yaml`.
-- This section is generated/synchronized from the YAML file via `python3 tools/topic/topic_lint.py --sync-architecture`.
-- CI runs `python3 tools/topic/topic_lint.py --check` and emits warnings if drift is detected.
-
-<!-- TOPIC:START -->
-#### In-scope application topics
-
-| Topic | Msg type | Publisher(s) | Subscriber(s) | Description |
-|---|---|---|---|---|
-| `/dori/camera/color/image_raw` | `sensor_msgs/msg/Image` | depth_camera_node | person_detection_node, gesture_recognition_node, facial_expression_node, landmark_detection_node | RGB camera stream used by all perception pipelines. |
-| `/dori/camera/depth/image_raw` | `sensor_msgs/msg/Image` | depth_camera_node | person_detection_node, landmark_detection_node | Raw depth frame for distance estimation and landmark range filtering. |
-| `/dori/camera/depth/image_colormap` | `sensor_msgs/msg/Image` | depth_camera_node | - | Colorized depth visualization stream. |
-| `/dori/camera/color/camera_info` | `sensor_msgs/msg/CameraInfo` | depth_camera_node | landmark_detection_node | RGB intrinsics for pixel-to-direction / localization math. |
-| `/dori/camera/depth/camera_info` | `sensor_msgs/msg/CameraInfo` | depth_camera_node | - | Depth intrinsics metadata stream. |
-| `/dori/camera/depth_scale` | `std_msgs/msg/Float32` | - | person_detection_node | Optional depth meter-per-unit scale expected by person detection. |
-| `/dori/hri/persons` | `std_msgs/msg/String` | person_detection_node | - | JSON list of detected persons/tracks. |
-| `/dori/hri/interaction_trigger` | `std_msgs/msg/Bool` | person_detection_node | gesture_recognition_node, facial_expression_node | Enables gesture/expression inference only during interaction. |
-| `/dori/hri/tracking_state` | `std_msgs/msg/String` | person_detection_node | hri_manager_node | JSON tracking state (`idle/tracking/lost`) for session/nav control. |
-| `/dori/follow/target_offset` | `geometry_msgs/msg/Point` | person_detection_node | - | Relative target offset for follow-control consumers. |
-| `/dori/hri/annotated_image` | `sensor_msgs/msg/Image` | person_detection_node | - | Person detection debug overlay image. |
-| `/dori/hri/gesture` | `std_msgs/msg/String` | gesture_recognition_node | - | Gesture detection JSON payload. |
-| `/dori/hri/gesture_command` | `std_msgs/msg/String` | gesture_recognition_node | hri_manager_node | Mapped high-level gesture command (`STOP`, `CALL`, etc.). |
-| `/dori/stt/wake_word_detected` | `std_msgs/msg/Bool` | gesture_recognition_node (WAVE trigger), external STT node | hri_manager_node | Wake event that starts HRI listening flow. |
-| `/dori/hri/annotated_gesture` | `sensor_msgs/msg/Image` | gesture_recognition_node | - | Gesture visualization/debug image. |
-| `/dori/hri/expression` | `std_msgs/msg/String` | facial_expression_node | - | Expression inference JSON payload. |
-| `/dori/hri/expression_command` | `std_msgs/msg/String` | facial_expression_node | hri_manager_node | HRI action hint from expression state. |
-| `/dori/hri/annotated_expression` | `sensor_msgs/msg/Image` | facial_expression_node | - | Facial expression visualization/debug image. |
-| `/dori/landmark/detections` | `std_msgs/msg/String` | landmark_detection_node | - | Raw landmark/candidate detections as JSON. |
-| `/dori/landmark/localization` | `std_msgs/msg/String` | landmark_detection_node | - | Landmark-based localization estimate JSON. |
-| `/dori/landmark/context` | `std_msgs/msg/String` | landmark_detection_node | hri_manager_node | Current location/context text used in LLM query payload. |
-| `/dori/hri/annotated_landmark` | `sensor_msgs/msg/Image` | landmark_detection_node | - | Landmark detection visualization/debug image. |
-| `/dori/stt/result` | `std_msgs/msg/String` | external STT node | hri_manager_node | User transcription JSON/text from speech recognizer. |
-| `/dori/tts/done` | `std_msgs/msg/Bool` | tts_node | hri_manager_node | Playback completion event for HRI state transitions. |
-| `/dori/hri/set_follow_mode` | `std_msgs/msg/Bool` | hri_manager_node | person_detection_node | Enable/disable person target registration and follow behavior. |
-| `/dori/hri/manager_state` | `std_msgs/msg/String` | hri_manager_node | - | Current HRI state heartbeat (`IDLE`, `LISTENING`, etc.). |
-| `/dori/llm/query` | `std_msgs/msg/String` | hri_manager_node | llm_node | JSON request containing user text + contextual fields. |
-| `/dori/tts/text` | `std_msgs/msg/String` | hri_manager_node | tts_node | Direct TTS text (bypass LLM for prompts/system messages). |
-| `/dori/nav/command` | `std_msgs/msg/String` | hri_manager_node | - | High-level navigation command channel. |
-| `/dori/llm/response` | `std_msgs/msg/String` | llm_node | tts_node | Generated natural-language response text. |
-| `/dori/nav/destination` | `geometry_msgs/msg/PoseStamped` | llm_node | navigator_node | Navigation goal pose extracted from navigation intent. |
-| `/dori/tts/speaking` | `std_msgs/msg/Bool` | tts_node | - | True while TTS is actively speaking (used for mic mute by external STT). |
-| `/dori/nav/global_path` | `nav_msgs/msg/Path` | navigator_node | - | Planned global path visualization/output. |
-| `/dori/nav/local_path` | `nav_msgs/msg/Path` | navigator_node | - | Local path / short-horizon trajectory visualization. |
-| `/dori/nav/status` | `std_msgs/msg/String` | navigator_node | - | Human-readable navigation status updates. |
-| `/dori/nav/cancel` | `std_msgs/msg/Bool` | external/nav client node | navigator_node | Cancel signal for current navigation task. |
-| `/dori/system/metrics` | `std_msgs/msg/String` | system_monitor_node | - | Periodic system metrics JSON (CPU/RAM/Disk/GPU). |
-
-#### Out of documentation scope (base platform topics)
-
-| Topic | Msg type | Publisher(s) | Subscriber(s) | Description |
-|---|---|---|---|---|
-| `/odom` | `nav_msgs/msg/Odometry` | Base controller / localization stack | navigator_node | Robot odometry pose/velocity input. |
-| `/scan` | `sensor_msgs/msg/LaserScan` | LiDAR driver | navigator_node | Laser range scan for obstacle detection/avoidance. |
-| `/map` | `nav_msgs/msg/OccupancyGrid` | SLAM / map server | navigator_node | Occupancy map used for global path planning. |
-| `/cmd_vel` | `geometry_msgs/msg/Twist` | navigator_node | Base controller / motor interface | Velocity command output to robot base. |
-<!-- TOPIC:END -->
-
+- Topic source of truth: `config/ros2_topic.yaml`
+- Sync/check tool: `python3 tools/topic/topic_lint.py --sync-architecture`, `python3 tools/topic/topic_lint.py --check`
+- Detailed documentation: `docs/dev/topics.adoc`
 
 #### Camera topic naming policy (Python/C++ depth camera parity)
 
