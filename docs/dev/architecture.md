@@ -74,15 +74,15 @@ ros2_ws/src/
     └── voice.launch.py # Voice pipeline only
 ```
 
-### ROS2 Topic Map (Actual Nodes)
+### ROS2 Topic List (Actual Nodes)
 
-#### Topic Map source of truth
+#### Topic List source of truth
 
 - Source file: `config/ros2_topic.yaml`.
-- This section is generated/synchronized from the YAML file via `python3 tools/topic_map/topic_map_lint.py --sync-architecture`.
-- CI runs `python3 tools/topic_map/topic_map_lint.py --check` and emits warnings if drift is detected.
+- This section is generated/synchronized from the YAML file via `python3 tools/topic/topic_lint.py --sync-architecture`.
+- CI runs `python3 tools/topic/topic_lint.py --check` and emits warnings if drift is detected.
 
-<!-- TOPIC_MAP:START -->
+<!-- TOPIC:START -->
 #### In-scope application topics
 
 | Topic | Msg type | Publisher(s) | Subscriber(s) | Description |
@@ -133,7 +133,7 @@ ros2_ws/src/
 | `/scan` | `sensor_msgs/msg/LaserScan` | LiDAR driver | navigator_node | Laser range scan for obstacle detection/avoidance. |
 | `/map` | `nav_msgs/msg/OccupancyGrid` | SLAM / map server | navigator_node | Occupancy map used for global path planning. |
 | `/cmd_vel` | `geometry_msgs/msg/Twist` | navigator_node | Base controller / motor interface | Velocity command output to robot base. |
-<!-- TOPIC_MAP:END -->
+<!-- TOPIC:END -->
 
 
 #### Camera topic naming policy (Python/C++ depth camera parity)

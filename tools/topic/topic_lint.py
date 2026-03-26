@@ -32,7 +32,7 @@ def render_arch_topic_section(entries: list[dict]) -> str:
     base = [e for e in entries if not str(e.get('topic', '')).startswith('/dori/')]
 
     lines = [
-        '#### Topic Map source of truth',
+        '#### Topic List source of truth',
         '',
         '- Source file: `config/ros2_topic.yaml`.',
         '- This section is generated/synchronized from the YAML file via `python3 tools/topic/topic_lint.py --sync-architecture`.',
@@ -109,7 +109,7 @@ def check(sync_arch: bool, check_only: bool) -> int:
             flags=re.S,
         )
         if new == arch_text:
-            anchor = '### ROS2 Topic Map (Actual Nodes)'
+            anchor = '### ROS2 Topic List (Actual Nodes)'
             if anchor in arch_text:
                 new = arch_text.replace(anchor, anchor + '\n\n' + generated, 1)
         ARCH_PATH.write_text(new, encoding='utf-8')
@@ -137,7 +137,7 @@ def check(sync_arch: bool, check_only: bool) -> int:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('--check', action='store_true', help='Run drift checks and emit warnings.')
-    ap.add_argument('--sync-architecture', action='store_true', help='Synchronize architecture topic-map section from YAML.')
+    ap.add_argument('--sync-architecture', action='store_true', help='Synchronize architecture topic section from YAML.')
     args = ap.parse_args()
 
     return check(sync_arch=args.sync_architecture, check_only=args.check)

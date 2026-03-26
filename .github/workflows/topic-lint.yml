@@ -1,0 +1,14 @@
+name: topic-lint
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  topic-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Topic drift check (warning-only)
+        run: python3 tools/topic/topic_lint.py --check

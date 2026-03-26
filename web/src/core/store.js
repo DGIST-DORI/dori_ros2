@@ -131,7 +131,7 @@ export const LOG_TAG_ORDER = Object.freeze([
 
 export const TOPIC_META = {
   // NOTE: Keep this map synchronized with config/ros2_topic.yaml.
-  // CI warning check: python3 tools/topic_map/topic_map_lint.py --check
+  // CI warning check: python3 tools/topic/topic_lint.py --check
   '/dori/hri/manager_state':       { tag: LOG_TAGS.STATE,   label: 'HRI State' },
   '/dori/stt/wake_word_detected':  { tag: LOG_TAGS.WAKE,    label: 'Wake Word' },
   '/dori/stt/result':              { tag: LOG_TAGS.STT,     label: 'STT Result' },
