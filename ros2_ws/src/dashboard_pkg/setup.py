@@ -5,7 +5,7 @@ import os
 
 package_name = 'dashboard_pkg'
 setup_dir = Path(__file__).resolve().parent
-repo_root = setup_dir.parents[1]
+repo_root = setup_dir.parents[2]
 
 
 def collect_web_data_files():
