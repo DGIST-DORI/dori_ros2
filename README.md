@@ -138,6 +138,24 @@ or
 ros2 launch bringup robot_dev.launch.py enable_dashboard:=false
 ```
 
+### Topic Namespace (default vs multi-robot remap)
+
+- Default (single robot): `dori_namespace:=/dori`
+- Multi Robot: Change only the launch argument to expand to `/robot1/dori/...`, `/robot2/dori/...`
+
+```bash
+# Basic topic (same as before)
+ros2 launch bringup robot.launch.py dori_namespace:=/dori
+
+# robot1
+ros2 launch bringup robot.launch.py dori_namespace:=/robot1/dori
+
+# robot2
+ros2 launch bringup robot.launch.py dori_namespace:=/robot2/dori
+```
+
+The default topic value is declared with `declare_parameter("topics.xxx", "...")` of each node, and is changed at once by injecting a common prefix at launch.
+
 ### Full Robot (with Dashboard)
  
 Launches the full robot stack via `robot_dev.launch.py`, together with the web dashboard (rosbridge + HTTP server + knowledge API).

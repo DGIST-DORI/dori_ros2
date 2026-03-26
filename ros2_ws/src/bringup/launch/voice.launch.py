@@ -8,7 +8,12 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
+def _topic(ns, suffix: str):
+    return [ns, suffix]
+
+
 def generate_launch_description():
+    dori_ns = LaunchConfiguration('dori_namespace')
     args = [
         DeclareLaunchArgument('use_external_llm', default_value='false'),
         DeclareLaunchArgument('knowledge_file', default_value=''),
@@ -21,6 +26,7 @@ def generate_launch_description():
         DeclareLaunchArgument('wake_word_paths', default_value=''),
         DeclareLaunchArgument('tts_engine', default_value='gtts'),
         DeclareLaunchArgument('tts_language', default_value='ko'),
+        DeclareLaunchArgument('dori_namespace', default_value='/dori'),
     ]
 
     stt_node = Node(
@@ -35,6 +41,9 @@ def generate_launch_description():
             'whisper_device': LaunchConfiguration('whisper_device'),
             'vad_threshold': 0.5,
             'silence_duration': 1.2,
+            'topics.wake_word_pub': _topic(dori_ns, '/stt/wake_word_detected'),
+            'topics.result_pub': _topic(dori_ns, '/stt/result'),
+            'topics.tts_speaking_sub': _topic(dori_ns, '/tts/speaking'),
         }],
     )
 
@@ -49,6 +58,9 @@ def generate_launch_description():
             'use_external_llm': LaunchConfiguration('use_external_llm'),
             'model_name': LaunchConfiguration('llm_model'),
             'rag_top_k': LaunchConfiguration('rag_top_k'),
+            'topics.query_sub': _topic(dori_ns, '/llm/query'),
+            'topics.response_pub': _topic(dori_ns, '/llm/response'),
+            'topics.destination_pub': _topic(dori_ns, '/nav/destination'),
         }],
     )
 
@@ -62,6 +74,10 @@ def generate_launch_description():
             'language': LaunchConfiguration('tts_language'),
             'speech_rate': 150,
             'volume': 0.9,
+            'topics.speaking_pub': _topic(dori_ns, '/tts/speaking'),
+            'topics.done_pub': _topic(dori_ns, '/tts/done'),
+            'topics.llm_response_sub': _topic(dori_ns, '/llm/response'),
+            'topics.tts_text_sub': _topic(dori_ns, '/tts/text'),
         }],
     )
 

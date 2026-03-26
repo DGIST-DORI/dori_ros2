@@ -19,7 +19,12 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
+def _topic(ns, suffix: str):
+    return [ns, suffix]
+
+
 def generate_launch_description():
+    dori_ns = LaunchConfiguration('dori_namespace')
 
     try:
         perception_pkg_dir = get_package_share_directory('perception_pkg')
@@ -40,6 +45,7 @@ def generate_launch_description():
         DeclareLaunchArgument('camera_width', default_value='640'),
         DeclareLaunchArgument('camera_height', default_value='480'),
         DeclareLaunchArgument('use_cpp_depth_camera', default_value='true'),
+        DeclareLaunchArgument('dori_namespace', default_value='/dori'),
     ]
 
     camera_params = {
@@ -59,11 +65,12 @@ def generate_launch_description():
         parameters=[{**camera_params, 'serial_number': ''}],
         condition=UnlessCondition(LaunchConfiguration('use_cpp_depth_camera')),
         remappings=[
-            ('color/image_raw', '/dori/camera/color/image_raw'),
-            ('depth/image_raw', '/dori/camera/depth/image_raw'),
-            ('color/camera_info', '/dori/camera/color/camera_info'),
-            ('depth/camera_info', '/dori/camera/depth/camera_info'),
-            ('depth_scale', '/dori/camera/depth_scale'),
+            ('color/image_raw', _topic(dori_ns, '/camera/color/image_raw')),
+            ('depth/image_raw', _topic(dori_ns, '/camera/depth/image_raw')),
+            ('depth/image_colormap', _topic(dori_ns, '/camera/depth/image_colormap')),
+            ('color/camera_info', _topic(dori_ns, '/camera/color/camera_info')),
+            ('depth/camera_info', _topic(dori_ns, '/camera/depth/camera_info')),
+            ('depth_scale', _topic(dori_ns, '/camera/depth_scale')),
         ],
     )
 
@@ -76,11 +83,12 @@ def generate_launch_description():
         parameters=[{**camera_params, 'serial_number': ''}],
         condition=UnlessCondition(LaunchConfiguration('use_cpp_depth_camera')),
         remappings=[
-            ('color/image_raw', '/dori/camera/rear/color/image_raw'),
-            ('depth/image_raw', '/dori/camera/rear/depth/image_raw'),
-            ('color/camera_info', '/dori/camera/rear/color/camera_info'),
-            ('depth/camera_info', '/dori/camera/rear/depth/camera_info'),
-            ('depth_scale', '/dori/camera/rear/depth_scale'),
+            ('color/image_raw', _topic(dori_ns, '/camera/rear/color/image_raw')),
+            ('depth/image_raw', _topic(dori_ns, '/camera/rear/depth/image_raw')),
+            ('depth/image_colormap', _topic(dori_ns, '/camera/rear/depth/image_colormap')),
+            ('color/camera_info', _topic(dori_ns, '/camera/rear/color/camera_info')),
+            ('depth/camera_info', _topic(dori_ns, '/camera/rear/depth/camera_info')),
+            ('depth_scale', _topic(dori_ns, '/camera/rear/depth_scale')),
         ],
     )
 
@@ -93,11 +101,11 @@ def generate_launch_description():
         parameters=[{**camera_params, 'serial_number': ''}],
         condition=IfCondition(LaunchConfiguration('use_cpp_depth_camera')),
         remappings=[
-            ('color/image_raw', '/dori/camera/color/image_raw'),
-            ('depth/image_raw', '/dori/camera/depth/image_raw'),
-            ('color/camera_info', '/dori/camera/color/camera_info'),
-            ('depth/camera_info', '/dori/camera/depth/camera_info'),
-            ('depth_scale', '/dori/camera/depth_scale'),
+            ('color/image_raw', _topic(dori_ns, '/camera/color/image_raw')),
+            ('depth/image_raw', _topic(dori_ns, '/camera/depth/image_raw')),
+            ('color/camera_info', _topic(dori_ns, '/camera/color/camera_info')),
+            ('depth/camera_info', _topic(dori_ns, '/camera/depth/camera_info')),
+            ('depth_scale', _topic(dori_ns, '/camera/depth_scale')),
         ],
     )
 
@@ -110,11 +118,11 @@ def generate_launch_description():
         parameters=[{**camera_params, 'serial_number': ''}],
         condition=IfCondition(LaunchConfiguration('use_cpp_depth_camera')),
         remappings=[
-            ('color/image_raw', '/dori/camera/rear/color/image_raw'),
-            ('depth/image_raw', '/dori/camera/rear/depth/image_raw'),
-            ('color/camera_info', '/dori/camera/rear/color/camera_info'),
-            ('depth/camera_info', '/dori/camera/rear/depth/camera_info'),
-            ('depth_scale', '/dori/camera/rear/depth_scale'),
+            ('color/image_raw', _topic(dori_ns, '/camera/rear/color/image_raw')),
+            ('depth/image_raw', _topic(dori_ns, '/camera/rear/depth/image_raw')),
+            ('color/camera_info', _topic(dori_ns, '/camera/rear/color/camera_info')),
+            ('depth/camera_info', _topic(dori_ns, '/camera/rear/depth/camera_info')),
+            ('depth_scale', _topic(dori_ns, '/camera/rear/depth_scale')),
         ],
     )
 
@@ -132,6 +140,15 @@ def generate_launch_description():
             'use_depth': True,
             'interaction_distance_m': 2.0,
             'lost_timeout_sec': 5.0,
+            'topics.color_image_sub': _topic(dori_ns, '/camera/color/image_raw'),
+            'topics.depth_image_sub': _topic(dori_ns, '/camera/depth/image_raw'),
+            'topics.depth_scale_sub': _topic(dori_ns, '/camera/depth_scale'),
+            'topics.follow_mode_sub': _topic(dori_ns, '/hri/set_follow_mode'),
+            'topics.persons_pub': _topic(dori_ns, '/hri/persons'),
+            'topics.interaction_trigger_pub': _topic(dori_ns, '/hri/interaction_trigger'),
+            'topics.tracking_state_pub': _topic(dori_ns, '/hri/tracking_state'),
+            'topics.follow_offset_pub': _topic(dori_ns, '/follow/target_offset'),
+            'topics.annotated_pub': _topic(dori_ns, '/hri/annotated_image'),
         }],
     )
 
@@ -145,6 +162,13 @@ def generate_launch_description():
             'device': LaunchConfiguration('device'),
             'visualize': LaunchConfiguration('visualize'),
             'landmark_db_path': LaunchConfiguration('landmark_db'),
+            'topics.color_image_sub': _topic(dori_ns, '/camera/color/image_raw'),
+            'topics.depth_image_sub': _topic(dori_ns, '/camera/depth/image_raw'),
+            'topics.color_camera_info_sub': _topic(dori_ns, '/camera/color/camera_info'),
+            'topics.detections_pub': _topic(dori_ns, '/landmark/detections'),
+            'topics.localization_pub': _topic(dori_ns, '/landmark/localization'),
+            'topics.context_pub': _topic(dori_ns, '/landmark/context'),
+            'topics.annotated_pub': _topic(dori_ns, '/hri/annotated_landmark'),
         }],
         condition=IfCondition(LaunchConfiguration('enable_landmark')),
     )
@@ -157,6 +181,12 @@ def generate_launch_description():
         parameters=[{
             'visualize': LaunchConfiguration('visualize'),
             'active_only_on_trigger': True,
+            'topics.color_image_sub': _topic(dori_ns, '/camera/color/image_raw'),
+            'topics.interaction_trigger_sub': _topic(dori_ns, '/hri/interaction_trigger'),
+            'topics.gesture_pub': _topic(dori_ns, '/hri/gesture'),
+            'topics.gesture_command_pub': _topic(dori_ns, '/hri/gesture_command'),
+            'topics.wake_word_pub': _topic(dori_ns, '/stt/wake_word_detected'),
+            'topics.annotated_pub': _topic(dori_ns, '/hri/annotated_gesture'),
         }],
         condition=IfCondition(LaunchConfiguration('enable_gesture')),
     )
@@ -169,6 +199,11 @@ def generate_launch_description():
         parameters=[{
             'visualize': LaunchConfiguration('visualize'),
             'active_only_on_trigger': True,
+            'topics.color_image_sub': _topic(dori_ns, '/camera/color/image_raw'),
+            'topics.interaction_trigger_sub': _topic(dori_ns, '/hri/interaction_trigger'),
+            'topics.expression_pub': _topic(dori_ns, '/hri/expression'),
+            'topics.expression_command_pub': _topic(dori_ns, '/hri/expression_command'),
+            'topics.annotated_pub': _topic(dori_ns, '/hri/annotated_expression'),
         }],
         condition=IfCondition(LaunchConfiguration('enable_expression')),
     )

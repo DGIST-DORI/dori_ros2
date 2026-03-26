@@ -102,6 +102,7 @@ def generate_launch_description():
         DeclareLaunchArgument('wake_word_paths', default_value=wake_word_model_default),
         DeclareLaunchArgument('tts_engine', default_value='gtts'),
         DeclareLaunchArgument('tts_language', default_value='ko'),
+        DeclareLaunchArgument('dori_namespace', default_value='/dori'),
 
         # Optional subsystem toggles
         DeclareLaunchArgument('enable_navigation', default_value='true'),
@@ -123,6 +124,7 @@ def generate_launch_description():
             'camera_fps': LaunchConfiguration('camera_fps'),
             'camera_width': LaunchConfiguration('camera_width'),
             'camera_height': LaunchConfiguration('camera_height'),
+            'dori_namespace': LaunchConfiguration('dori_namespace'),
         }.items(),
     )
 
@@ -133,6 +135,7 @@ def generate_launch_description():
         launch_arguments={
             'idle_timeout_sec': LaunchConfiguration('idle_timeout_sec'),
             'greeting_text': LaunchConfiguration('greeting_text'),
+            'dori_namespace': LaunchConfiguration('dori_namespace'),
         }.items(),
     )
 
@@ -152,6 +155,7 @@ def generate_launch_description():
             'wake_word_paths': LaunchConfiguration('wake_word_paths'),
             'tts_engine': LaunchConfiguration('tts_engine'),
             'tts_language': LaunchConfiguration('tts_language'),
+            'dori_namespace': LaunchConfiguration('dori_namespace'),
         }.items(),
     )
 
