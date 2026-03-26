@@ -257,6 +257,9 @@ class LLMNode(Node):
         self.declare_parameter('model_name',       'gemini-2.5-flash')
         self.declare_parameter('api_key',          '')
         self.declare_parameter('rag_top_k',        3)
+        self.declare_parameter('topics.query_sub', '/dori/llm/query')
+        self.declare_parameter('topics.response_pub', '/dori/llm/response')
+        self.declare_parameter('topics.destination_pub', '/dori/nav/destination')
 
         knowledge_file   = self.get_parameter('knowledge_file').value
         rag_index_dir    = self.get_parameter('rag_index_dir').value
@@ -295,10 +298,14 @@ class LLMNode(Node):
         self.current_language: str = 'ko'
         self.current_location_context: str = ''
 
+        query_topic = self.get_parameter('topics.query_sub').value
+        response_topic = self.get_parameter('topics.response_pub').value
+        destination_topic = self.get_parameter('topics.destination_pub').value
+
         # Subscribers / Publishers
-        self.create_subscription(String, '/dori/llm/query', self._on_query, 10)
-        self.response_pub    = self.create_publisher(String,      '/dori/llm/response', 10)
-        self.destination_pub = self.create_publisher(PoseStamped, '/dori/nav/destination', 10)
+        self.create_subscription(String, query_topic, self._on_query, 10)
+        self.response_pub = self.create_publisher(String, response_topic, 10)
+        self.destination_pub = self.create_publisher(PoseStamped, destination_topic, 10)
 
         self.get_logger().info('LLM Node started')
 

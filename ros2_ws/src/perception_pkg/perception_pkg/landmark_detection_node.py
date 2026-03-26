@@ -41,6 +41,13 @@ class LandmarkDetectionNode(Node):
         self.declare_parameter('landmark_db_path', 'landmark_db.json')
         self.declare_parameter('max_detection_distance_m', 8.0)  # max distance to consider a detection valid for localization
         self.declare_parameter('localization_confidence_threshold', 0.6)
+        self.declare_parameter('topics.color_image_sub', '/dori/camera/color/image_raw')
+        self.declare_parameter('topics.depth_image_sub', '/dori/camera/depth/image_raw')
+        self.declare_parameter('topics.color_camera_info_sub', '/dori/camera/color/camera_info')
+        self.declare_parameter('topics.detections_pub', '/dori/landmark/detections')
+        self.declare_parameter('topics.localization_pub', '/dori/landmark/localization')
+        self.declare_parameter('topics.context_pub', '/dori/landmark/context')
+        self.declare_parameter('topics.annotated_pub', '/dori/hri/annotated_landmark')
 
         model_path = self.get_parameter('model_path').value
         custom_model_path = self.get_parameter('custom_model_path').value
@@ -95,27 +102,35 @@ class LandmarkDetectionNode(Node):
         self._depth_scale: float = 0.001
         self._camera_intrinsics: dict | None = None  # fx, fy, cx, cy
 
+        color_image_topic = self.get_parameter('topics.color_image_sub').value
+        depth_image_topic = self.get_parameter('topics.depth_image_sub').value
+        color_camera_info_topic = self.get_parameter('topics.color_camera_info_sub').value
+        detections_topic = self.get_parameter('topics.detections_pub').value
+        localization_topic = self.get_parameter('topics.localization_pub').value
+        context_topic = self.get_parameter('topics.context_pub').value
+        annotated_topic = self.get_parameter('topics.annotated_pub').value
+
         # Subscribers
         self.image_sub = self.create_subscription(
-            Image, '/dori/camera/color/image_raw', self.image_callback, 10
+            Image, color_image_topic, self.image_callback, 10
         )
         self.depth_sub = self.create_subscription(
-            Image, '/dori/camera/depth/image_raw', self.depth_callback, 10
+            Image, depth_image_topic, self.depth_callback, 10
         )
         # internal topic for camera intrinsics (published by camera node or DepthCamera node)
         from sensor_msgs.msg import CameraInfo
         self.camera_info_sub = self.create_subscription(
-            CameraInfo, '/dori/camera/color/camera_info', self.camera_info_callback, 10
+            CameraInfo, color_camera_info_topic, self.camera_info_callback, 10
         )
 
         # Publishers
-        self.detections_pub = self.create_publisher(String, '/dori/landmark/detections', 10)
-        self.localization_pub = self.create_publisher(String, '/dori/landmark/localization', 10)
-        self.context_pub = self.create_publisher(String, '/dori/landmark/context', 10)
+        self.detections_pub = self.create_publisher(String, detections_topic, 10)
+        self.localization_pub = self.create_publisher(String, localization_topic, 10)
+        self.context_pub = self.create_publisher(String, context_topic, 10)
 
         if self.visualize:
             self.annotated_pub = self.create_publisher(
-                Image, '/dori/hri/annotated_landmark', 10
+                Image, annotated_topic, 10
             )
 
         self.get_logger().info('Landmark Detection Node started')

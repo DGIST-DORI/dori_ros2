@@ -39,6 +39,15 @@ class PersonDetectionNode(Node):
         self.declare_parameter('lost_timeout_sec', 5.0)
         self.declare_parameter('follow_distance_m', 1.2)
         self.declare_parameter('reacquire_iou_thresh', 0.3)
+        self.declare_parameter('topics.color_image_sub', '/dori/camera/color/image_raw')
+        self.declare_parameter('topics.depth_image_sub', '/dori/camera/depth/image_raw')
+        self.declare_parameter('topics.depth_scale_sub', '/dori/camera/depth_scale')
+        self.declare_parameter('topics.follow_mode_sub', '/dori/hri/set_follow_mode')
+        self.declare_parameter('topics.persons_pub', '/dori/hri/persons')
+        self.declare_parameter('topics.interaction_trigger_pub', '/dori/hri/interaction_trigger')
+        self.declare_parameter('topics.tracking_state_pub', '/dori/hri/tracking_state')
+        self.declare_parameter('topics.follow_offset_pub', '/dori/follow/target_offset')
+        self.declare_parameter('topics.annotated_pub', '/dori/hri/annotated_image')
 
         model_path            = self.get_parameter('model_path').value
         self.conf_thresh      = self.get_parameter('confidence_threshold').value
@@ -82,27 +91,35 @@ class PersonDetectionNode(Node):
         self._latest_depth: np.ndarray | None = None
         self._depth_scale: float = 0.001  # Initial default, will be updated from RealSenseNode if available
 
+        color_image_topic = self.get_parameter('topics.color_image_sub').value
+        depth_image_topic = self.get_parameter('topics.depth_image_sub').value
+        depth_scale_topic = self.get_parameter('topics.depth_scale_sub').value
+        follow_mode_topic = self.get_parameter('topics.follow_mode_sub').value
+        persons_topic = self.get_parameter('topics.persons_pub').value
+        interaction_trigger_topic = self.get_parameter('topics.interaction_trigger_pub').value
+        tracking_state_topic = self.get_parameter('topics.tracking_state_pub').value
+        follow_offset_topic = self.get_parameter('topics.follow_offset_pub').value
+        annotated_topic = self.get_parameter('topics.annotated_pub').value
+
         # Subscribers
         self.create_subscription(
-            Image, '/dori/camera/color/image_raw', self.image_callback, 10)
+            Image, color_image_topic, self.image_callback, 10)
         if self.use_depth:
             self.create_subscription(
-                Image, '/dori/camera/depth/image_raw', self.depth_callback, 10)
+                Image, depth_image_topic, self.depth_callback, 10)
             self.create_subscription(
-                Float32, '/dori/camera/depth_scale',
+                Float32, depth_scale_topic,
                 lambda msg: setattr(self, '_depth_scale', msg.data), 10)
         self.create_subscription(
-            Bool, '/dori/hri/set_follow_mode', self._follow_mode_callback, 10)
+            Bool, follow_mode_topic, self._follow_mode_callback, 10)
 
         # Publishers
-        # self.person_detected_pub = self.create_publisher(Bool,   '/dori/hri/face_detected', 10)
-        # self.person_position_pub = self.create_publisher(Point,  '/dori/hri/face_position', 10)
-        self.persons_detail_pub  = self.create_publisher(String, '/dori/hri/persons', 10)
-        self.hri_trigger_pub     = self.create_publisher(Bool,   '/dori/hri/interaction_trigger', 10)
-        self.tracking_state_pub  = self.create_publisher(String, '/dori/hri/tracking_state', 10)
-        self.follow_offset_pub   = self.create_publisher(Point,  '/dori/follow/target_offset', 10)
+        self.persons_detail_pub = self.create_publisher(String, persons_topic, 10)
+        self.hri_trigger_pub = self.create_publisher(Bool, interaction_trigger_topic, 10)
+        self.tracking_state_pub = self.create_publisher(String, tracking_state_topic, 10)
+        self.follow_offset_pub = self.create_publisher(Point, follow_offset_topic, 10)
         if self.visualize:
-            self.annotated_pub = self.create_publisher(Image, '/dori/hri/annotated_image', 10)
+            self.annotated_pub = self.create_publisher(Image, annotated_topic, 10)
 
         self.get_logger().info('Person Detection Node started (YOLOv8)')
 

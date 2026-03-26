@@ -98,6 +98,12 @@ class GestureRecognitionNode(Node):
         self.declare_parameter('publish_cooldown_sec', 1.5)      # 동일 명령 중복 발행 억제
         self.declare_parameter('min_result_confidence', 0.5)     # 결과 사용 최소 confidence
         self.declare_parameter('use_handedness_correction', True)
+        self.declare_parameter('topics.color_image_sub', '/dori/camera/color/image_raw')
+        self.declare_parameter('topics.interaction_trigger_sub', '/dori/hri/interaction_trigger')
+        self.declare_parameter('topics.gesture_pub', '/dori/hri/gesture')
+        self.declare_parameter('topics.gesture_command_pub', '/dori/hri/gesture_command')
+        self.declare_parameter('topics.wake_word_pub', '/dori/stt/wake_word_detected')
+        self.declare_parameter('topics.annotated_pub', '/dori/hri/annotated_gesture')
 
         hand_model_path = self.get_parameter('hand_model_path').value
         num_hands = self.get_parameter('num_hands').value
@@ -169,20 +175,27 @@ class GestureRecognitionNode(Node):
         self._last_published_command: str | None = None
         self._last_command_publish_time: float = 0.0
 
+        color_image_topic = self.get_parameter('topics.color_image_sub').value
+        interaction_trigger_topic = self.get_parameter('topics.interaction_trigger_sub').value
+        gesture_topic = self.get_parameter('topics.gesture_pub').value
+        gesture_command_topic = self.get_parameter('topics.gesture_command_pub').value
+        wake_word_topic = self.get_parameter('topics.wake_word_pub').value
+        annotated_topic = self.get_parameter('topics.annotated_pub').value
+
         # Subscribers
         self.create_subscription(
-            Image, '/dori/camera/color/image_raw', self.image_callback, 10)
+            Image, color_image_topic, self.image_callback, 10)
         self.create_subscription(
-            Bool, '/dori/hri/interaction_trigger', self._trigger_callback, 10)
+            Bool, interaction_trigger_topic, self._trigger_callback, 10)
 
         # Publishers
-        self.gesture_pub   = self.create_publisher(String, '/dori/hri/gesture', 10)
-        self.command_pub   = self.create_publisher(String, '/dori/hri/gesture_command', 10)
+        self.gesture_pub = self.create_publisher(String, gesture_topic, 10)
+        self.command_pub = self.create_publisher(String, gesture_command_topic, 10)
         # WAVE gesture routes to HRI Manager via wake_word_detected (same handler as voice)
-        self.trigger_pub   = self.create_publisher(Bool, '/dori/stt/wake_word_detected', 10)
+        self.trigger_pub = self.create_publisher(Bool, wake_word_topic, 10)
         if self.visualize:
             self.annotated_pub = self.create_publisher(
-                Image, '/dori/hri/annotated_gesture', 10)
+                Image, annotated_topic, 10)
 
         self.get_logger().info(
             f'Gesture Recognition Node started with parameters: '
