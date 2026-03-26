@@ -38,6 +38,7 @@ Subscribers
 *Description*:: Topic purpose, lifecycle, and caveats (QoS/latency/trigger conditions).
 --
 
+
 == Perception
 
 [[topic-dori-camera-color-image-raw]]
@@ -78,6 +79,7 @@ Subscribers
 *Description*:: RGB camera stream used by perception pipelines.
 --
 
+
 [[topic-dori-camera-depth-image-raw]]
 /dori/camera/depth/image_raw::
 +
@@ -114,6 +116,247 @@ Subscribers
 *Description*:: Raw depth frame for distance estimation and landmark range filtering.
 --
 
+
+[[topic-dori-camera-color-camera_info]]
+/dori/camera/color/camera_info::
++
+--
+*Type (msg)*:: `sensor_msgs/msg/CameraInfo`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- depth_camera_node
+
+Subscribers
+- landmark_detection_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: RGB intrinsics for pixel-to-direction / localization math.
+--
+
+
+[[topic-dori-camera-depth-camera_info]]
+/dori/camera/depth/camera_info::
++
+--
+*Type (msg)*:: `sensor_msgs/msg/CameraInfo`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- depth_camera_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Depth intrinsics metadata stream.
+--
+
+
+[[topic-dori-camera-depth-image_colormap]]
+/dori/camera/depth/image_colormap::
++
+--
+*Type (msg)*:: `sensor_msgs/msg/Image`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- depth_camera_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Colorized depth visualization stream.
+--
+
+
+[[topic-dori-camera-depth_scale]]
+/dori/camera/depth_scale::
++
+--
+*Type (msg)*:: `std_msgs/msg/Float32`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- (none documented)
+
+Subscribers
+- person_detection_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Optional depth meter-per-unit scale expected by person detection.
+--
+
+
+[[topic-dori-follow-target_offset]]
+/dori/follow/target_offset::
++
+--
+*Type (msg)*:: `geometry_msgs/msg/Point`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- person_detection_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Relative target offset for follow-control consumers.
+--
+
+
+[[topic-dori-landmark-context]]
+/dori/landmark/context::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- landmark_detection_node
+
+Subscribers
+- hri_manager_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Current location/context text used in LLM query payload.
+--
+
+
+[[topic-dori-landmark-detections]]
+/dori/landmark/detections::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- landmark_detection_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Raw landmark/candidate detections as JSON.
+--
+
+
+[[topic-dori-landmark-localization]]
+/dori/landmark/localization::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- landmark_detection_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Landmark-based localization estimate JSON.
+--
+
+
 == HRI
 
 [[topic-dori-hri-manager-state]]
@@ -145,7 +388,520 @@ Subscribers
 *Description*:: Current HRI state for observability and debugging.
 --
 
-== LLM / TTS / Navigation
+
+[[topic-dori-hri-annotated_expression]]
+/dori/hri/annotated_expression::
++
+--
+*Type (msg)*:: `sensor_msgs/msg/Image`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- facial_expression_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Facial expression visualization/debug image.
+--
+
+
+[[topic-dori-hri-annotated_gesture]]
+/dori/hri/annotated_gesture::
++
+--
+*Type (msg)*:: `sensor_msgs/msg/Image`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- gesture_recognition_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Gesture visualization/debug image.
+--
+
+
+[[topic-dori-hri-annotated_image]]
+/dori/hri/annotated_image::
++
+--
+*Type (msg)*:: `sensor_msgs/msg/Image`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- person_detection_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Person detection debug overlay image.
+--
+
+
+[[topic-dori-hri-annotated_landmark]]
+/dori/hri/annotated_landmark::
++
+--
+*Type (msg)*:: `sensor_msgs/msg/Image`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- landmark_detection_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Landmark detection visualization/debug image.
+--
+
+
+[[topic-dori-hri-expression]]
+/dori/hri/expression::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- facial_expression_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Expression inference JSON payload.
+--
+
+
+[[topic-dori-hri-expression_command]]
+/dori/hri/expression_command::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- facial_expression_node
+
+Subscribers
+- hri_manager_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: HRI action hint from expression state.
+--
+
+
+[[topic-dori-hri-gesture]]
+/dori/hri/gesture::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- gesture_recognition_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Gesture detection JSON payload.
+--
+
+
+[[topic-dori-hri-gesture_command]]
+/dori/hri/gesture_command::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- gesture_recognition_node
+
+Subscribers
+- hri_manager_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Mapped high-level gesture command (`STOP`, `CALL`, etc.).
+--
+
+
+[[topic-dori-hri-interaction_trigger]]
+/dori/hri/interaction_trigger::
++
+--
+*Type (msg)*:: `std_msgs/msg/Bool`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- person_detection_node
+
+Subscribers
+- gesture_recognition_node
+- facial_expression_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Enables gesture/expression inference only during interaction.
+--
+
+
+[[topic-dori-hri-persons]]
+/dori/hri/persons::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- person_detection_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: JSON list of detected persons/tracks.
+--
+
+
+[[topic-dori-hri-set_follow_mode]]
+/dori/hri/set_follow_mode::
++
+--
+*Type (msg)*:: `std_msgs/msg/Bool`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- hri_manager_node
+
+Subscribers
+- person_detection_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Enable/disable person target registration and follow behavior.
+--
+
+
+[[topic-dori-hri-tracking_state]]
+/dori/hri/tracking_state::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- person_detection_node
+
+Subscribers
+- hri_manager_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: JSON tracking state (`idle/tracking/lost`) for session/nav control.
+--
+
+
+[[topic-dori-stt-result]]
+/dori/stt/result::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- external STT node
+
+Subscribers
+- hri_manager_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: User transcription JSON/text from speech recognizer.
+--
+
+
+[[topic-dori-stt-wake_word_detected]]
+/dori/stt/wake_word_detected::
++
+--
+*Type (msg)*:: `std_msgs/msg/Bool`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- gesture_recognition_node (WAVE trigger)
+- external STT node
+
+Subscribers
+- hri_manager_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Wake event that starts HRI listening flow.
+--
+
+
+[[topic-dori-tts-done]]
+/dori/tts/done::
++
+--
+*Type (msg)*:: `std_msgs/msg/Bool`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- tts_node
+
+Subscribers
+- hri_manager_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Playback completion event for HRI state transitions.
+--
+
+
+[[topic-dori-tts-speaking]]
+/dori/tts/speaking::
++
+--
+*Type (msg)*:: `std_msgs/msg/Bool`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- tts_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: True while TTS is actively speaking (used for mic mute by external STT).
+--
+
+
+[[topic-dori-tts-text]]
+/dori/tts/text::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- hri_manager_node
+
+Subscribers
+- tts_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Direct TTS text (bypass LLM for prompts/system messages).
+--
+
+
+== LLM
 
 [[topic-dori-llm-query]]
 /dori/llm/query::
@@ -176,6 +932,39 @@ Subscribers
 *Description*:: Input channel for LLM intent classification and response generation.
 --
 
+
+[[topic-dori-llm-response]]
+/dori/llm/response::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- llm_node
+
+Subscribers
+- tts_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Generated natural-language response text.
+--
+
+
+== Navigation
+
 [[topic-dori-nav-status]]
 /dori/nav/status::
 +
@@ -204,6 +993,157 @@ Subscribers
 
 *Description*:: Status updates for navigation progress/failure/completion.
 --
+
+
+[[topic-dori-nav-cancel]]
+/dori/nav/cancel::
++
+--
+*Type (msg)*:: `std_msgs/msg/Bool`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- external/nav client node
+
+Subscribers
+- navigator_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Cancel signal for current navigation task.
+--
+
+
+[[topic-dori-nav-command]]
+/dori/nav/command::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- hri_manager_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: High-level navigation command channel.
+--
+
+
+[[topic-dori-nav-destination]]
+/dori/nav/destination::
++
+--
+*Type (msg)*:: `geometry_msgs/msg/PoseStamped`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- llm_node
+
+Subscribers
+- navigator_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Navigation goal pose extracted from navigation intent.
+--
+
+
+[[topic-dori-nav-global_path]]
+/dori/nav/global_path::
++
+--
+*Type (msg)*:: `nav_msgs/msg/Path`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- navigator_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Planned global path visualization/output.
+--
+
+
+[[topic-dori-nav-local_path]]
+/dori/nav/local_path::
++
+--
+*Type (msg)*:: `nav_msgs/msg/Path`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- navigator_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | TBD | - | See message definition for field-level details.
+|===
+
+*Description*:: Local path / short-horizon trajectory visualization.
+--
+
 
 == System
 
