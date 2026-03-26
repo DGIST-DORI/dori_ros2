@@ -1,0 +1,237 @@
+= ROS2 Topic API Reference
+
+ROS2 토픽 상세 문서의 단일 소스(SSOT)입니다.
+
+* Topic anchors는 `topic-...` 형식을 사용하며, 토픽 경로의 `/`는 `-`로 치환합니다.
+* 토픽 상세는 아래 공통 포맷으로 유지합니다.
+* `architecture.md`에는 상세 목록을 중복 기재하지 않고, 본 문서를 참조합니다.
+
+== Template
+
+[[topic-template-example]]
+`/topic/name`::
++
+--
+*Type (msg)*:: `pkg/msg/Type`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- publisher_node_a
+
+Subscribers
+- subscriber_node_a
+- subscriber_node_b
+----
+
+*Frequency*:: `N/A (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | string | - | Meaning of the message payload.
+|===
+
+*Description*:: Topic purpose, lifecycle, and caveats (QoS/latency/trigger conditions).
+--
+
+== Perception
+
+[[topic-dori-camera-color-image-raw]]
+`/dori/camera/color/image_raw`::
++
+--
+*Type (msg)*:: `sensor_msgs/msg/Image`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- depth_camera_node
+
+Subscribers
+- person_detection_node
+- gesture_recognition_node
+- facial_expression_node
+- landmark_detection_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| header | std_msgs/msg/Header | - | Frame timestamp and frame_id.
+| height | uint32 | px | Image height.
+| width | uint32 | px | Image width.
+| encoding | string | - | Pixel encoding format.
+| is_bigendian | uint8 | - | Endianness flag.
+| step | uint32 | bytes | Full row length in bytes.
+| data | uint8[] | bytes | Raw image buffer.
+|===
+
+*Description*:: RGB camera stream used by perception pipelines.
+--
+
+[[topic-dori-camera-depth-image-raw]]
+`/dori/camera/depth/image_raw`::
++
+--
+*Type (msg)*:: `sensor_msgs/msg/Image`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- depth_camera_node
+
+Subscribers
+- person_detection_node
+- landmark_detection_node
+----
+
+*Frequency*:: `TBD (measure and update)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| header | std_msgs/msg/Header | - | Frame timestamp and frame_id.
+| height | uint32 | px | Image height.
+| width | uint32 | px | Image width.
+| encoding | string | - | Pixel encoding format.
+| is_bigendian | uint8 | - | Endianness flag.
+| step | uint32 | bytes | Full row length in bytes.
+| data | uint8[] | bytes | Raw depth image buffer.
+|===
+
+*Description*:: Raw depth frame for distance estimation and landmark range filtering.
+--
+
+== HRI
+
+[[topic-dori-hri-manager-state]]
+`/dori/hri/manager_state`::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- hri_manager_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `On state transition / heartbeat (TBD)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | string | - | HRI state name (e.g., IDLE, LISTENING, RESPONDING, NAVIGATING).
+|===
+
+*Description*:: Current HRI state for observability and debugging.
+--
+
+== LLM / TTS / Navigation
+
+[[topic-dori-llm-query]]
+`/dori/llm/query`::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- hri_manager_node
+
+Subscribers
+- llm_node
+----
+
+*Frequency*:: `Event-driven (user interaction dependent)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | string | - | JSON request containing user text and contextual fields.
+|===
+
+*Description*:: Input channel for LLM intent classification and response generation.
+--
+
+[[topic-dori-nav-status]]
+`/dori/nav/status`::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- navigator_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `Event-driven`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | string | - | Human-readable navigation status.
+|===
+
+*Description*:: Status updates for navigation progress/failure/completion.
+--
+
+== System
+
+[[topic-dori-system-metrics]]
+`/dori/system/metrics`::
++
+--
+*Type (msg)*:: `std_msgs/msg/String`
+
+*Publishers / Subscribers*::
++
+[source,text]
+----
+Publishers
+- system_monitor_node
+
+Subscribers
+- (none documented)
+----
+
+*Frequency*:: `Periodic (TBD)`
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | string | - | JSON metrics payload (CPU/RAM/Disk/GPU, etc.).
+|===
+
+*Description*:: Periodic system telemetry for monitoring and diagnostics.
+--
