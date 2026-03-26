@@ -3,9 +3,12 @@
 This is a single source (SSOT) for ROS2 topic details documentation.
 
 * Topic anchors use the `topic-...` format, and `/` in topic paths is replaced with `-`.
-* Topic details are maintained in the common format below.
 * The details list is not duplicated in `architecture.md`; instead, this document is referenced.
+* Topic details are maintained in the common format below.
 
+.Template (Click to expand)
+[%collapsible]
+====
 == Template
 
 [[topic-template-example]]
@@ -26,6 +29,7 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 |===
 
 *Description*:: Topic purpose, lifecycle, and caveats.
+====
 
 
 == Perception
