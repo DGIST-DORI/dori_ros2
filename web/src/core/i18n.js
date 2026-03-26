@@ -156,7 +156,7 @@ const TRANSLATIONS = {
   ko: {
     // Sidebar categories
     'sidebar.hri': 'HRI',
-    'sidebar.navigation': '네비게이션',
+    'sidebar.navigation': '주행',
     'sidebar.control': '제어',
     'sidebar.perception': '인지 & 지능',
     'sidebar.system': '시스템',
