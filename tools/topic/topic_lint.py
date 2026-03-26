@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-TOPIC_PATH = ROOT / 'config/ros2_topic.yaml'
+TOPIC_PATH = ROOT / 'config/ros2_topics.yaml'
 ARCH_PATH = ROOT / 'docs/dev/architecture.md'
 STORE_PATH = ROOT / 'web/src/core/store.js'
 ARCH_START = '<!-- TOPIC:START -->'
@@ -19,7 +19,7 @@ def load_topic() -> list[dict]:
     data = json.loads(TOPIC_PATH.read_text(encoding='utf-8'))
     topics = data.get('topics', [])
     if not isinstance(topics, list):
-        raise ValueError('config/ros2_topic.yaml: "topics" must be a list')
+        raise ValueError('config/ros2_topics.yaml: "topics" must be a list')
     return topics
 
 
@@ -34,7 +34,7 @@ def render_arch_topic_section(entries: list[dict]) -> str:
     lines = [
         '#### Topic List source of truth',
         '',
-        '- Source file: `config/ros2_topic.yaml`.',
+        '- Source file: `config/ros2_topics.yaml`.',
         '- This section is generated/synchronized from the YAML file via `python3 tools/topic/topic_lint.py --sync-architecture`.',
         '- CI runs `python3 tools/topic/topic_lint.py --check` and emits warnings if drift is detected.',
         '',
@@ -119,17 +119,17 @@ def check(sync_arch: bool, check_only: bool) -> int:
         print(f'::warning::{msg}')
 
     if missing_from_yaml:
-        warn(f'Code topic scan found topics missing in ros2_topic.yaml: {", ".join(missing_from_yaml)}')
+        warn(f'Code topic scan found topics missing in ros2_topics.yaml: {", ".join(missing_from_yaml)}')
     if stale_in_yaml:
-        warn(f'ros2_topic.yaml has topics not found in code scan: {", ".join(stale_in_yaml)}')
+        warn(f'ros2_topics.yaml has topics not found in code scan: {", ".join(stale_in_yaml)}')
     if missing_meta_in_yaml:
-        warn(f'TOPIC_META has topics missing in ros2_topic.yaml: {", ".join(missing_meta_in_yaml)}')
+        warn(f'TOPIC_META has topics missing in ros2_topics.yaml: {", ".join(missing_meta_in_yaml)}')
     if missing_yaml_in_meta:
-        warn(f'ros2_topic.yaml /dori topics missing in TOPIC_META: {", ".join(missing_yaml_in_meta)}')
+        warn(f'ros2_topics.yaml /dori topics missing in TOPIC_META: {", ".join(missing_yaml_in_meta)}')
     if check_only and not arch_ok:
-        warn('docs/dev/architecture.md topic section is out-of-sync with ros2_topic.yaml. Run --sync-architecture.')
+        warn('docs/dev/architecture.md topic section is out-of-sync with ros2_topics.yaml. Run --sync-architecture.')
 
-    print(f'ros2_topic.yaml entries={len(yaml_topics)} code_topics={len(code_topics)} topic_meta={len(meta_topics)}')
+    print(f'ros2_topics.yaml entries={len(yaml_topics)} code_topics={len(code_topics)} topic_meta={len(meta_topics)}')
     # warning-only lint by design
     return 0
 

@@ -78,7 +78,7 @@ ros2_ws/src/
 
 The detailed API reference for ROS2 topics is managed as a single source at [`topics.adoc`](docs/dev/topics.adoc).
 
-- Topic source of truth: [`config/ros2_topic.yaml`](config/ros2_topic.yaml)
+- Topic source of truth: [`config/ros2_topics.yaml`](config/ros2_topics.yaml)
 - Sync/check tool: `python3 tools/topic/topic_lint.py --sync-architecture`, `python3 tools/topic/topic_lint.py --check`
 - Detailed documentation: [`docs/dev/topics.adoc`](docs/dev/topics.adoc)
 
