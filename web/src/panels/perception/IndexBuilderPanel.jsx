@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import './IndexBuilderPanel.css';
+import { normalizePollLines } from './logUtils';
 
 const API = '/api/knowledge';
 
@@ -35,21 +36,14 @@ function IndexBuilderPanel() {
   const [indexInfo, setIndexInfo] = useState(null);
   const pollRef = useRef(null);
   const cursorRef = useRef(0);
-  const seenLineHashesRef = useRef(new Set());
 
   function appendLog(msg) {
     setLog((prev) => [...prev, `${new Date().toLocaleTimeString()}  ${msg}`]);
   }
 
-  function appendUniqueLines(lines) {
-    const uniqueLines = [];
-    for (const line of lines ?? []) {
-      const key = JSON.stringify(line);
-      if (seenLineHashesRef.current.has(key)) continue;
-      seenLineHashesRef.current.add(key);
-      uniqueLines.push(line);
-    }
-    uniqueLines.forEach((line) => appendLog(line));
+  function appendPolledLines(lines) {
+    const normalizedLines = normalizePollLines(lines, { dedupeWithinBatch: true });
+    normalizedLines.forEach((line) => appendLog(line));
   }
 
   const fetchIndexInfo = useCallback(async () => {
@@ -67,7 +61,6 @@ function IndexBuilderPanel() {
     setStatus('running');
     setLog([]);
     cursorRef.current = 0;
-    seenLineHashesRef.current = new Set();
     clearInterval(pollRef.current);
     appendLog(`Starting ${incremental ? 'incremental' : 'full'} index rebuild…`);
 
@@ -87,7 +80,7 @@ function IndexBuilderPanel() {
         const currentCursor = cursorRef.current;
         const r = await fetch(`${API}/build-index/status/${jobId}?cursor=${currentCursor}`);
         const d = await r.json();
-        appendUniqueLines(d.new_lines);
+        appendPolledLines(d.new_lines);
         if (typeof d.next_cursor === 'number') {
           cursorRef.current = Math.max(currentCursor, d.next_cursor);
         } else {
