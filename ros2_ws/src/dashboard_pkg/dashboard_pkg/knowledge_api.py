@@ -586,6 +586,37 @@ if WEB_DIR:
 
         return {'Cache-Control': 'public, max-age=300'}
 
+    def _resolve_versioned_asset_alias(requested_path: Path) -> Path | None:
+        """
+        Resolve stale hashed asset names to the newest available file.
+
+        Example:
+          request: assets/index-OLDHASH.js
+          match  : assets/index-NEWHASH.js
+        """
+        if not _is_versioned_asset(requested_path):
+            return None
+
+        parent = WEB_DIR / requested_path.parent
+        if not parent.is_dir():
+            return None
+
+        match = re.match(r'^(?P<base>.+)-(?P<hash>[A-Za-z0-9_-]{6,})$', requested_path.stem)
+        if not match:
+            return None
+
+        expected_prefix = f"{match.group('base')}-"
+        candidates = sorted(
+            p for p in parent.glob(f"{expected_prefix}*{requested_path.suffix}")
+            if p.is_file()
+        )
+        if not candidates:
+            return None
+
+        # Pick the newest candidate so clients converge to the latest deployed chunk.
+        latest = max(candidates, key=lambda p: p.stat().st_mtime)
+        return latest.relative_to(WEB_DIR)
+
 
     @app.get('/{full_path:path}', include_in_schema=False)
     async def serve_spa(full_path: str):
@@ -600,6 +631,14 @@ if WEB_DIR:
             or requested_path.suffix.lower() in _STATIC_FILE_EXTENSIONS
         )
         if is_asset_request:
+            alias_path = _resolve_versioned_asset_alias(requested_path)
+            if alias_path is not None:
+                logger.warning(
+                    'Resolved stale asset request %s -> %s',
+                    requested_path.as_posix(),
+                    alias_path.as_posix(),
+                )
+                return _FileResponse(str(WEB_DIR / alias_path), headers=_static_cache_headers(alias_path))
             raise HTTPException(404, 'Not Found')
 
         # 파일 확장자가 없는 SPA route만 index.html fallback 처리
