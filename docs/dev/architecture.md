@@ -76,11 +76,11 @@ ros2_ws/src/
 
 ### ROS2 Topic List (Actual Nodes)
 
-The detailed API reference for ROS2 topics is managed as a single source at `docs/dev/topics.adoc`.
+The detailed API reference for ROS2 topics is managed as a single source at [`topics.adoc`](docs/dev/topics.adoc).
 
-- Topic source of truth: `config/ros2_topic.yaml`
+- Topic source of truth: [`config/ros2_topic.yaml`](config/ros2_topic.yaml)
 - Sync/check tool: `python3 tools/topic/topic_lint.py --sync-architecture`, `python3 tools/topic/topic_lint.py --check`
-- Detailed documentation: `docs/dev/topics.adoc`
+- Detailed documentation: [`docs/dev/topics.adoc`](docs/dev/topics.adoc)
 
 #### Camera topic naming policy (Python/C++ depth camera parity)
 
