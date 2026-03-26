@@ -31,6 +31,7 @@ import hashlib
 import json
 import os
 import math
+import sys
 import time
 from pathlib import Path
 
@@ -146,13 +147,16 @@ class IndexBuilder:
 
     def _load_existing(self):
         import faiss
-        if self.index_path.exists() and self.meta_path.exists():
-            self._index  = faiss.read_index(str(self.index_path))
-            self._meta   = json.loads(self.meta_path.read_text())
-            print(f"  Loaded existing index: {self._index.ntotal} vectors, "
-                  f"{len(self._meta)} chunks")
-        if self.hash_path.exists():
-            self._hashes = json.loads(self.hash_path.read_text())
+        try:
+            if self.index_path.exists() and self.meta_path.exists():
+                self._index  = faiss.read_index(str(self.index_path))
+                self._meta   = json.loads(self.meta_path.read_text())
+                print(f"  Loaded existing index: {self._index.ntotal} vectors, "
+                      f"{len(self._meta)} chunks")
+            if self.hash_path.exists():
+                self._hashes = json.loads(self.hash_path.read_text())
+        except Exception as e:
+            raise RuntimeError(f"existing index/meta load failed: {e}") from e
 
     # Build / rebuild
 
@@ -162,7 +166,7 @@ class IndexBuilder:
         incremental: bool = False,
         batch_size: int = 16,
         chunk_batch_size: int = 512,
-    ):
+    ) -> bool:
         import faiss
 
         print(f"\n{'Incremental' if incremental else 'Full'} index build")
@@ -172,10 +176,14 @@ class IndexBuilder:
         docs = load_documents(docs_dir)
         if not docs:
             print("[ERROR] No .txt files found.")
-            return
+            return False
 
         if incremental:
-            self._load_existing()
+            try:
+                self._load_existing()
+            except Exception as e:
+                print(f"[ERROR] {e}")
+                return False
 
         # Determine which files need (re-)indexing
         to_index = []
@@ -187,7 +195,7 @@ class IndexBuilder:
 
         if not to_index and incremental:
             print("  All files up-to-date. Nothing to do.")
-            return
+            return True
 
         print(f"  Files to index: {len(to_index)} / {len(docs)}")
 
@@ -229,8 +237,8 @@ class IndexBuilder:
             print(f"  Chunked {Path(doc['source']).name}: {len(chunks)} chunks")
 
         if not all_chunks:
-            print("  No chunks to embed.")
-            return
+            print("[ERROR] No chunks to embed.")
+            return False
 
         # Embed in chunks to reduce peak memory
         print(f"  Embedding {len(all_chunks)} chunks (encoder batch={batch_size}, stream batch={chunk_batch_size}) ...")
@@ -241,7 +249,11 @@ class IndexBuilder:
             chunk_batch = all_chunks[start:end]
             meta_batch = chunk_metas[start:end]
 
-            vecs = self._embed(chunk_batch, batch_size=batch_size)
+            try:
+                vecs = self._embed(chunk_batch, batch_size=batch_size)
+            except Exception as e:
+                print(f"[ERROR] Embedding failed for batch {batch_idx}/{total_batches}: {e}")
+                return False
 
             if self._index is None:
                 dim = vecs.shape[1]
@@ -258,16 +270,21 @@ class IndexBuilder:
         print(f"  Embedded in {time.time()-t0:.1f}s")
 
         # Save
-        faiss.write_index(self._index, str(self.index_path))
-        self.meta_path.write_text(
-            json.dumps(self._meta, ensure_ascii=False, indent=2), encoding="utf-8")
-        self.hash_path.write_text(
-            json.dumps(self._hashes, ensure_ascii=False, indent=2), encoding="utf-8")
+        try:
+            faiss.write_index(self._index, str(self.index_path))
+            self.meta_path.write_text(
+                json.dumps(self._meta, ensure_ascii=False, indent=2), encoding="utf-8")
+            self.hash_path.write_text(
+                json.dumps(self._hashes, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception as e:
+            print(f"[ERROR] Failed to save index/metadata: {e}")
+            return False
 
         print(f"\nDone.")
         print(f"  Total vectors : {self._index.ntotal}")
         print(f"  Total chunks  : {len(self._meta)}")
         print(f"  Index saved   : {self.index_path}")
+        return True
 
 
 # Retriever (used by llm_node.py)
@@ -343,12 +360,18 @@ def main():
         raise ValueError("--chunk-batch-size must be > 0")
 
     builder = IndexBuilder(Path(args.output))
-    builder.build(
-        Path(args.docs),
-        incremental=args.incremental,
-        batch_size=args.batch_size,
-        chunk_batch_size=args.chunk_batch_size,
-    )
+    try:
+        ok = builder.build(
+            Path(args.docs),
+            incremental=args.incremental,
+            batch_size=args.batch_size,
+            chunk_batch_size=args.chunk_batch_size,
+        )
+    except Exception as e:
+        print(f"[ERROR] Unexpected build failure: {e}")
+        ok = False
+
+    sys.exit(0 if ok else 1)
 
 
 if __name__ == "__main__":
