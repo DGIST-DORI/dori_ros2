@@ -93,7 +93,7 @@ def generate_launch_description():
         DeclareLaunchArgument('use_external_llm', default_value='false'),
         DeclareLaunchArgument('knowledge_file', default_value=knowledge_file_default),
         DeclareLaunchArgument('rag_index_dir', default_value=rag_index_dir_default),
-        DeclareLaunchArgument('llm_model', default_value='gemini-2.0-flash'),
+        DeclareLaunchArgument('llm_model', default_value='gemini-2.5-flash'),
         DeclareLaunchArgument('rag_top_k', default_value='3'),
         DeclareLaunchArgument('whisper_model', default_value='small'),
         DeclareLaunchArgument('whisper_device', default_value='cpu'),

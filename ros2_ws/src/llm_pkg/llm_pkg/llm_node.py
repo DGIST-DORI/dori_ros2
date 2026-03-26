@@ -254,7 +254,7 @@ class LLMNode(Node):
         self.declare_parameter('knowledge_file',   '')
         self.declare_parameter('rag_index_dir',    '')
         self.declare_parameter('use_external_llm', False)
-        self.declare_parameter('model_name',       'gemini-2.0-flash')
+        self.declare_parameter('model_name',       'gemini-2.5-flash')
         self.declare_parameter('api_key',          '')
         self.declare_parameter('rag_top_k',        3)
 

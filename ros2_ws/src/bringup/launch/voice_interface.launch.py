@@ -113,7 +113,7 @@ def generate_launch_description():
             default_value='10.0',
             description='Seconds to wait for STT input before returning to IDLE'),
         DeclareLaunchArgument('llm_model',
-            default_value='gemini-2.0-flash',
+            default_value='gemini-2.5-flash',
             description='External LLM model name'),
         DeclareLaunchArgument('rag_top_k',
             default_value='3',
