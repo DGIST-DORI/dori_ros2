@@ -76,11 +76,11 @@ ros2_ws/src/
 
 ### ROS2 Topic List (Actual Nodes)
 
-ROS2 토픽의 상세 API reference는 `docs/dev/topics.adoc`에서 단일 소스로 관리합니다.
+The detailed API reference for ROS2 topics is managed as a single source at `docs/dev/topics.adoc`.
 
 - Topic source of truth: `config/ros2_topic.yaml`
 - Sync/check tool: `python3 tools/topic/topic_lint.py --sync-architecture`, `python3 tools/topic/topic_lint.py --check`
-- 상세 문서: `docs/dev/topics.adoc`
+- Detailed documentation: `docs/dev/topics.adoc`
 
 #### Camera topic naming policy (Python/C++ depth camera parity)
 
