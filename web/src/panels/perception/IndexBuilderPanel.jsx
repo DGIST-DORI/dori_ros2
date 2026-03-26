@@ -95,7 +95,10 @@ function IndexBuilderPanel() {
         }
         if (d.status === 'done') {
           clearInterval(pollRef.current);
-          appendLog(`[OK] Done — ${d.total_chunks} chunks indexed.`);
+          // API contract: completion message always reflects chunk total from
+          // build_index.py summary line "Total chunks  : <num>".
+          const indexedChunks = Number.isFinite(d.total_chunks) ? d.total_chunks : 0;
+          appendLog(`[OK] Done — ${indexedChunks} chunks indexed.`);
           setStatus('ok');
           fetchIndexInfo();
         } else if (d.status === 'error') {
