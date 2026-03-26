@@ -67,6 +67,7 @@ def generate_launch_description():
         remappings=[
             ('color/image_raw', _topic(dori_ns, '/camera/color/image_raw')),
             ('depth/image_raw', _topic(dori_ns, '/camera/depth/image_raw')),
+            ('depth/image_colormap', _topic(dori_ns, '/camera/depth/image_colormap')),
             ('color/camera_info', _topic(dori_ns, '/camera/color/camera_info')),
             ('depth/camera_info', _topic(dori_ns, '/camera/depth/camera_info')),
             ('depth_scale', _topic(dori_ns, '/camera/depth_scale')),
@@ -84,6 +85,7 @@ def generate_launch_description():
         remappings=[
             ('color/image_raw', _topic(dori_ns, '/camera/rear/color/image_raw')),
             ('depth/image_raw', _topic(dori_ns, '/camera/rear/depth/image_raw')),
+            ('depth/image_colormap', _topic(dori_ns, '/camera/rear/depth/image_colormap')),
             ('color/camera_info', _topic(dori_ns, '/camera/rear/color/camera_info')),
             ('depth/camera_info', _topic(dori_ns, '/camera/rear/depth/camera_info')),
             ('depth_scale', _topic(dori_ns, '/camera/rear/depth_scale')),

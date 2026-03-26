@@ -76,6 +76,15 @@ ros2_ws/src/
 
 ### ROS2 Topic Map (Actual Nodes)
 
+#### Camera topic naming policy (Python/C++ depth camera parity)
+
+- Canonical rule: depth camera nodes must publish to **relative topics** (e.g. `color/image_raw`, `depth/image_raw`) inside node code.
+- Launch files own final routing by injecting `/dori` namespace/remapping to app-level canonical topics (e.g. `/dori/camera/color/image_raw`).
+- Do not hardcode absolute `/dori/...` camera publish topics inside node implementations.
+- This rule applies equally to:
+  - `perception_pkg/perception_pkg/depth_camera_node.py` (Python)
+  - `perception_camera_cpp/src/depth_camera_node.cpp` (C++)
+
 This map is reconstructed from the current node implementations:
 - `perception_pkg/*_node.py`
 - `interaction_pkg/hri_manager_node.py`
