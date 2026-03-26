@@ -63,12 +63,9 @@ http://[Robot IP]:3000
 ws://[Robot IP]:9090
 ```
 
-For broader project context, see the root README: `../README.md`.
+For broader project context, see the root README: [../README](../README.md).
 
 ## Style system
-
-Shared styles are managed in three files under `web/src/styles/`.
-The old `styles/shared/` folder has been deleted and must not be used.
 
 ```
 web/src/styles/
@@ -78,7 +75,7 @@ web/src/styles/
 ```
 
 `index.css` globally imports all three, so each panel CSS only needs to `@import` what it uses.
-For the full design conventions, see `CODING_RULES.md`.
+For the full design conventions, see [web-style.md](../docs/dev/web-style.md).
 
 ## Panel structure convention
 
@@ -88,8 +85,6 @@ Each panel follows the **one file, one component** rule
 
 - Example domain folders: `hri/`, `control/`, `perception/`, `conversation/`, `system/`
 - `web/src/panelTree.jsx` imports panel components only from `web/src/panels/...`
-- `web/src/tabs/` is **not** a location for new implementations; it is kept solely as a
-  **legacy compatibility layer** for existing code
 - New and migrated styles go in the panel-adjacent CSS file
   (`web/src/panels/<domain>/<PanelName>.css`). Styles shared across multiple panels go in
   the three files under `web/src/styles/`
