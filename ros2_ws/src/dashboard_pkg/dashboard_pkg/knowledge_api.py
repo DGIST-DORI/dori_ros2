@@ -73,6 +73,7 @@ parser_arg.add_argument('--web-dir', default='')
 args, _ = parser_arg.parse_known_args()
 
 REPO_ROOT   = Path(args.repo_root)
+ROS2_WS_ROOT = REPO_ROOT / 'ros2_ws'
 PARSER_SCRIPT  = REPO_ROOT / 'tools' / 'parser' / 'parse_cafeteria_menu.py'
 BUILDER_SCRIPT = REPO_ROOT / 'ros2_ws' / 'src' / 'llm_pkg' / 'llm_pkg' / 'build_index.py'
 CRAWLER_SCRIPT = REPO_ROOT / 'tools' / 'crawler' / 'crawl_campus.py'
@@ -1068,13 +1069,21 @@ def _deploy_pipeline(*, force_web_repair: bool = False):
             'log': 'Packages selected: ' + ', '.join(packages_to_build),
         })
         package_args = ' '.join(shlex.quote(pkg) for pkg in packages_to_build)
+        if not ROS2_WS_ROOT.is_dir():
+            _deploy_job.update({
+                'status': 'error',
+                'error': f'ROS2 workspace not found: {ROS2_WS_ROOT}',
+                'finished_at': datetime.datetime.now().isoformat(),
+            })
+            return
+
         ok, _ = _run_step(
             'colcon build',
             [
                 'bash', '-c',
                 f'source {ros_setup} && colcon build --symlink-install --packages-select {package_args}'
             ],
-            cwd=repo,
+            cwd=str(ROS2_WS_ROOT),
         )
         if not ok:
             _deploy_job.update({'status': 'error', 'error': 'colcon build failed',
