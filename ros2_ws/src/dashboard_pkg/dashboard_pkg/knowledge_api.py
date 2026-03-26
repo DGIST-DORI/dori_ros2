@@ -33,7 +33,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -241,16 +241,18 @@ async def build_index(body: dict):
 
 
 @app.get('/api/knowledge/build-index/status/{job_id}')
-async def build_index_status(job_id: str):
+async def build_index_status(job_id: str, cursor: int = Query(0, ge=0)):
     job = _jobs.get(job_id)
     if not job:
         raise HTTPException(404, 'Job not found')
 
-    # Return new lines since last poll (client tracks cursor)
-    # Simple approach: always return full lines (small output)
+    lines = job['lines']
+    safe_cursor = min(cursor, len(lines))
+
     return {
         'status': job['status'],
-        'new_lines': job['lines'],
+        'new_lines': lines[safe_cursor:],
+        'next_cursor': len(lines),
         'total_chunks': job['total_chunks'],
         'error': job['error'],
     }
