@@ -875,6 +875,8 @@ def _deploy_pipeline():
             'dashboard_pkg',
             'navigation_pkg',
             'hri_pkg',
+            'interaction_pkg',
+            'perception_pkg',
             'stt_pkg',
             'tts_pkg',
             'llm_pkg',

@@ -61,7 +61,7 @@ Last updated: March 10, 2026.
 src/
 ├── perception_pkg/       # Perception: camera, person detection, gesture, expression, landmark
 ├── interaction_pkg/      # Interaction coordinator (HRI manager state machine)
-├── hri_pkg/              # Legacy launch wrappers / auxiliary HRI nodes
+├── hri_pkg/              # HRI nodes
 ├── stt_pkg/              # Wake word (Porcupine) + transcription (Whisper)
 ├── llm_pkg/              # Intent classification + RAG + LLM response
 ├── tts_pkg/              # Text-to-speech playback
@@ -69,7 +69,8 @@ src/
 ├── dashboard_pkg/        # ROS ↔ web dashboard bridge
 └── bringup/              # Launch files
     ├── robot.launch.py           # Full robot (top-level)
-    ├── hri.launch.py             # HRI perception only
+    ├── perception.launch.py      # Perception only
+    ├── interaction.launch.py     # HRI manager/state machine only
     └── voice.launch.py # Voice pipeline only
 ```
 

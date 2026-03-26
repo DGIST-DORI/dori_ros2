@@ -65,7 +65,7 @@ pip3 install -r requirements.txt
 
 2. Put it in src/stt_pkg/models
 
-### 3-2. Download and Place MediaPipe `.task` Models (HRI)
+### 3-2. Download and Place MediaPipe `.task` Models (Perception)
 
 `perception_pkg` gesture/expression nodes use MediaPipe Tasks models that are **not** bundled by default.
 
@@ -88,10 +88,10 @@ src/perception_pkg/models/face_landmarker.task
 <install-prefix>/share/perception_pkg/models/
 ```
 
-4. Launch with explicit model paths (recommended) or rely on default share-directory lookup:
+4. Launch Perception with explicit model paths (recommended) or rely on default share-directory lookup:
 
 ```bash
-ros2 launch hri_pkg hri.launch.py \
+ros2 launch bringup perception.launch.py \
   hand_model_path:=/absolute/path/to/hand_landmarker.task \
   face_model_path:=/absolute/path/to/face_landmarker.task
 ```

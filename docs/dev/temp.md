@@ -20,8 +20,11 @@ ros2 launch bringup robot.launch.py tts_language:=ko
 ### Sub-system Launch (Development)
 
 ```bash
-# HRI perception only (cameras + detection nodes)
-ros2 launch bringup hri.launch.py visualize:=true
+# Perception only (cameras + detection nodes)
+ros2 launch bringup perception.launch.py visualize:=true
+
+# Interaction state machine only
+ros2 launch bringup interaction.launch.py
 
 # Voice pipeline only (no cameras needed)
 ros2 launch bringup voice.launch.py
@@ -33,7 +36,7 @@ Perception and voice nodes can be tested independently using manual topic inject
 
 ```bash
 # Terminal 1: start HRI manager
-ros2 run hri_pkg hri_manager_node
+ros2 run interaction_pkg hri_manager_node
 
 # Terminal 2: simulate wake word
 ros2 topic pub /dori/stt/wake_word_detected std_msgs/msg/Bool "data: true" --once
@@ -134,13 +137,13 @@ Gesture and expression nodes require external MediaPipe Task files:
 Recommended placement in source tree:
 
 ```text
-src/hri_pkg/models/
+src/perception_pkg/models/
 ```
 
 After `colcon build`, assets are installed under:
 
 ```text
-install/hri_pkg/share/hri_pkg/models/
+install/perception_pkg/share/perception_pkg/models/
 ```
 
 Launch options:
@@ -191,7 +194,7 @@ Edit `/data/campus/indexed/campus_knowledge.json`:
 
 ```bash
 # Prepare dataset (YOLO format) and edit config/data.yaml
-ros2 run hri_pkg train_landmark \
+ros2 run perception_pkg train_landmark \
   --data config/data.yaml \
   --model yolov8n.pt \
   --epochs 100
