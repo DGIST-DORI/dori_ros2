@@ -78,7 +78,7 @@ ros2_ws/src/
 
 #### Topic Map source of truth
 
-- Source file: `docs/ros/topic_map.yaml`.
+- Source file: `config/ros2_topic.yaml`.
 - This section is generated/synchronized from the YAML file via `python3 tools/topic_map/topic_map_lint.py --sync-architecture`.
 - CI runs `python3 tools/topic_map/topic_map_lint.py --check` and emits warnings if drift is detected.
 
