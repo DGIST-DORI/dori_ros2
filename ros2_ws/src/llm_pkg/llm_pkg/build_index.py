@@ -12,6 +12,9 @@ Usage:
     # First time or full rebuild
     python3 build_index.py --docs ./data/campus/processed --output ./data/campus/indexed
 
+    # Tune embedding/build memory usage
+    python3 build_index.py --docs ./data/campus/processed --output ./data/campus/indexed --batch-size 8 --chunk-batch-size 256
+
     # Incremental: only re-embed changed/new files
     python3 build_index.py --docs ./data/campus/processed --output ./data/campus/indexed --incremental
 
@@ -27,6 +30,7 @@ import argparse
 import hashlib
 import json
 import os
+import math
 import time
 from pathlib import Path
 
@@ -128,11 +132,11 @@ class IndexBuilder:
 
     # Embed
 
-    def _embed(self, texts: list[str]) -> np.ndarray:
+    def _embed(self, texts: list[str], batch_size: int) -> np.ndarray:
         model = self._get_model()
         return model.encode(
             texts,
-            batch_size=64,
+            batch_size=batch_size,
             show_progress_bar=len(texts) > 50,
             normalize_embeddings=True,   # cosine similarity via dot product
             convert_to_numpy=True,
@@ -152,7 +156,13 @@ class IndexBuilder:
 
     # Build / rebuild
 
-    def build(self, docs_dir: Path, incremental: bool = False):
+    def build(
+        self,
+        docs_dir: Path,
+        incremental: bool = False,
+        batch_size: int = 16,
+        chunk_batch_size: int = 512,
+    ):
         import faiss
 
         print(f"\n{'Incremental' if incremental else 'Full'} index build")
@@ -199,7 +209,7 @@ class IndexBuilder:
                 self._index = new_index
                 self._meta  = [self._meta[i] for i in keep_idx]
             else:
-                dim = self._embed(["test"]).shape[1]
+                dim = self._embed(["test"], batch_size=1).shape[1]
                 self._index = faiss.IndexFlatIP(dim)
                 self._meta  = []
 
@@ -222,19 +232,30 @@ class IndexBuilder:
             print("  No chunks to embed.")
             return
 
-        # Embed
-        print(f"  Embedding {len(all_chunks)} chunks ...")
+        # Embed in chunks to reduce peak memory
+        print(f"  Embedding {len(all_chunks)} chunks (encoder batch={batch_size}, stream batch={chunk_batch_size}) ...")
         t0 = time.time()
-        vecs = self._embed(all_chunks)
+        total_batches = math.ceil(len(all_chunks) / chunk_batch_size)
+        for batch_idx, start in enumerate(range(0, len(all_chunks), chunk_batch_size), start=1):
+            end = min(start + chunk_batch_size, len(all_chunks))
+            chunk_batch = all_chunks[start:end]
+            meta_batch = chunk_metas[start:end]
+
+            vecs = self._embed(chunk_batch, batch_size=batch_size)
+
+            if self._index is None:
+                dim = vecs.shape[1]
+                self._index = faiss.IndexFlatIP(dim)  # inner product = cosine (normalized)
+
+            self._index.add(vecs)
+            self._meta.extend(meta_batch)
+
+            print(
+                f"    [Embed] Batch {batch_idx}/{total_batches} | "
+                f"+{len(vecs)} vectors | cumulative={self._index.ntotal}"
+            )
+
         print(f"  Embedded in {time.time()-t0:.1f}s")
-
-        # Create or extend index
-        dim = vecs.shape[1]
-        if self._index is None:
-            self._index = faiss.IndexFlatIP(dim)  # inner product = cosine (normalized)
-
-        self._index.add(vecs)
-        self._meta.extend(chunk_metas)
 
         # Save
         faiss.write_index(self._index, str(self.index_path))
@@ -308,10 +329,26 @@ def main():
                         help="Directory to save FAISS index + metadata")
     parser.add_argument("--incremental", action="store_true",
                         help="Only re-embed changed/new files (faster updates)")
+    parser.add_argument("--batch-size", type=int,
+                        default=int(os.getenv("DORI_EMBED_BATCH_SIZE", "16")),
+                        help="Embedding model batch size (env: DORI_EMBED_BATCH_SIZE, default: 16)")
+    parser.add_argument("--chunk-batch-size", type=int,
+                        default=int(os.getenv("DORI_CHUNK_BATCH_SIZE", "512")),
+                        help="Chunks per streaming embed/add pass (env: DORI_CHUNK_BATCH_SIZE, default: 512)")
     args = parser.parse_args()
 
+    if args.batch_size <= 0:
+        raise ValueError("--batch-size must be > 0")
+    if args.chunk_batch_size <= 0:
+        raise ValueError("--chunk-batch-size must be > 0")
+
     builder = IndexBuilder(Path(args.output))
-    builder.build(Path(args.docs), incremental=args.incremental)
+    builder.build(
+        Path(args.docs),
+        incremental=args.incremental,
+        batch_size=args.batch_size,
+        chunk_batch_size=args.chunk_batch_size,
+    )
 
 
 if __name__ == "__main__":
