@@ -64,6 +64,17 @@ def find_repo_root(start: Path) -> Path:
     return start  # fallback
 
 
+def normalize_repo_root(candidate: Path) -> Path:
+    """Normalize an explicit --repo-root path to the actual repository root."""
+    resolved = candidate.expanduser().resolve()
+    for parent in [resolved, *resolved.parents]:
+        has_ros2_src = (parent / 'ros2_ws' / 'src').is_dir()
+        has_crawler = (parent / 'tools' / 'crawler' / 'crawl_campus.py').is_file()
+        if has_ros2_src and has_crawler:
+            return parent
+    return resolved
+
+
 DEFAULT_REPO = find_repo_root(Path(__file__).resolve().parent)
 
 parser_arg = argparse.ArgumentParser(add_help=False)
@@ -72,7 +83,7 @@ parser_arg.add_argument('--port', type=int, default=3000)
 parser_arg.add_argument('--web-dir', default='')
 args, _ = parser_arg.parse_known_args()
 
-REPO_ROOT   = Path(args.repo_root)
+REPO_ROOT   = normalize_repo_root(Path(args.repo_root))
 ROS2_WS_ROOT = REPO_ROOT / 'ros2_ws'
 PARSER_SCRIPT  = REPO_ROOT / 'tools' / 'parser' / 'parse_cafeteria_menu.py'
 BUILDER_SCRIPT = REPO_ROOT / 'ros2_ws' / 'src' / 'llm_pkg' / 'llm_pkg' / 'build_index.py'
