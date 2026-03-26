@@ -139,11 +139,11 @@ ros2 launch bringup robot_dev.launch.py enable_dashboard:=false
 
 ### Topic Namespace (default vs multi-robot remap)
 
-- 기본값(단일 로봇): `dori_namespace:=/dori`
-- 멀티로봇: launch 인자만 바꿔 `/robot1/dori/...`, `/robot2/dori/...`로 확장
+- Default (single robot): `dori_namespace:=/dori`
+- Multi Robot: Change only the launch argument to expand to `/robot1/dori/...`, `/robot2/dori/...`
 
 ```bash
-# 기본 토픽 (기존과 동일)
+# Basic topic (same as before)
 ros2 launch bringup robot.launch.py dori_namespace:=/dori
 
 # robot1
@@ -153,7 +153,7 @@ ros2 launch bringup robot.launch.py dori_namespace:=/robot1/dori
 ros2 launch bringup robot.launch.py dori_namespace:=/robot2/dori
 ```
 
-토픽 기본값은 각 노드의 `declare_parameter("topics.xxx", "...")`로 선언되어 있으며, launch에서 공통 prefix를 주입해 한 번에 바꿉니다.
+The default topic value is declared with `declare_parameter("topics.xxx", "...")` of each node, and is changed at once by injecting a common prefix at launch.
 
 ### Full Robot (with Dashboard)
  
