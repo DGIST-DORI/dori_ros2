@@ -9,6 +9,7 @@ To enable: ros2 launch dashboard_pkg dashboard.launch.py tunnel:=true
 
 import os
 import shutil
+from pathlib import Path
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -16,6 +17,19 @@ from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+
+
+def _resolve_repo_root(pkg_dir: str) -> str:
+    """Resolve repository root from an installed dashboard package path."""
+    start = Path(pkg_dir).resolve()
+    for candidate in [start, *start.parents]:
+        has_ros2_src = (candidate / 'ros2_ws' / 'src').is_dir()
+        has_crawler = (candidate / 'tools' / 'crawler' / 'crawl_campus.py').is_file()
+        if has_ros2_src and has_crawler:
+            return str(candidate)
+
+    # Fallback: keep legacy relative behavior.
+    return os.path.abspath(os.path.join(pkg_dir, '..', '..', '..', '..'))
 
 
 def _make_tunnel_actions(context, *args, **kwargs):
@@ -91,7 +105,7 @@ def _make_api_server_action(context, *args, **kwargs):
     web_dir   = os.path.join(pkg_dir, 'web_current')
     if not os.path.isdir(web_dir):
         web_dir = os.path.join(pkg_dir, 'web')
-    repo_root = os.path.abspath(os.path.join(pkg_dir, '..', '..', '..', '..'))
+    repo_root = _resolve_repo_root(pkg_dir)
     knowledge_api_script = os.path.join(pkg_dir, 'scripts', 'knowledge_api.py')
 
     dashboard_url = LaunchConfiguration('dashboard_url').perform(context)
@@ -130,7 +144,7 @@ def generate_launch_description():
             'completed static tree before launching the dashboard.'
         )
 
-    repo_root = os.path.abspath(os.path.join(pkg_dir, '..', '..', '..', '..'))
+    repo_root = _resolve_repo_root(pkg_dir)
     knowledge_api_script = os.path.join(pkg_dir, 'scripts', 'knowledge_api.py')
 
     return LaunchDescription([
