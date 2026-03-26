@@ -24,7 +24,7 @@ ros2 launch bringup robot.launch.py tts_language:=ko
 ros2 launch bringup hri.launch.py visualize:=true
 
 # Voice pipeline only (no cameras needed)
-ros2 launch bringup voice_interface.launch.py
+ros2 launch bringup voice.launch.py
 ```
 
 ### Testing Without Hardware

@@ -9,7 +9,7 @@ Nodes started:
   gesture_recognition_node (perception_pkg)
   facial_expression_node   (perception_pkg)
 
-Note: hri_manager_node is started in voice_interface.launch.py
+Note: hri_manager_node is started in voice.launch.py
       because it bridges perception ↔ voice interface.
 """
 

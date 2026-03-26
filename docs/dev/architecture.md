@@ -70,7 +70,7 @@ src/
 └── bringup/              # Launch files
     ├── robot.launch.py           # Full robot (top-level)
     ├── hri.launch.py             # HRI perception only
-    └── voice_interface.launch.py # Voice pipeline only
+    └── voice.launch.py # Voice pipeline only
 ```
 
 ### ROS2 Topic Map
