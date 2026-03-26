@@ -1,15 +1,15 @@
 = ROS2 Topic API Reference
 
-ROS2 토픽 상세 문서의 단일 소스(SSOT)입니다.
+This is a single source (SSOT) for ROS2 topic details documentation.
 
-* Topic anchors는 `topic-...` 형식을 사용하며, 토픽 경로의 `/`는 `-`로 치환합니다.
-* 토픽 상세는 아래 공통 포맷으로 유지합니다.
-* `architecture.md`에는 상세 목록을 중복 기재하지 않고, 본 문서를 참조합니다.
+* Topic anchors use the `topic-...` format, and `/` in topic paths is replaced with `-`.
+* Topic details are maintained in the common format below.
+* The details list is not duplicated in `architecture.md`; instead, this document is referenced.
 
 == Template
 
 [[topic-template-example]]
-`/topic/name`::
+/topic/name::
 +
 --
 *Type (msg)*:: `pkg/msg/Type`
@@ -41,7 +41,7 @@ Subscribers
 == Perception
 
 [[topic-dori-camera-color-image-raw]]
-`/dori/camera/color/image_raw`::
+/dori/camera/color/image_raw::
 +
 --
 *Type (msg)*:: `sensor_msgs/msg/Image`
@@ -79,7 +79,7 @@ Subscribers
 --
 
 [[topic-dori-camera-depth-image-raw]]
-`/dori/camera/depth/image_raw`::
+/dori/camera/depth/image_raw::
 +
 --
 *Type (msg)*:: `sensor_msgs/msg/Image`
@@ -117,7 +117,7 @@ Subscribers
 == HRI
 
 [[topic-dori-hri-manager-state]]
-`/dori/hri/manager_state`::
+/dori/hri/manager_state::
 +
 --
 *Type (msg)*:: `std_msgs/msg/String`
@@ -148,7 +148,7 @@ Subscribers
 == LLM / TTS / Navigation
 
 [[topic-dori-llm-query]]
-`/dori/llm/query`::
+/dori/llm/query::
 +
 --
 *Type (msg)*:: `std_msgs/msg/String`
@@ -177,7 +177,7 @@ Subscribers
 --
 
 [[topic-dori-nav-status]]
-`/dori/nav/status`::
+/dori/nav/status::
 +
 --
 *Type (msg)*:: `std_msgs/msg/String`
@@ -208,7 +208,7 @@ Subscribers
 == System
 
 [[topic-dori-system-metrics]]
-`/dori/system/metrics`::
+/dori/system/metrics::
 +
 --
 *Type (msg)*:: `std_msgs/msg/String`
