@@ -11,7 +11,8 @@ This launch only assembles subsystem launch files:
 import os
 
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription, get_logger
+from launch import LaunchDescription
+from launch.logging import get_logger
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
