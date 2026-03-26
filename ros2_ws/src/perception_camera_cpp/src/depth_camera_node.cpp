@@ -49,7 +49,7 @@ public:
         align_ = std::make_unique<rs2::align>(rs2_stream::RS2_STREAM_COLOR);
       }
 
-      auto depth_sensor = profile_.get_device().first_depth_sensor();
+      auto depth_sensor = get_depth_sensor(profile_.get_device());
       depth_scale_ = depth_sensor.get_depth_scale();
       RCLCPP_INFO(this->get_logger(), "Depth scale: %.6f m/unit", depth_scale_);
 
@@ -77,6 +77,23 @@ public:
   }
 
 private:
+  static rs2::depth_sensor get_depth_sensor(const rs2::device & device) {
+    for (const auto & sensor : device.query_sensors()) {
+      if (sensor.is<rs2::depth_sensor>()) {
+        return sensor.as<rs2::depth_sensor>();
+      }
+    }
+    throw std::runtime_error("No depth sensor found on RealSense device");
+  }
+
+  static builtin_interfaces::msg::Time to_builtin_time(const rclcpp::Time & time) {
+    builtin_interfaces::msg::Time stamp;
+    const int64_t ns = time.nanoseconds();
+    stamp.sec = static_cast<int32_t>(ns / 1000000000LL);
+    stamp.nanosec = static_cast<uint32_t>(ns % 1000000000LL);
+    return stamp;
+  }
+
   sensor_msgs::msg::CameraInfo build_camera_info(const rs2_intrinsics & intrinsics, const builtin_interfaces::msg::Time & stamp, const std::string & frame_id) const {
     sensor_msgs::msg::CameraInfo info;
     info.header.stamp = stamp;
@@ -123,7 +140,7 @@ private:
       frames = align_->process(frames);
     }
 
-    const auto now = this->get_clock()->now().to_msg();
+    const auto now = to_builtin_time(this->get_clock()->now());
 
     if (depth_scale_publish_) {
       std_msgs::msg::Float32 msg;

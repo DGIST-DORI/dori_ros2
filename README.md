@@ -117,6 +117,7 @@ Get your Porcupine key for free at [Picovoice Console](https://console.picovoice
 
 ```bash
 source /opt/ros/humble/setup.bash
+cd ros2_ws
 colcon build --symlink-install
 source install/setup.bash
 ```
@@ -164,6 +165,7 @@ The dashboard frontend must be built before the first run.
 ```bash
 # First time only — build the frontend assets
 cd web && npm ci && npm run build && cd ..
+cd ros2_ws
 colcon build --symlink-install
 source install/setup.bash
  
