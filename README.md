@@ -173,7 +173,7 @@ source install/setup.bash
 ros2 launch bringup robot_dev.launch.py
 
 # Equivalent explicit form
-ros2 launch bringup robot_dev.launch.py enable_dashboard:=true
+# ros2 launch bringup robot_dev.launch.py enable_dashboard:=true
 ```
 
 Dashboard access:
