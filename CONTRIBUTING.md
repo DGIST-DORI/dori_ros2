@@ -48,15 +48,15 @@ This guide explains the minimum workflow for code, docs, and issue contributions
 ## 5) Branch / Commit / PR Workflow
 
 1. Create a branch from your issue/task
-  - Example: `feature/perception-hand-landmark-fix`
+   - Example: `feature/perception-hand-landmark-fix`
 2. Use clear commit messages that explain intent
-  - Example: `fix(perception): handle missing hand_landmarker model path`
+   - Example: `fix(perception): handle missing hand_landmarker model path`
 3. Include the following in your PR description:
-  - Background
-  - What changed
-  - How to test
-  - Scope/impact
-  - Screenshots or short video for UI changes
+   - Background
+   - What changed
+   - How to test
+   - Scope/impact
+   - Screenshots or short video for UI changes
 
 ## 6) Testing & Validation
 
