@@ -49,6 +49,11 @@ def chunk_text(text: str, size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) 
     Split text into overlapping character-level chunks.
     Tries to break at newlines first to avoid mid-sentence splits.
     """
+    if size <= 0:
+        raise ValueError("size must be > 0")
+    if overlap >= size:
+        overlap = size - 1
+
     chunks = []
     start = 0
     while start < len(text):
@@ -63,7 +68,12 @@ def chunk_text(text: str, size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) 
         chunk = text[start:end].strip()
         if chunk:
             chunks.append(chunk)
-        start = end - overlap
+
+        if end >= len(text):
+            break
+
+        next_start = max(start + 1, end - overlap)
+        start = next_start
 
     return chunks
 
