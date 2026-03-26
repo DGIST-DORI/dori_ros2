@@ -20,6 +20,7 @@ Usage:
 import argparse
 import asyncio
 import json
+import logging
 import os
 import re
 import shutil
@@ -92,6 +93,7 @@ _crawl_jobs: dict[str, dict] = {}
 # ── App ────────────────────────────────────────────────────────────────────────
 
 app = FastAPI(title='DORI Knowledge API', version='1.0.0')
+logger = logging.getLogger(__name__)
 
 app.add_middleware(
     CORSMiddleware,
@@ -720,19 +722,104 @@ def _extract_index_asset_paths(index_path: Path) -> list[str]:
     ]
 
 
-def _validate_static_tree(web_dir: Path) -> list[str]:
-    missing: list[str] = []
+def _normalize_static_asset_path(raw: str) -> str | None:
+    candidate = raw.strip()
+    if not candidate:
+        return None
+
+    if candidate.startswith(('http://', 'https://', '//', 'data:')):
+        return None
+
+    normalized = candidate.split('?', 1)[0].split('#', 1)[0].lstrip('/')
+    return normalized or None
+
+
+def _collect_manifest_references(
+    manifest: dict[str, dict],
+    key: str,
+    refs: list[tuple[str, str]],
+    visited: set[str],
+) -> None:
+    if key in visited:
+        return
+    visited.add(key)
+
+    entry = manifest.get(key)
+    if not isinstance(entry, dict):
+        return
+
+    for field in ('file', 'src'):
+        value = entry.get(field)
+        if isinstance(value, str):
+            normalized = _normalize_static_asset_path(value)
+            if normalized:
+                refs.append((f'manifest[{key}].{field}', normalized))
+
+    for list_field in ('css', 'assets'):
+        values = entry.get(list_field)
+        if isinstance(values, list):
+            for value in values:
+                if isinstance(value, str):
+                    normalized = _normalize_static_asset_path(value)
+                    if normalized:
+                        refs.append((f'manifest[{key}].{list_field}', normalized))
+
+    for dep_field in ('imports', 'dynamicImports'):
+        deps = entry.get(dep_field)
+        if not isinstance(deps, list):
+            continue
+        for dep in deps:
+            if not isinstance(dep, str):
+                continue
+            if dep in manifest:
+                _collect_manifest_references(manifest, dep, refs, visited)
+            else:
+                normalized = _normalize_static_asset_path(dep)
+                if normalized:
+                    refs.append((f'manifest[{key}].{dep_field}', normalized))
+
+
+def _validate_static_tree(web_dir: Path) -> tuple[list[str], int]:
+    refs: list[tuple[str, str]] = []
     index_path = web_dir / 'index.html'
     if not index_path.is_file():
-        return ['index.html']
+        return ['index.html'], 1
 
-    for asset_path in _extract_index_asset_paths(index_path):
+    manifest_path = web_dir / 'manifest.json'
+    if manifest_path.is_file():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+        except json.JSONDecodeError as exc:
+            logger.warning('Failed to parse %s: %s. Falling back to index.html scan.', manifest_path, exc)
+        else:
+            if isinstance(manifest, dict):
+                visited: set[str] = set()
+                for key in manifest.keys():
+                    _collect_manifest_references(manifest, key, refs, visited)
+            else:
+                logger.warning('Unexpected manifest format at %s. Falling back to index.html scan.', manifest_path)
+    else:
+        logger.warning('manifest.json not found under %s. Falling back to index.html scan.', web_dir)
+
+    if not refs:
+        for asset_path in _extract_index_asset_paths(index_path):
+            if asset_path.startswith('api/'):
+                continue
+            refs.append(('index.html', asset_path))
+
+    missing: list[str] = []
+    seen_refs: set[str] = set()
+    for source, asset_path in refs:
         if asset_path.startswith('api/'):
             continue
+        ref_key = f'{source}|{asset_path}'
+        if ref_key in seen_refs:
+            continue
+        seen_refs.add(ref_key)
         if not (web_dir / asset_path).is_file():
-            missing.append(asset_path)
+            missing.append(f'{source}: {asset_path}')
 
-    return missing
+    return missing, len(seen_refs)
 
 
 def _publish_built_web_tree() -> tuple[bool, str]:
@@ -747,15 +834,17 @@ def _publish_built_web_tree() -> tuple[bool, str]:
     Operators should purge CDN/browser caches only after this completes.
     """
     built_web_dir = _built_web_dir()
-    missing = _validate_static_tree(built_web_dir)
+    missing, checked = _validate_static_tree(built_web_dir)
     if missing:
         preview = ', '.join(missing[:5])
         if len(missing) > 5:
             preview += f', ... (+{len(missing) - 5} more)'
         return False, (
             'Installed static tree is incomplete; refusing to publish '
-            f'{built_web_dir}. Missing: {preview}'
+            f'{built_web_dir}. Validation checked={checked}, missing={len(missing)}. '
+            f'Missing: {preview}'
         )
+    validation_summary = f'Validation checked={checked}, missing=0.'
 
     release_root = _web_release_root()
     release_root.mkdir(parents=True, exist_ok=True)
@@ -768,7 +857,7 @@ def _publish_built_web_tree() -> tuple[bool, str]:
         shutil.rmtree(tmp_release_dir)
     shutil.copytree(built_web_dir, tmp_release_dir)
 
-    copied_missing = _validate_static_tree(tmp_release_dir)
+    copied_missing, copied_checked = _validate_static_tree(tmp_release_dir)
     if copied_missing:
         shutil.rmtree(tmp_release_dir, ignore_errors=True)
         preview = ', '.join(copied_missing[:5])
@@ -776,8 +865,10 @@ def _publish_built_web_tree() -> tuple[bool, str]:
             preview += f', ... (+{len(copied_missing) - 5} more)'
         return False, (
             'Staged static tree is incomplete after copy; refusing to publish. '
+            f'Validation checked={copied_checked}, missing={len(copied_missing)}. '
             f'Missing: {preview}'
         )
+    copied_validation_summary = f'Validation checked={copied_checked}, missing=0.'
 
     tmp_release_dir.rename(release_dir)
 
@@ -790,6 +881,7 @@ def _publish_built_web_tree() -> tuple[bool, str]:
 
     return True, (
         'Published dashboard static tree via atomic symlink swap. '
+        f'{validation_summary} {copied_validation_summary} '
         f'Active tree: {published_link} -> {release_dir}. '
         'Cache purge/window for public exposure must happen after this step.'
     )
