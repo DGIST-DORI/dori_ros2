@@ -9,24 +9,26 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 == Template
 
 [[topic-template-example]]
-/topic/name::
-+
---
+=== /topic/name
+
 *Type (msg)*:: `pkg/msg/Type`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - publisher_node_a
 
-Subscribers
+*Subscribers*::
 - subscriber_node_a
 - subscriber_node_b
-----
 
-*Frequency*:: `N/A (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: publisher_node_a → /topic/name → subscriber_node_a
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -35,33 +37,35 @@ Subscribers
 | data | string | - | Meaning of the message payload.
 |===
 
-*Description*:: Topic purpose, lifecycle, and caveats (QoS/latency/trigger conditions).
---
+*Description*:: Topic purpose, lifecycle, and caveats.
+
 
 
 == Perception
 
 [[topic-dori-camera-color-image-raw]]
-/dori/camera/color/image_raw::
-+
---
+=== /dori/camera/color/image_raw
+
 *Type (msg)*:: `sensor_msgs/msg/Image`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - depth_camera_node
 
-Subscribers
+*Subscribers*::
 - person_detection_node
 - gesture_recognition_node
 - facial_expression_node
 - landmark_detection_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: depth_camera_node → /dori/camera/color/image_raw → person_detection_node, gesture_recognition_node, facial_expression_node, landmark_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -77,28 +81,30 @@ Subscribers
 |===
 
 *Description*:: RGB camera stream used by perception pipelines.
---
+
 
 
 [[topic-dori-camera-depth-image-raw]]
-/dori/camera/depth/image_raw::
-+
---
+=== /dori/camera/depth/image_raw
+
 *Type (msg)*:: `sensor_msgs/msg/Image`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - depth_camera_node
 
-Subscribers
+*Subscribers*::
 - person_detection_node
 - landmark_detection_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: depth_camera_node → /dori/camera/depth/image_raw → person_detection_node, landmark_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -114,27 +120,29 @@ Subscribers
 |===
 
 *Description*:: Raw depth frame for distance estimation and landmark range filtering.
---
+
 
 
 [[topic-dori-camera-color-camera_info]]
-/dori/camera/color/camera_info::
-+
---
+=== /dori/camera/color/camera_info
+
 *Type (msg)*:: `sensor_msgs/msg/CameraInfo`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - depth_camera_node
 
-Subscribers
+*Subscribers*::
 - landmark_detection_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: depth_camera_node → /dori/camera/color/camera_info → landmark_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -144,27 +152,29 @@ Subscribers
 |===
 
 *Description*:: RGB intrinsics for pixel-to-direction / localization math.
---
+
 
 
 [[topic-dori-camera-depth-camera_info]]
-/dori/camera/depth/camera_info::
-+
---
+=== /dori/camera/depth/camera_info
+
 *Type (msg)*:: `sensor_msgs/msg/CameraInfo`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - depth_camera_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: depth_camera_node → /dori/camera/depth/camera_info → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -174,27 +184,29 @@ Subscribers
 |===
 
 *Description*:: Depth intrinsics metadata stream.
---
+
 
 
 [[topic-dori-camera-depth-image_colormap]]
-/dori/camera/depth/image_colormap::
-+
---
+=== /dori/camera/depth/image_colormap
+
 *Type (msg)*:: `sensor_msgs/msg/Image`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - depth_camera_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: depth_camera_node → /dori/camera/depth/image_colormap → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -204,27 +216,29 @@ Subscribers
 |===
 
 *Description*:: Colorized depth visualization stream.
---
+
 
 
 [[topic-dori-camera-depth_scale]]
-/dori/camera/depth_scale::
-+
---
+=== /dori/camera/depth_scale
+
 *Type (msg)*:: `std_msgs/msg/Float32`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - (none documented)
 
-Subscribers
+*Subscribers*::
 - person_detection_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: (none documented) → /dori/camera/depth_scale → person_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -234,27 +248,29 @@ Subscribers
 |===
 
 *Description*:: Optional depth meter-per-unit scale expected by person detection.
---
+
 
 
 [[topic-dori-follow-target_offset]]
-/dori/follow/target_offset::
-+
---
+=== /dori/follow/target_offset
+
 *Type (msg)*:: `geometry_msgs/msg/Point`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - person_detection_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: person_detection_node → /dori/follow/target_offset → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -264,27 +280,29 @@ Subscribers
 |===
 
 *Description*:: Relative target offset for follow-control consumers.
---
+
 
 
 [[topic-dori-landmark-context]]
-/dori/landmark/context::
-+
---
+=== /dori/landmark/context
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - landmark_detection_node
 
-Subscribers
+*Subscribers*::
 - hri_manager_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: landmark_detection_node → /dori/landmark/context → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -294,27 +312,29 @@ Subscribers
 |===
 
 *Description*:: Current location/context text used in LLM query payload.
---
+
 
 
 [[topic-dori-landmark-detections]]
-/dori/landmark/detections::
-+
---
+=== /dori/landmark/detections
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - landmark_detection_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: landmark_detection_node → /dori/landmark/detections → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -324,27 +344,29 @@ Subscribers
 |===
 
 *Description*:: Raw landmark/candidate detections as JSON.
---
+
 
 
 [[topic-dori-landmark-localization]]
-/dori/landmark/localization::
-+
---
+=== /dori/landmark/localization
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - landmark_detection_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: landmark_detection_node → /dori/landmark/localization → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -354,29 +376,31 @@ Subscribers
 |===
 
 *Description*:: Landmark-based localization estimate JSON.
---
+
 
 
 == HRI
 
 [[topic-dori-hri-manager-state]]
-/dori/hri/manager_state::
-+
---
+=== /dori/hri/manager_state
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - hri_manager_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `On state transition / heartbeat (TBD)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: hri_manager_node → /dori/hri/manager_state → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -386,27 +410,29 @@ Subscribers
 |===
 
 *Description*:: Current HRI state for observability and debugging.
---
+
 
 
 [[topic-dori-hri-annotated_expression]]
-/dori/hri/annotated_expression::
-+
---
+=== /dori/hri/annotated_expression
+
 *Type (msg)*:: `sensor_msgs/msg/Image`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - facial_expression_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: facial_expression_node → /dori/hri/annotated_expression → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -416,27 +442,29 @@ Subscribers
 |===
 
 *Description*:: Facial expression visualization/debug image.
---
+
 
 
 [[topic-dori-hri-annotated_gesture]]
-/dori/hri/annotated_gesture::
-+
---
+=== /dori/hri/annotated_gesture
+
 *Type (msg)*:: `sensor_msgs/msg/Image`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - gesture_recognition_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: gesture_recognition_node → /dori/hri/annotated_gesture → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -446,27 +474,29 @@ Subscribers
 |===
 
 *Description*:: Gesture visualization/debug image.
---
+
 
 
 [[topic-dori-hri-annotated_image]]
-/dori/hri/annotated_image::
-+
---
+=== /dori/hri/annotated_image
+
 *Type (msg)*:: `sensor_msgs/msg/Image`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - person_detection_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: person_detection_node → /dori/hri/annotated_image → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -476,27 +506,29 @@ Subscribers
 |===
 
 *Description*:: Person detection debug overlay image.
---
+
 
 
 [[topic-dori-hri-annotated_landmark]]
-/dori/hri/annotated_landmark::
-+
---
+=== /dori/hri/annotated_landmark
+
 *Type (msg)*:: `sensor_msgs/msg/Image`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - landmark_detection_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: landmark_detection_node → /dori/hri/annotated_landmark → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -506,27 +538,29 @@ Subscribers
 |===
 
 *Description*:: Landmark detection visualization/debug image.
---
+
 
 
 [[topic-dori-hri-expression]]
-/dori/hri/expression::
-+
---
+=== /dori/hri/expression
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - facial_expression_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: facial_expression_node → /dori/hri/expression → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -536,27 +570,29 @@ Subscribers
 |===
 
 *Description*:: Expression inference JSON payload.
---
+
 
 
 [[topic-dori-hri-expression_command]]
-/dori/hri/expression_command::
-+
---
+=== /dori/hri/expression_command
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - facial_expression_node
 
-Subscribers
+*Subscribers*::
 - hri_manager_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: facial_expression_node → /dori/hri/expression_command → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -566,27 +602,29 @@ Subscribers
 |===
 
 *Description*:: HRI action hint from expression state.
---
+
 
 
 [[topic-dori-hri-gesture]]
-/dori/hri/gesture::
-+
---
+=== /dori/hri/gesture
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - gesture_recognition_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: gesture_recognition_node → /dori/hri/gesture → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -596,27 +634,29 @@ Subscribers
 |===
 
 *Description*:: Gesture detection JSON payload.
---
+
 
 
 [[topic-dori-hri-gesture_command]]
-/dori/hri/gesture_command::
-+
---
+=== /dori/hri/gesture_command
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - gesture_recognition_node
 
-Subscribers
+*Subscribers*::
 - hri_manager_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: gesture_recognition_node → /dori/hri/gesture_command → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -626,28 +666,30 @@ Subscribers
 |===
 
 *Description*:: Mapped high-level gesture command (`STOP`, `CALL`, etc.).
---
+
 
 
 [[topic-dori-hri-interaction_trigger]]
-/dori/hri/interaction_trigger::
-+
---
+=== /dori/hri/interaction_trigger
+
 *Type (msg)*:: `std_msgs/msg/Bool`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - person_detection_node
 
-Subscribers
+*Subscribers*::
 - gesture_recognition_node
 - facial_expression_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: person_detection_node → /dori/hri/interaction_trigger → gesture_recognition_node, facial_expression_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -657,27 +699,29 @@ Subscribers
 |===
 
 *Description*:: Enables gesture/expression inference only during interaction.
---
+
 
 
 [[topic-dori-hri-persons]]
-/dori/hri/persons::
-+
---
+=== /dori/hri/persons
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - person_detection_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: person_detection_node → /dori/hri/persons → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -687,27 +731,29 @@ Subscribers
 |===
 
 *Description*:: JSON list of detected persons/tracks.
---
+
 
 
 [[topic-dori-hri-set_follow_mode]]
-/dori/hri/set_follow_mode::
-+
---
+=== /dori/hri/set_follow_mode
+
 *Type (msg)*:: `std_msgs/msg/Bool`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - hri_manager_node
 
-Subscribers
+*Subscribers*::
 - person_detection_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: hri_manager_node → /dori/hri/set_follow_mode → person_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -717,27 +763,29 @@ Subscribers
 |===
 
 *Description*:: Enable/disable person target registration and follow behavior.
---
+
 
 
 [[topic-dori-hri-tracking_state]]
-/dori/hri/tracking_state::
-+
---
+=== /dori/hri/tracking_state
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - person_detection_node
 
-Subscribers
+*Subscribers*::
 - hri_manager_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: person_detection_node → /dori/hri/tracking_state → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -747,27 +795,29 @@ Subscribers
 |===
 
 *Description*:: JSON tracking state (`idle/tracking/lost`) for session/nav control.
---
+
 
 
 [[topic-dori-stt-result]]
-/dori/stt/result::
-+
---
+=== /dori/stt/result
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - external STT node
 
-Subscribers
+*Subscribers*::
 - hri_manager_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: external STT node → /dori/stt/result → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -777,28 +827,30 @@ Subscribers
 |===
 
 *Description*:: User transcription JSON/text from speech recognizer.
---
+
 
 
 [[topic-dori-stt-wake_word_detected]]
-/dori/stt/wake_word_detected::
-+
---
+=== /dori/stt/wake_word_detected
+
 *Type (msg)*:: `std_msgs/msg/Bool`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - gesture_recognition_node (WAVE trigger)
 - external STT node
 
-Subscribers
+*Subscribers*::
 - hri_manager_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: gesture_recognition_node (WAVE trigger), external STT node → /dori/stt/wake_word_detected → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -808,27 +860,29 @@ Subscribers
 |===
 
 *Description*:: Wake event that starts HRI listening flow.
---
+
 
 
 [[topic-dori-tts-done]]
-/dori/tts/done::
-+
---
+=== /dori/tts/done
+
 *Type (msg)*:: `std_msgs/msg/Bool`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - tts_node
 
-Subscribers
+*Subscribers*::
 - hri_manager_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: tts_node → /dori/tts/done → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -838,27 +892,29 @@ Subscribers
 |===
 
 *Description*:: Playback completion event for HRI state transitions.
---
+
 
 
 [[topic-dori-tts-speaking]]
-/dori/tts/speaking::
-+
---
+=== /dori/tts/speaking
+
 *Type (msg)*:: `std_msgs/msg/Bool`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - tts_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: tts_node → /dori/tts/speaking → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -868,27 +924,29 @@ Subscribers
 |===
 
 *Description*:: True while TTS is actively speaking (used for mic mute by external STT).
---
+
 
 
 [[topic-dori-tts-text]]
-/dori/tts/text::
-+
---
+=== /dori/tts/text
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - hri_manager_node
 
-Subscribers
+*Subscribers*::
 - tts_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: hri_manager_node → /dori/tts/text → tts_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -898,29 +956,31 @@ Subscribers
 |===
 
 *Description*:: Direct TTS text (bypass LLM for prompts/system messages).
---
+
 
 
 == LLM
 
 [[topic-dori-llm-query]]
-/dori/llm/query::
-+
---
+=== /dori/llm/query
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - hri_manager_node
 
-Subscribers
+*Subscribers*::
 - llm_node
-----
 
-*Frequency*:: `Event-driven (user interaction dependent)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: hri_manager_node → /dori/llm/query → llm_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -930,27 +990,29 @@ Subscribers
 |===
 
 *Description*:: Input channel for LLM intent classification and response generation.
---
+
 
 
 [[topic-dori-llm-response]]
-/dori/llm/response::
-+
---
+=== /dori/llm/response
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - llm_node
 
-Subscribers
+*Subscribers*::
 - tts_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: llm_node → /dori/llm/response → tts_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -960,29 +1022,31 @@ Subscribers
 |===
 
 *Description*:: Generated natural-language response text.
---
+
 
 
 == Navigation
 
 [[topic-dori-nav-status]]
-/dori/nav/status::
-+
---
+=== /dori/nav/status
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - navigator_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `Event-driven`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: navigator_node → /dori/nav/status → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -992,27 +1056,29 @@ Subscribers
 |===
 
 *Description*:: Status updates for navigation progress/failure/completion.
---
+
 
 
 [[topic-dori-nav-cancel]]
-/dori/nav/cancel::
-+
---
+=== /dori/nav/cancel
+
 *Type (msg)*:: `std_msgs/msg/Bool`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - external/nav client node
 
-Subscribers
+*Subscribers*::
 - navigator_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: external/nav client node → /dori/nav/cancel → navigator_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -1022,27 +1088,29 @@ Subscribers
 |===
 
 *Description*:: Cancel signal for current navigation task.
---
+
 
 
 [[topic-dori-nav-command]]
-/dori/nav/command::
-+
---
+=== /dori/nav/command
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - hri_manager_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: hri_manager_node → /dori/nav/command → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -1052,27 +1120,29 @@ Subscribers
 |===
 
 *Description*:: High-level navigation command channel.
---
+
 
 
 [[topic-dori-nav-destination]]
-/dori/nav/destination::
-+
---
+=== /dori/nav/destination
+
 *Type (msg)*:: `geometry_msgs/msg/PoseStamped`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - llm_node
 
-Subscribers
+*Subscribers*::
 - navigator_node
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: llm_node → /dori/nav/destination → navigator_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -1082,27 +1152,29 @@ Subscribers
 |===
 
 *Description*:: Navigation goal pose extracted from navigation intent.
---
+
 
 
 [[topic-dori-nav-global_path]]
-/dori/nav/global_path::
-+
---
+=== /dori/nav/global_path
+
 *Type (msg)*:: `nav_msgs/msg/Path`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - navigator_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: navigator_node → /dori/nav/global_path → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -1112,27 +1184,29 @@ Subscribers
 |===
 
 *Description*:: Planned global path visualization/output.
---
+
 
 
 [[topic-dori-nav-local_path]]
-/dori/nav/local_path::
-+
---
+=== /dori/nav/local_path
+
 *Type (msg)*:: `nav_msgs/msg/Path`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - navigator_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `TBD (measure and update)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: navigator_node → /dori/nav/local_path → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -1142,29 +1216,31 @@ Subscribers
 |===
 
 *Description*:: Local path / short-horizon trajectory visualization.
---
+
 
 
 == System
 
 [[topic-dori-system-metrics]]
-/dori/system/metrics::
-+
---
+=== /dori/system/metrics
+
 *Type (msg)*:: `std_msgs/msg/String`
 
-*Publishers / Subscribers*::
-+
-[source,text]
-----
-Publishers
+*Publishers*::
 - system_monitor_node
 
-Subscribers
+*Subscribers*::
 - (none documented)
-----
 
-*Frequency*:: `Periodic (TBD)`
+*Frequency*::
+- Expected: N/A
+- Actual: TBD
+
+*QoS*::
+- Reliability: Reliable
+- Durability: Volatile
+
+*Flow*:: system_monitor_node → /dori/system/metrics → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -1174,4 +1250,4 @@ Subscribers
 |===
 
 *Description*:: Periodic system telemetry for monitoring and diagnostics.
---
+
