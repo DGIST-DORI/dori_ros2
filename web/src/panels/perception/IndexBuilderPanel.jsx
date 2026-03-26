@@ -33,6 +33,8 @@ function IndexBuilderPanel() {
   const [status, setStatus] = useState('idle');
   const [log, setLog] = useState([]);
   const [incremental, setIncremental] = useState(true);
+  const [batchSize, setBatchSize] = useState(16);
+  const [chunkBatchSize, setChunkBatchSize] = useState(512);
   const [indexInfo, setIndexInfo] = useState(null);
   const pollRef = useRef(null);
   const cursorRef = useRef(0);
@@ -68,7 +70,11 @@ function IndexBuilderPanel() {
       const res = await fetch(`${API}/build-index`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ incremental }),
+        body: JSON.stringify({
+          incremental,
+          batch_size: Number(batchSize),
+          chunk_batch_size: Number(chunkBatchSize),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail ?? res.statusText);
@@ -138,6 +144,27 @@ function IndexBuilderPanel() {
           />
           <span>Incremental (skip unchanged files)</span>
         </label>
+
+        <div className="row row-wrap">
+          <label>
+            <span>Embed batch size</span>
+            <input
+              type="number"
+              min={1}
+              value={batchSize}
+              onChange={(e) => setBatchSize(Math.max(1, Number(e.target.value) || 1))}
+            />
+          </label>
+          <label>
+            <span>Chunk stream batch</span>
+            <input
+              type="number"
+              min={1}
+              value={chunkBatchSize}
+              onChange={(e) => setChunkBatchSize(Math.max(1, Number(e.target.value) || 1))}
+            />
+          </label>
+        </div>
 
         <div className="row row-wrap">
           <button

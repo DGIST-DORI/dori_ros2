@@ -205,7 +205,12 @@ async def parse_menu(files: list[UploadFile] = File(...)):
 
 # ── /api/knowledge/build-index ────────────────────────────────────────────────
 
-def _run_build_index(job_id: str, incremental: bool):
+def _run_build_index(
+    job_id: str,
+    incremental: bool,
+    batch_size: int | None = None,
+    chunk_batch_size: int | None = None,
+):
     """Run build_index.py in a background thread, capture stdout line by line."""
     job = _jobs[job_id]
     job['status'] = 'running'
@@ -215,6 +220,10 @@ def _run_build_index(job_id: str, incremental: bool):
            '--output', str(INDEXED_DIR)]
     if incremental:
         cmd.append('--incremental')
+    if batch_size is not None:
+        cmd.extend(['--batch-size', str(batch_size)])
+    if chunk_batch_size is not None:
+        cmd.extend(['--chunk-batch-size', str(chunk_batch_size)])
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -252,6 +261,22 @@ def _run_build_index(job_id: str, incremental: bool):
 @app.post('/api/knowledge/build-index')
 async def build_index(body: dict):
     incremental = body.get('incremental', True)
+    batch_size = body.get('batch_size')
+    chunk_batch_size = body.get('chunk_batch_size')
+
+    if not isinstance(incremental, bool):
+        raise HTTPException(400, 'incremental must be a boolean')
+    if batch_size is not None:
+        if not isinstance(batch_size, int):
+            raise HTTPException(400, 'batch_size must be an integer')
+        if batch_size <= 0:
+            raise HTTPException(400, 'batch_size must be > 0')
+    if chunk_batch_size is not None:
+        if not isinstance(chunk_batch_size, int):
+            raise HTTPException(400, 'chunk_batch_size must be an integer')
+        if chunk_batch_size <= 0:
+            raise HTTPException(400, 'chunk_batch_size must be > 0')
+
     job_id = str(uuid.uuid4())[:8]
     _jobs[job_id] = {
         'status': 'pending',
@@ -260,7 +285,11 @@ async def build_index(body: dict):
         'total_vectors': 0,
         'error': '',
     }
-    t = threading.Thread(target=_run_build_index, args=(job_id, incremental), daemon=True)
+    t = threading.Thread(
+        target=_run_build_index,
+        args=(job_id, incremental, batch_size, chunk_batch_size),
+        daemon=True,
+    )
     t.start()
     return {'job_id': job_id}
 

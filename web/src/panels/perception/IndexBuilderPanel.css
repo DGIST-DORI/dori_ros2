@@ -33,3 +33,14 @@
   cursor: pointer;
 }
 .km-checkbox-row input[type="checkbox"] { accent-color: var(--color-info); }
+
+.km-index-builder-panel label > span {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.km-index-builder-panel input[type="number"] {
+  width: 120px;
+}
