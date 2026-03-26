@@ -2,7 +2,7 @@
 Perception stack launch (camera/vision only).
 
 Nodes started:
-  depth_camera_node           (perception_pkg) x 2  - front / rear cameras
+  depth_camera_node           (perception_pkg or perception_camera_cpp) x 2 - front / rear cameras
   person_detection_node       (perception_pkg)
   landmark_detection_node     (perception_pkg)
   gesture_recognition_node    (perception_pkg)
@@ -14,7 +14,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -39,6 +39,7 @@ def generate_launch_description():
         DeclareLaunchArgument('camera_fps', default_value='15'),
         DeclareLaunchArgument('camera_width', default_value='640'),
         DeclareLaunchArgument('camera_height', default_value='480'),
+        DeclareLaunchArgument('use_cpp_depth_camera', default_value='true'),
     ]
 
     camera_params = {
@@ -49,13 +50,14 @@ def generate_launch_description():
         'align_depth_to_color': True,
     }
 
-    depth_camera_front = Node(
+    depth_camera_front_py = Node(
         package='perception_pkg',
         executable='depth_camera_node',
         name='depth_camera_front',
         namespace='dori/camera/front',
         output='screen',
         parameters=[{**camera_params, 'serial_number': ''}],
+        condition=UnlessCondition(LaunchConfiguration('use_cpp_depth_camera')),
         remappings=[
             ('color/image_raw', '/dori/camera/color/image_raw'),
             ('depth/image_raw', '/dori/camera/depth/image_raw'),
@@ -65,13 +67,14 @@ def generate_launch_description():
         ],
     )
 
-    depth_camera_rear = Node(
+    depth_camera_rear_py = Node(
         package='perception_pkg',
         executable='depth_camera_node',
         name='depth_camera_rear',
         namespace='dori/camera/rear',
         output='screen',
         parameters=[{**camera_params, 'serial_number': ''}],
+        condition=UnlessCondition(LaunchConfiguration('use_cpp_depth_camera')),
         remappings=[
             ('color/image_raw', '/dori/camera/rear/color/image_raw'),
             ('depth/image_raw', '/dori/camera/rear/depth/image_raw'),
@@ -80,6 +83,41 @@ def generate_launch_description():
             ('depth_scale', '/dori/camera/rear/depth_scale'),
         ],
     )
+
+    depth_camera_front_cpp = Node(
+        package='perception_camera_cpp',
+        executable='depth_camera_node',
+        name='depth_camera_front',
+        namespace='dori/camera/front',
+        output='screen',
+        parameters=[{**camera_params, 'serial_number': ''}],
+        condition=IfCondition(LaunchConfiguration('use_cpp_depth_camera')),
+        remappings=[
+            ('color/image_raw', '/dori/camera/color/image_raw'),
+            ('depth/image_raw', '/dori/camera/depth/image_raw'),
+            ('color/camera_info', '/dori/camera/color/camera_info'),
+            ('depth/camera_info', '/dori/camera/depth/camera_info'),
+            ('depth_scale', '/dori/camera/depth_scale'),
+        ],
+    )
+
+    depth_camera_rear_cpp = Node(
+        package='perception_camera_cpp',
+        executable='depth_camera_node',
+        name='depth_camera_rear',
+        namespace='dori/camera/rear',
+        output='screen',
+        parameters=[{**camera_params, 'serial_number': ''}],
+        condition=IfCondition(LaunchConfiguration('use_cpp_depth_camera')),
+        remappings=[
+            ('color/image_raw', '/dori/camera/rear/color/image_raw'),
+            ('depth/image_raw', '/dori/camera/rear/depth/image_raw'),
+            ('color/camera_info', '/dori/camera/rear/color/camera_info'),
+            ('depth/camera_info', '/dori/camera/rear/depth/camera_info'),
+            ('depth_scale', '/dori/camera/rear/depth_scale'),
+        ],
+    )
+
 
     person_detection_node = Node(
         package='perception_pkg',
@@ -137,8 +175,10 @@ def generate_launch_description():
 
     return LaunchDescription([
         *args,
-        depth_camera_front,
-        depth_camera_rear,
+        depth_camera_front_py,
+        depth_camera_rear_py,
+        depth_camera_front_cpp,
+        depth_camera_rear_cpp,
         person_detection_node,
         landmark_detection_node,
         gesture_recognition_node,
