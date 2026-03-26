@@ -25,12 +25,12 @@ class DepthCameraNode(Node):
         self.declare_parameter('enable_depth', True)
         self.declare_parameter('enable_color', True)
         self.declare_parameter('align_depth_to_color', True)
-        self.declare_parameter('depth_scale_publish', True)  # /dori/camera/depth_scale
-        self.declare_parameter('topics.color_pub', '/dori/camera/color/image_raw')
-        self.declare_parameter('topics.depth_pub', '/dori/camera/depth/image_raw')
-        self.declare_parameter('topics.depth_colormap_pub', '/dori/camera/depth/image_colormap')
-        self.declare_parameter('topics.color_info_pub', '/dori/camera/color/camera_info')
-        self.declare_parameter('topics.depth_info_pub', '/dori/camera/depth/camera_info')
+        self.declare_parameter('depth_scale_publish', True)
+        self.declare_parameter('topics.color_pub', 'color/image_raw')
+        self.declare_parameter('topics.depth_pub', 'depth/image_raw')
+        self.declare_parameter('topics.depth_colormap_pub', 'depth/image_colormap')
+        self.declare_parameter('topics.color_info_pub', 'color/camera_info')
+        self.declare_parameter('topics.depth_info_pub', 'depth/camera_info')
 
         self.width = self.get_parameter('width').value
         self.height = self.get_parameter('height').value

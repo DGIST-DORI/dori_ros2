@@ -24,12 +24,17 @@ public:
     align_depth_to_color_ = this->declare_parameter<bool>("align_depth_to_color", true);
     depth_scale_publish_ = this->declare_parameter<bool>("depth_scale_publish", true);
     serial_number_ = this->declare_parameter<std::string>("serial_number", "");
+    color_topic_ = this->declare_parameter<std::string>("topics.color_pub", "color/image_raw");
+    depth_topic_ = this->declare_parameter<std::string>("topics.depth_pub", "depth/image_raw");
+    color_info_topic_ = this->declare_parameter<std::string>("topics.color_info_pub", "color/camera_info");
+    depth_info_topic_ = this->declare_parameter<std::string>("topics.depth_info_pub", "depth/camera_info");
+    depth_scale_topic_ = this->declare_parameter<std::string>("topics.depth_scale_pub", "depth_scale");
 
-    color_pub_ = this->create_publisher<sensor_msgs::msg::Image>("color/image_raw", 10);
-    depth_pub_ = this->create_publisher<sensor_msgs::msg::Image>("depth/image_raw", 10);
-    color_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("color/camera_info", 10);
-    depth_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("depth/camera_info", 10);
-    depth_scale_pub_ = this->create_publisher<std_msgs::msg::Float32>("depth_scale", 10);
+    color_pub_ = this->create_publisher<sensor_msgs::msg::Image>(color_topic_, 10);
+    depth_pub_ = this->create_publisher<sensor_msgs::msg::Image>(depth_topic_, 10);
+    color_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>(color_info_topic_, 10);
+    depth_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>(depth_info_topic_, 10);
+    depth_scale_pub_ = this->create_publisher<std_msgs::msg::Float32>(depth_scale_topic_, 10);
 
     try {
       rs2::config config;
@@ -201,6 +206,11 @@ private:
   bool align_depth_to_color_;
   bool depth_scale_publish_;
   std::string serial_number_;
+  std::string color_topic_;
+  std::string depth_topic_;
+  std::string color_info_topic_;
+  std::string depth_info_topic_;
+  std::string depth_scale_topic_;
 
   rs2::pipeline pipeline_;
   rs2::pipeline_profile profile_;
