@@ -1,0 +1,504 @@
+{
+  "version": 1,
+  "topics": [
+    {
+      "topic": "/dori/camera/color/image_raw",
+      "msg_type": "sensor_msgs/msg/Image",
+      "publishers": [
+        "depth_camera_node"
+      ],
+      "subscribers": [
+        "person_detection_node",
+        "gesture_recognition_node",
+        "facial_expression_node",
+        "landmark_detection_node"
+      ],
+      "qos": "unknown",
+      "description": "RGB camera stream used by all perception pipelines.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/camera/depth/image_raw",
+      "msg_type": "sensor_msgs/msg/Image",
+      "publishers": [
+        "depth_camera_node"
+      ],
+      "subscribers": [
+        "person_detection_node",
+        "landmark_detection_node"
+      ],
+      "qos": "unknown",
+      "description": "Raw depth frame for distance estimation and landmark range filtering.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/camera/depth/image_colormap",
+      "msg_type": "sensor_msgs/msg/Image",
+      "publishers": [
+        "depth_camera_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Colorized depth visualization stream.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/camera/color/camera_info",
+      "msg_type": "sensor_msgs/msg/CameraInfo",
+      "publishers": [
+        "depth_camera_node"
+      ],
+      "subscribers": [
+        "landmark_detection_node"
+      ],
+      "qos": "unknown",
+      "description": "RGB intrinsics for pixel-to-direction / localization math.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/camera/depth/camera_info",
+      "msg_type": "sensor_msgs/msg/CameraInfo",
+      "publishers": [
+        "depth_camera_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Depth intrinsics metadata stream.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/camera/depth_scale",
+      "msg_type": "std_msgs/msg/Float32",
+      "publishers": [],
+      "subscribers": [
+        "person_detection_node"
+      ],
+      "qos": "unknown",
+      "description": "Optional depth meter-per-unit scale expected by person detection.",
+      "owner_pkg": "external"
+    },
+    {
+      "topic": "/dori/hri/persons",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "person_detection_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "JSON list of detected persons/tracks.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/hri/interaction_trigger",
+      "msg_type": "std_msgs/msg/Bool",
+      "publishers": [
+        "person_detection_node"
+      ],
+      "subscribers": [
+        "gesture_recognition_node",
+        "facial_expression_node"
+      ],
+      "qos": "unknown",
+      "description": "Enables gesture/expression inference only during interaction.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/hri/tracking_state",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "person_detection_node"
+      ],
+      "subscribers": [
+        "hri_manager_node"
+      ],
+      "qos": "unknown",
+      "description": "JSON tracking state (`idle/tracking/lost`) for session/nav control.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/follow/target_offset",
+      "msg_type": "geometry_msgs/msg/Point",
+      "publishers": [
+        "person_detection_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Relative target offset for follow-control consumers.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/hri/annotated_image",
+      "msg_type": "sensor_msgs/msg/Image",
+      "publishers": [
+        "person_detection_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Person detection debug overlay image.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/hri/gesture",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "gesture_recognition_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Gesture detection JSON payload.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/hri/gesture_command",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "gesture_recognition_node"
+      ],
+      "subscribers": [
+        "hri_manager_node"
+      ],
+      "qos": "unknown",
+      "description": "Mapped high-level gesture command (`STOP`, `CALL`, etc.).",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/stt/wake_word_detected",
+      "msg_type": "std_msgs/msg/Bool",
+      "publishers": [
+        "gesture_recognition_node (WAVE trigger)",
+        "external STT node"
+      ],
+      "subscribers": [
+        "hri_manager_node"
+      ],
+      "qos": "unknown",
+      "description": "Wake event that starts HRI listening flow.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/hri/annotated_gesture",
+      "msg_type": "sensor_msgs/msg/Image",
+      "publishers": [
+        "gesture_recognition_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Gesture visualization/debug image.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/hri/expression",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "facial_expression_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Expression inference JSON payload.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/hri/expression_command",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "facial_expression_node"
+      ],
+      "subscribers": [
+        "hri_manager_node"
+      ],
+      "qos": "unknown",
+      "description": "HRI action hint from expression state.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/hri/annotated_expression",
+      "msg_type": "sensor_msgs/msg/Image",
+      "publishers": [
+        "facial_expression_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Facial expression visualization/debug image.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/landmark/detections",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "landmark_detection_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Raw landmark/candidate detections as JSON.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/landmark/localization",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "landmark_detection_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Landmark-based localization estimate JSON.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/landmark/context",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "landmark_detection_node"
+      ],
+      "subscribers": [
+        "hri_manager_node"
+      ],
+      "qos": "unknown",
+      "description": "Current location/context text used in LLM query payload.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/hri/annotated_landmark",
+      "msg_type": "sensor_msgs/msg/Image",
+      "publishers": [
+        "landmark_detection_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Landmark detection visualization/debug image.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "/dori/stt/result",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "external STT node"
+      ],
+      "subscribers": [
+        "hri_manager_node"
+      ],
+      "qos": "unknown",
+      "description": "User transcription JSON/text from speech recognizer.",
+      "owner_pkg": "external"
+    },
+    {
+      "topic": "/dori/tts/done",
+      "msg_type": "std_msgs/msg/Bool",
+      "publishers": [
+        "tts_node"
+      ],
+      "subscribers": [
+        "hri_manager_node"
+      ],
+      "qos": "unknown",
+      "description": "Playback completion event for HRI state transitions.",
+      "owner_pkg": "tts_pkg"
+    },
+    {
+      "topic": "/dori/hri/set_follow_mode",
+      "msg_type": "std_msgs/msg/Bool",
+      "publishers": [
+        "hri_manager_node"
+      ],
+      "subscribers": [
+        "person_detection_node"
+      ],
+      "qos": "unknown",
+      "description": "Enable/disable person target registration and follow behavior.",
+      "owner_pkg": "interaction_pkg"
+    },
+    {
+      "topic": "/dori/hri/manager_state",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "hri_manager_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Current HRI state heartbeat (`IDLE`, `LISTENING`, etc.).",
+      "owner_pkg": "interaction_pkg"
+    },
+    {
+      "topic": "/dori/llm/query",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "hri_manager_node"
+      ],
+      "subscribers": [
+        "llm_node"
+      ],
+      "qos": "unknown",
+      "description": "JSON request containing user text + contextual fields.",
+      "owner_pkg": "interaction_pkg"
+    },
+    {
+      "topic": "/dori/tts/text",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "hri_manager_node"
+      ],
+      "subscribers": [
+        "tts_node"
+      ],
+      "qos": "unknown",
+      "description": "Direct TTS text (bypass LLM for prompts/system messages).",
+      "owner_pkg": "interaction_pkg"
+    },
+    {
+      "topic": "/dori/nav/command",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "hri_manager_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "High-level navigation command channel.",
+      "owner_pkg": "interaction_pkg"
+    },
+    {
+      "topic": "/dori/llm/response",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "llm_node"
+      ],
+      "subscribers": [
+        "tts_node"
+      ],
+      "qos": "unknown",
+      "description": "Generated natural-language response text.",
+      "owner_pkg": "llm_pkg"
+    },
+    {
+      "topic": "/dori/nav/destination",
+      "msg_type": "geometry_msgs/msg/PoseStamped",
+      "publishers": [
+        "llm_node"
+      ],
+      "subscribers": [
+        "navigator_node"
+      ],
+      "qos": "unknown",
+      "description": "Navigation goal pose extracted from navigation intent.",
+      "owner_pkg": "llm_pkg"
+    },
+    {
+      "topic": "/dori/tts/speaking",
+      "msg_type": "std_msgs/msg/Bool",
+      "publishers": [
+        "tts_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "True while TTS is actively speaking (used for mic mute by external STT).",
+      "owner_pkg": "tts_pkg"
+    },
+    {
+      "topic": "/dori/nav/global_path",
+      "msg_type": "nav_msgs/msg/Path",
+      "publishers": [
+        "navigator_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Planned global path visualization/output.",
+      "owner_pkg": "navigation_pkg"
+    },
+    {
+      "topic": "/dori/nav/local_path",
+      "msg_type": "nav_msgs/msg/Path",
+      "publishers": [
+        "navigator_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Local path / short-horizon trajectory visualization.",
+      "owner_pkg": "navigation_pkg"
+    },
+    {
+      "topic": "/dori/nav/status",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "navigator_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Human-readable navigation status updates.",
+      "owner_pkg": "navigation_pkg"
+    },
+    {
+      "topic": "/dori/nav/cancel",
+      "msg_type": "std_msgs/msg/Bool",
+      "publishers": [
+        "external/nav client node"
+      ],
+      "subscribers": [
+        "navigator_node"
+      ],
+      "qos": "unknown",
+      "description": "Cancel signal for current navigation task.",
+      "owner_pkg": "external"
+    },
+    {
+      "topic": "/dori/system/metrics",
+      "msg_type": "std_msgs/msg/String",
+      "publishers": [
+        "system_monitor_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Periodic system metrics JSON (CPU/RAM/Disk/GPU).",
+      "owner_pkg": "system_monitor_pkg"
+    },
+    {
+      "topic": "/odom",
+      "msg_type": "nav_msgs/msg/Odometry",
+      "publishers": [
+        "Base controller / localization stack"
+      ],
+      "subscribers": [
+        "navigator_node"
+      ],
+      "qos": "unknown",
+      "description": "Robot odometry pose/velocity input.",
+      "owner_pkg": "base_platform"
+    },
+    {
+      "topic": "/scan",
+      "msg_type": "sensor_msgs/msg/LaserScan",
+      "publishers": [
+        "LiDAR driver"
+      ],
+      "subscribers": [
+        "navigator_node"
+      ],
+      "qos": "unknown",
+      "description": "Laser range scan for obstacle detection/avoidance.",
+      "owner_pkg": "base_platform"
+    },
+    {
+      "topic": "/map",
+      "msg_type": "nav_msgs/msg/OccupancyGrid",
+      "publishers": [
+        "SLAM / map server"
+      ],
+      "subscribers": [
+        "navigator_node"
+      ],
+      "qos": "unknown",
+      "description": "Occupancy map used for global path planning.",
+      "owner_pkg": "base_platform"
+    },
+    {
+      "topic": "/cmd_vel",
+      "msg_type": "geometry_msgs/msg/Twist",
+      "publishers": [
+        "navigator_node"
+      ],
+      "subscribers": [
+        "Base controller / motor interface"
+      ],
+      "qos": "unknown",
+      "description": "Velocity command output to robot base.",
+      "owner_pkg": "navigation_pkg"
+    }
+  ]
+}
