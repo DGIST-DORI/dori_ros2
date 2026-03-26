@@ -633,6 +633,7 @@ _deploy_job: dict = {
     'status': 'idle',   # idle | running | done | error
     'steps':  [],       # list of { step, status, log }
     'error':  None,
+    'missing_files': [],
     'started_at': None,
     'finished_at': None,
 }
@@ -887,6 +888,56 @@ def _publish_built_web_tree() -> tuple[bool, str]:
     )
 
 
+def _repair_publish_if_needed(*, reason: str) -> tuple[bool, bool, str, list[str]]:
+    """
+    Check current published tree integrity and optionally force publish.
+
+    Returns:
+      (ok, attempted, log, missing_files)
+        ok: True when either integrity is healthy or forced publish succeeded.
+        attempted: True when _publish_built_web_tree() was executed.
+        log: detail log for deploy step output.
+        missing_files: missing reference list discovered from web_current validation.
+    """
+    published_dir = _published_web_dir()
+
+    if not published_dir.exists():
+        log = (
+            f'Repair trigger({reason}): web_current path does not exist: {published_dir}. '
+            'Forcing publish from installed web tree.'
+        )
+        ok, publish_log = _publish_built_web_tree()
+        return ok, True, f'{log}\n{publish_log}', ['web_current: missing directory/symlink']
+
+    if published_dir.is_symlink():
+        target = published_dir.resolve(strict=False)
+        if not target.exists():
+            log = (
+                f'Repair trigger({reason}): web_current symlink target is missing: '
+                f'{published_dir} -> {target}. Forcing publish.'
+            )
+            ok, publish_log = _publish_built_web_tree()
+            return ok, True, f'{log}\n{publish_log}', [f'web_current symlink target missing: {target}']
+
+    missing, checked = _validate_static_tree(published_dir)
+    if missing:
+        preview = ', '.join(missing[:5])
+        if len(missing) > 5:
+            preview += f', ... (+{len(missing) - 5} more)'
+        log = (
+            f'Repair trigger({reason}): web_current integrity check failed. '
+            f'Validation checked={checked}, missing={len(missing)}. Missing: {preview}. '
+            'Forcing publish from installed web tree.'
+        )
+        ok, publish_log = _publish_built_web_tree()
+        return ok, True, f'{log}\n{publish_log}', missing
+
+    return True, False, (
+        f'Repair skipped({reason}): web_current integrity check passed. '
+        f'Validation checked={checked}, missing=0.'
+    ), []
+
+
 def _changed_paths(pull_stdout: str) -> list[str]:
     """Parse 'git pull' stdout to extract list of changed file paths."""
     # git pull --ff-only output format:
@@ -901,7 +952,7 @@ def _changed_paths(pull_stdout: str) -> list[str]:
     return lines
 
 
-def _deploy_pipeline():
+def _deploy_pipeline(*, force_web_repair: bool = False):
     """Full deploy pipeline. Runs in a background thread."""
     import datetime
 
@@ -909,6 +960,7 @@ def _deploy_pipeline():
         'status':      'running',
         'steps':       [],
         'error':       None,
+        'missing_files': [],
         'started_at':  datetime.datetime.now().isoformat(),
         'finished_at': None,
     })
@@ -931,8 +983,35 @@ def _deploy_pipeline():
     already_up_to_date = 'Already up to date' in pull_log
 
     if already_up_to_date:
-        _deploy_job.update({'status': 'done',
-                            'finished_at': datetime.datetime.now().isoformat()})
+        repair_step = {
+            'step': 'web integrity check (already up to date)',
+            'status': 'running',
+            'log': 'git pull reported "Already up to date". Running web_current integrity check.',
+        }
+        _deploy_job['steps'].append(repair_step)
+        ok, attempted, repair_log, missing_files = _repair_publish_if_needed(
+            reason='already-up-to-date',
+        )
+        repair_step['log'] += '\n' + repair_log
+        if attempted:
+            repair_step['log'] += '\nRepair publish executed due to integrity failure.'
+        else:
+            repair_step['log'] += '\nRepair publish not required.'
+        if not ok:
+            repair_step['status'] = 'error'
+            _deploy_job.update({
+                'status': 'error',
+                'error': 'dashboard static repair publish failed',
+                'missing_files': missing_files,
+                'finished_at': datetime.datetime.now().isoformat(),
+            })
+            return
+        repair_step['status'] = 'done'
+        _deploy_job.update({
+            'status': 'done',
+            'missing_files': [],
+            'finished_at': datetime.datetime.now().isoformat(),
+        })
         return
 
     # ── Step 2: npm build (only if web/ files changed) ───────────────────────
@@ -998,7 +1077,8 @@ def _deploy_pipeline():
             return
 
     # ── Step 4: publish dashboard static tree only after install completes ───
-    if web_changed:
+    should_attempt_repair = force_web_repair or web_changed
+    if should_attempt_repair:
         step = {
             'step': 'publish dashboard static tree',
             'status': 'running',
@@ -1010,19 +1090,30 @@ def _deploy_pipeline():
             ),
         }
         _deploy_job['steps'].append(step)
-        ok, publish_log = _publish_built_web_tree()
-        step['log'] += '\n' + publish_log
+        if force_web_repair and not web_changed:
+            step['log'] += '\nRepair mode enabled: running integrity check and publishing only if needed.'
+            ok, attempted, publish_log, missing_files = _repair_publish_if_needed(reason='manual-repair')
+            step['log'] += '\n' + publish_log
+            step['log'] += '\nRepair publish executed.' if attempted else '\nRepair publish skipped.'
+        else:
+            ok, publish_log = _publish_built_web_tree()
+            missing_files = []
+            step['log'] += '\nPublish mode: web changes detected; publish is mandatory.'
+            step['log'] += '\n' + publish_log
+            step['log'] += '\nRepair publish executed.'
         if not ok:
             step['status'] = 'error'
             _deploy_job.update({
                 'status': 'error',
                 'error': 'dashboard static publish failed',
+                'missing_files': missing_files,
                 'finished_at': datetime.datetime.now().isoformat(),
             })
             return
         step['status'] = 'done'
 
     _deploy_job.update({'status': 'done',
+                        'missing_files': [],
                         'finished_at': datetime.datetime.now().isoformat()})
 
 
@@ -1073,6 +1164,21 @@ async def deploy_trigger():
         thread = threading.Thread(target=_deploy_pipeline, daemon=True)
         thread.start()
     return JSONResponse({'ok': True, 'message': 'Deploy started'})
+
+
+@app.post('/api/deploy/repair-web')
+async def deploy_repair_web():
+    """Run a web integrity check and repair-publish if required."""
+    with _deploy_lock:
+        if _deploy_job['status'] == 'running':
+            return JSONResponse({'skipped': 'deploy already in progress'}, status_code=409)
+        thread = threading.Thread(
+            target=_deploy_pipeline,
+            kwargs={'force_web_repair': True},
+            daemon=True,
+        )
+        thread.start()
+    return JSONResponse({'ok': True, 'message': 'Repair deploy started'})
 
 # ── Entrypoint ─────────────────────────────────────────────────────────────────
 
