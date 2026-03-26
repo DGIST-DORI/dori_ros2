@@ -158,7 +158,7 @@ class VectorRetriever:
                 self.logger.warn(
                     f'RAG index not found at "{self.index_dir}". '
                     'Vector search disabled. '
-                    'Run: python3 src/llm_pkg/llm_pkg/build_index.py '
+                    'Run: python3 ros2_ws/src/llm_pkg/llm_pkg/build_index.py '
                     '--docs data/campus/processed --output data/campus/indexed'
                 )
             return
@@ -280,7 +280,7 @@ class LLMNode(Node):
             self.get_logger().warn(
                 'RAG vector search DISABLED — index not found. '
                 'Structured KB only. '
-                'To enable: python3 src/llm_pkg/llm_pkg/build_index.py '
+                'To enable: python3 ros2_ws/src/llm_pkg/llm_pkg/build_index.py '
                 '--docs data/campus/processed --output data/campus/indexed'
             )
 

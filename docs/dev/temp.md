@@ -137,7 +137,7 @@ Gesture and expression nodes require external MediaPipe Task files:
 Recommended placement in source tree:
 
 ```text
-src/perception_pkg/models/
+ros2_ws/src/perception_pkg/models/
 ```
 
 After `colcon build`, assets are installed under:

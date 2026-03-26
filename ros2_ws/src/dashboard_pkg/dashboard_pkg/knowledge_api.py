@@ -1030,15 +1030,20 @@ def _deploy_pipeline(*, force_web_repair: bool = False):
             _deploy_job.update({'status': 'error', 'error': 'npm run build failed',
                                 'finished_at': datetime.datetime.now().isoformat()})
             return
+        
+    dashboard_changed = any(
+        p.startswith('ros2_ws/src/dashboard_pkg/')
+        for p in changed
+    )
 
     # ── Step 3: install updated packages/assets ───────────────────────────────
-    ros_changed = any(p.startswith('src/') for p in changed)
+    ros_changed = any(p.startswith('ros2_ws/src/') for p in changed)
 
     # The dashboard is actually served from install/share/dashboard_pkg/web, so
     # rebuilding only repo/web/dist is not sufficient. Rebuild dashboard_pkg
     # whenever web assets change so the installed index/assets stay in sync.
     packages_to_build = []
-    if web_changed:
+    if web_changed or dashboard_changed:
         packages_to_build.append('dashboard_pkg')
 
     if ros_changed:
@@ -1112,9 +1117,24 @@ def _deploy_pipeline(*, force_web_repair: bool = False):
             return
         step['status'] = 'done'
 
-    _deploy_job.update({'status': 'done',
-                        'missing_files': [],
-                        'finished_at': datetime.datetime.now().isoformat()})
+    requires_restart = dashboard_changed
+
+    _deploy_job.update({
+        'status': 'done',
+        'missing_files': [],
+        'finished_at': datetime.datetime.now().isoformat(),
+    })
+
+    if requires_restart:
+        import signal
+        import os
+
+        _deploy_job['steps'].append({
+            'step': 'restart knowledge api',
+            'status': 'done',
+            'log': 'dashboard_pkg change is detected and knowledge_api process is restarted.',
+        })
+        os.kill(os.getpid(), signal.SIGTERM)
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────

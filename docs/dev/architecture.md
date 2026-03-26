@@ -58,7 +58,7 @@ Last updated: March 10, 2026.
 ### Software Packages
 
 ```
-src/
+ros2_ws/src/
 ├── perception_pkg/       # Perception: camera, person detection, gesture, expression, landmark
 ├── interaction_pkg/      # Interaction coordinator (HRI manager state machine)
 ├── hri_pkg/              # HRI nodes

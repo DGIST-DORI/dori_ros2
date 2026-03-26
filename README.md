@@ -63,7 +63,7 @@ pip3 install -r requirements.txt
 1. Download the model
 [Porcupine Wake Word GitHub repository](https://github.com/Picovoice/porcupine/tree/master/lib/common)
 
-2. Put it in src/stt_pkg/models
+2. Put it in ros2_ws/src/stt_pkg/models
 
 ### 3-2. Download and Place MediaPipe `.task` Models (Perception)
 
@@ -72,14 +72,14 @@ pip3 install -r requirements.txt
 1. Create the model asset directory:
 
 ```bash
-mkdir -p src/perception_pkg/models
+mkdir -p ros2_ws/src/perception_pkg/models
 ```
 
 2. Download required `.task` files and place them in that directory:
 
 ```text
-src/perception_pkg/models/hand_landmarker.task
-src/perception_pkg/models/face_landmarker.task
+ros2_ws/src/perception_pkg/models/hand_landmarker.task
+ros2_ws/src/perception_pkg/models/face_landmarker.task
 ```
 
 3. Build/install the workspace so models are copied to:
@@ -155,9 +155,9 @@ ros2 launch bringup robot_dev.launch.py
 # Equivalent explicit form
 ros2 launch bringup robot_dev.launch.py enable_dashboard:=true
 ```
- 
+
 Dashboard access:
- 
+
 ```text
 # Same machine
 http://localhost:3000
