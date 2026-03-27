@@ -1,0 +1,31 @@
+= ROS2 Node API Reference
+
+This is a single source (SSOT) for ROS2 node details documentation.
+
+* Node anchors use the `node-...` format.
+* Details are maintained in the common format below.
+
+.Template (Click to expand)
+[%collapsible]
+====
+== Template
+
+[[node-template-example]]
+=== node_name
+
+*Package*:: package_name
+*Executable*:: executable_name
+*Language*:: Python | C++
+*Launch*:: bringup/xxx.launch.py
+*Subscriptions*:: <<topic-a, /topic/a>> (`pkg/msg/Type`), <<topic-b, /topic/b>> (`pkg/msg/Type`)
+*Publications*:: <<topic-c, /topic/c>> (`pkg/msg/Type`)
+*Services (server)*:: /service/a (`pkg/srv/Type`)
+*Services (client)*:: /service/b (`pkg/srv/Type`)
+*Actions*:: /action/a (`pkg/action/Type`)
+*Parameters*:: See <<param-node_name, node_name parameters>>
+*Lifecycle*:: unmanaged | lifecycle node (state transitions)
+*Dependencies*:: model files, hardware, external APIs, etc.
+*Failure behavior*:: retry policy, degraded mode, fallback
+
+*Description*:: Node role, main logic, and caveats.
+====
