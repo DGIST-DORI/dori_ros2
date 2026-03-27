@@ -257,6 +257,16 @@ class IndexBuilder:
 
         if not to_index and incremental:
             print("  All files up-to-date. Nothing to do.")
+            # Keep summary format identical so downstream parsers can reuse regex.
+            if self._index is None:
+                print("[ERROR] Existing index is not loaded in incremental mode.")
+                return False
+            total_vectors = self._index.ntotal
+            total_chunks = len(self._meta)
+            print(f"\nDone.")
+            print(f"  Total vectors : {total_vectors}")
+            print(f"  Total chunks  : {total_chunks}")
+            print(f"  Index saved   : {self.index_path}")
             return True
 
         print(f"  Files to index: {len(to_index)} / {len(docs)}")
