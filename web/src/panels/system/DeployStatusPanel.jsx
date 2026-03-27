@@ -42,6 +42,18 @@ function StatusBadge({ status }) {
   );
 }
 
+function OutdatedBadge() {
+  return <span className="dp-badge dp-badge-outdated">Outdated</span>;
+}
+
+function MetaField({ label, value, className = '' }) {
+  return (
+    <span className={`dp-meta-item ${className}`.trim()}>
+      {label}: <span className="dp-meta-val">{value ?? 'N/A'}</span>
+    </span>
+  );
+}
+
 function StepRow({ step }) {
   const [expanded, setExpanded] = useState(false);
   const hasLog = step.log && step.log.trim().length > 0;
@@ -124,6 +136,20 @@ export function DeployStatusPanel({ className = '' }) {
 
   const status = job?.status ?? 'idle';
   const isRunning = status === 'running';
+  const deployedCommit = job?.deployed_commit ?? null;
+  const currentCommit = job?.current_commit ?? null;
+
+  async function copyCommitSha() {
+    if (!deployedCommit) return;
+    try {
+      await navigator.clipboard.writeText(deployedCommit);
+      setTrigMsg({ type: 'ok', text: 'Commit SHA copied' });
+      setTimeout(() => setTrigMsg(null), 2000);
+    } catch {
+      setTrigMsg({ type: 'warn', text: 'Copy failed. Please select manually.' });
+      setTimeout(() => setTrigMsg(null), 3000);
+    }
+  }
 
   return (
     <div className={`dp-root ${className}`.trim()}>
@@ -133,6 +159,7 @@ export function DeployStatusPanel({ className = '' }) {
         <div className="dp-toolbar-left">
           <span className="dp-title">Deploy Status</span>
           <StatusBadge status={status} />
+          {job?.is_outdated && <OutdatedBadge />}
         </div>
         <button
           className="dp-trigger-btn"
@@ -154,16 +181,35 @@ export function DeployStatusPanel({ className = '' }) {
       {/* ── Meta row ── */}
       {job && (
         <div className="dp-meta">
-          {job.started_at && (
-            <span className="dp-meta-item">
-              Started: <span className="dp-meta-val">{new Date(job.started_at).toLocaleTimeString()}</span>
+          <MetaField
+            label="Started"
+            value={job.started_at ? new Date(job.started_at).toLocaleTimeString() : 'N/A'}
+          />
+          <MetaField
+            label="Elapsed"
+            value={job.started_at ? elapsed(job.started_at, job.finished_at) : 'N/A'}
+          />
+          <span className="dp-meta-item">
+            Deployed Commit:{' '}
+            <span className="dp-meta-val dp-meta-mono" title={deployedCommit ?? 'N/A'}>
+              {deployedCommit ?? 'N/A'}
             </span>
-          )}
-          {job.started_at && (
-            <span className="dp-meta-item">
-              Elapsed: <span className="dp-meta-val">{elapsed(job.started_at, job.finished_at)}</span>
-            </span>
-          )}
+            <button
+              className="dp-copy-btn"
+              onClick={copyCommitSha}
+              disabled={!deployedCommit}
+              title={deployedCommit ? 'Copy commit SHA' : 'No commit SHA available'}
+            >
+              Copy
+            </button>
+          </span>
+          <MetaField label="Current Commit" value={currentCommit ?? 'N/A'} className="dp-meta-mono" />
+          <MetaField label="Deployed Branch" value={job.deployed_branch ?? 'N/A'} />
+          <MetaField
+            label="Deployed At"
+            value={job.deployed_at ? new Date(job.deployed_at).toLocaleString() : 'N/A'}
+          />
+          <MetaField label="Web Release" value={job.web_release_id ?? 'N/A'} className="dp-meta-mono" />
           {job.error && (
             <span className="dp-meta-item dp-meta-error">{job.error}</span>
           )}

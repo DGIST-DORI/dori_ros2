@@ -44,6 +44,11 @@
 }
 .dp-badge-idle    { opacity: 0.5; }
 .dp-badge-running { animation: dp-pulse 1.2s ease-in-out infinite; }
+.dp-badge-outdated {
+  color: var(--yellow, #ecd85b);
+  border-color: var(--yellow, #ecd85b);
+  background: var(--yellow-dim, rgba(236,216,91,0.12));
+}
 
 @keyframes dp-pulse {
   0%, 100% { opacity: 0.9; }
@@ -99,9 +104,34 @@
 .dp-meta-item {
   font-size: 10px;
   color: var(--text-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .dp-meta-val   { color: var(--text-1); font-variant-numeric: tabular-nums; }
 .dp-meta-error { color: var(--red, #d66b66); font-weight: 600; }
+.dp-meta-mono,
+.dp-meta-mono .dp-meta-val {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.dp-copy-btn {
+  font-size: 9px;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--text-1);
+  border-radius: var(--radius);
+  padding: 1px 6px;
+  cursor: pointer;
+}
+.dp-copy-btn:hover:not(:disabled) {
+  color: var(--accent, #00c8ff);
+  border-color: var(--accent, #00c8ff);
+}
+.dp-copy-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 
 /* ── Steps list ────────────────────────────────────────────────────────────── */
 .dp-steps {
