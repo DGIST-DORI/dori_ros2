@@ -6,6 +6,7 @@ import SettingsTab        from './tabs/SettingsTab';
 import { useStore, TOPIC_META } from './core/store';
 import { fetchTopicDiagnostics, subscribeROS } from './core/ros';
 import { PANEL_TREE, findLeaf } from './panelTree';
+import { useDeployStatusPolling } from './hooks/useDeployStatusPolling';
 
 import './index.css';
 import './App.css';
@@ -13,6 +14,8 @@ import './App.css';
 const MOBILE_BP = 768;
 
 export default function App() {
+  useDeployStatusPolling();
+
   const [sidebarExpanded,  setSidebarExpanded]  = useState(false);
   const [isOverlaySidebar, setIsOverlaySidebar] = useState(() =>
     typeof window !== 'undefined' && window.matchMedia(`(max-width: ${MOBILE_BP}px)`).matches
