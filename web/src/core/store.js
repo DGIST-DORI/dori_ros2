@@ -349,6 +349,35 @@ export const useStore = create((set, get) => ({
   activeMainView: 'workspace',
   setActiveMainView: (view) => set({ activeMainView: view }),
 
+  // ── Deploy status (/api/deploy/status) ─────────────────────────────────
+  deployStatus: null,
+  deployStatusError: null,
+  deployStatusFetchedAt: null,
+  setDeployStatus: (payload) => set({
+    deployStatus: payload,
+    deployStatusError: null,
+    deployStatusFetchedAt: Date.now(),
+  }),
+  refreshDeployStatus: async () => {
+    try {
+      const res = await fetch('/api/deploy/status');
+      if (!res.ok) {
+        set({ deployStatusError: `HTTP ${res.status}` });
+        return;
+      }
+      const data = await res.json();
+      set({
+        deployStatus: data,
+        deployStatusError: null,
+        deployStatusFetchedAt: Date.now(),
+      });
+    } catch (err) {
+      set({
+        deployStatusError: String(err?.message || err || 'Network error'),
+      });
+    }
+  },
+
   // ── Cube Sim ────────────────────────────────────────────────────────────
   cubeState: createSolvedCube(),
   cubeMoveHistory: [],
