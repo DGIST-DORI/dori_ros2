@@ -3,6 +3,7 @@ import './IndexBuilderPanel.css';
 import { normalizePollLines } from './logUtils';
 
 const API = '/api/knowledge';
+const DEFAULT_INDEX_INFO = { total_vectors: null, total_docs: null, built_at: null };
 
 function StatusBadge({ status }) {
   const map = {
@@ -35,7 +36,7 @@ function IndexBuilderPanel() {
   const [incremental, setIncremental] = useState(true);
   const [batchSize, setBatchSize] = useState(16);
   const [chunkBatchSize, setChunkBatchSize] = useState(512);
-  const [indexInfo, setIndexInfo] = useState(null);
+  const [indexInfo, setIndexInfo] = useState(DEFAULT_INDEX_INFO);
   const pollRef = useRef(null);
   const cursorRef = useRef(0);
 
@@ -51,8 +52,15 @@ function IndexBuilderPanel() {
   const fetchIndexInfo = useCallback(async () => {
     try {
       const res = await fetch(`${API}/index-info`);
-      if (res.ok) setIndexInfo(await res.json());
-    } catch { /* backend might be offline */ }
+      if (!res.ok) {
+        setIndexInfo(DEFAULT_INDEX_INFO);
+        return;
+      }
+      setIndexInfo(await res.json());
+    } catch {
+      /* backend might be offline */
+      setIndexInfo(DEFAULT_INDEX_INFO);
+    }
   }, []);
 
   useEffect(() => {
@@ -122,19 +130,17 @@ function IndexBuilderPanel() {
           MiniLM-L12 and saves a FAISS index for RAG retrieval.
         </p>
 
-        {indexInfo && (
-          <div className="km-index-info">
-            <div className="km-info-row">
-              <span>Vectors</span><span>{indexInfo.total_vectors ?? '—'}</span>
-            </div>
-            <div className="km-info-row">
-              <span>Documents</span><span>{indexInfo.total_docs ?? '—'}</span>
-            </div>
-            <div className="km-info-row">
-              <span>Built</span><span>{indexInfo.built_at ?? '—'}</span>
-            </div>
+        <div className="km-index-info">
+          <div className="km-info-row">
+            <span>Vectors</span><span>{indexInfo.total_vectors ?? '—'}</span>
           </div>
-        )}
+          <div className="km-info-row">
+            <span>Documents</span><span>{indexInfo.total_docs ?? '—'}</span>
+          </div>
+          <div className="km-info-row">
+            <span>Built</span><span>{indexInfo.built_at ?? '—'}</span>
+          </div>
+        </div>
 
         <label className="km-checkbox-row">
           <input
