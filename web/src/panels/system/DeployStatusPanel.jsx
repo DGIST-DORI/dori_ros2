@@ -1,14 +1,15 @@
 /**
  * DeployStatusPanel.jsx — Deploy pipeline status monitor
  *
- * Displays globally polled deploy status and per-step progress.
+ * Polls /api/deploy/status every 2s and displays per-step progress.
  * Allows manual deploy trigger via /api/deploy/trigger.
  */
 
-import { useState } from 'react';
-import { useStore } from '../../core/store';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import './DeployStatusPanel.css';
 
+const POLL_INTERVAL_MS   = 2000;
+const POLL_ACTIVE_MS     = 500;  // faster poll while running
 const STATUS_COLORS = {
   idle:    'var(--text-2)',
   running: 'var(--accent, #00c8ff)',
@@ -83,10 +84,33 @@ function StepRow({ step }) {
 }
 
 export function DeployStatusPanel({ className = '' }) {
-  const job = useStore((s) => s.deployStatus);
-  const refreshDeployStatus = useStore((s) => s.refreshDeployStatus);
+  const [job, setJob]           = useState(null);
   const [triggering, setTrig]   = useState(false);
   const [triggerMsg, setTrigMsg] = useState(null);
+  const intervalRef             = useRef(null);
+
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/deploy/status');
+      if (!res.ok) return;
+      const data = await res.json();
+      setJob(data);
+    } catch {
+      // Network error — keep last known state
+    }
+  }, []);
+
+  // Adaptive polling: faster while running
+  useEffect(() => {
+    fetchStatus();
+    const tick = () => {
+      fetchStatus();
+      const interval = job?.status === 'running' ? POLL_ACTIVE_MS : POLL_INTERVAL_MS;
+      intervalRef.current = setTimeout(tick, interval);
+    };
+    intervalRef.current = setTimeout(tick, POLL_INTERVAL_MS);
+    return () => clearTimeout(intervalRef.current);
+  }, [fetchStatus, job?.status]);
 
   async function handleTrigger() {
     setTrig(true);
@@ -100,7 +124,7 @@ export function DeployStatusPanel({ className = '' }) {
         setTrigMsg({ type: 'error', text: data?.error ?? 'Trigger failed' });
       } else {
         setTrigMsg({ type: 'ok', text: 'Deploy started' });
-        refreshDeployStatus();
+        fetchStatus();
       }
     } catch (e) {
       setTrigMsg({ type: 'error', text: e.message });
