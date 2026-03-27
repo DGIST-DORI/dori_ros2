@@ -36,7 +36,7 @@ const PANEL_SIZES = {
   'cube-rotation':      [400, 220],
   'cube-pieces':        [400, 380],
   'menu-parser':        [480, 360],
-  'index-builder':      [480, 300],
+  'index-builder':      [300, 400],
   'knowledge-docs':     [560, 420],
   'knowledge-building': [480, 400],
   'sys-connection':     [360, 220],
