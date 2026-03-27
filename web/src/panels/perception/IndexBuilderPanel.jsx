@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import './IndexBuilderPanel.css';
+import { normalizePollLines } from './logUtils';
 
 const API = '/api/knowledge';
+const DEFAULT_INDEX_INFO = { total_vectors: null, total_docs: null, built_at: null };
 
 function StatusBadge({ status }) {
   const map = {
@@ -32,18 +34,33 @@ function IndexBuilderPanel() {
   const [status, setStatus] = useState('idle');
   const [log, setLog] = useState([]);
   const [incremental, setIncremental] = useState(true);
-  const [indexInfo, setIndexInfo] = useState(null);
+  const [batchSize, setBatchSize] = useState(16);
+  const [chunkBatchSize, setChunkBatchSize] = useState(512);
+  const [indexInfo, setIndexInfo] = useState(DEFAULT_INDEX_INFO);
   const pollRef = useRef(null);
+  const cursorRef = useRef(0);
 
   function appendLog(msg) {
     setLog((prev) => [...prev, `${new Date().toLocaleTimeString()}  ${msg}`]);
   }
 
+  function appendPolledLines(lines) {
+    const normalizedLines = normalizePollLines(lines, { dedupeWithinBatch: true });
+    normalizedLines.forEach((line) => appendLog(line));
+  }
+
   const fetchIndexInfo = useCallback(async () => {
     try {
       const res = await fetch(`${API}/index-info`);
-      if (res.ok) setIndexInfo(await res.json());
-    } catch { /* backend might be offline */ }
+      if (!res.ok) {
+        setIndexInfo(DEFAULT_INDEX_INFO);
+        return;
+      }
+      setIndexInfo(await res.json());
+    } catch {
+      /* backend might be offline */
+      setIndexInfo(DEFAULT_INDEX_INFO);
+    }
   }, []);
 
   useEffect(() => {
@@ -53,13 +70,19 @@ function IndexBuilderPanel() {
   async function handleBuild() {
     setStatus('running');
     setLog([]);
+    cursorRef.current = 0;
+    clearInterval(pollRef.current);
     appendLog(`Starting ${incremental ? 'incremental' : 'full'} index rebuild…`);
 
     try {
       const res = await fetch(`${API}/build-index`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ incremental }),
+        body: JSON.stringify({
+          incremental,
+          batch_size: Number(batchSize),
+          chunk_batch_size: Number(chunkBatchSize),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail ?? res.statusText);
@@ -68,12 +91,21 @@ function IndexBuilderPanel() {
       appendLog(`Job started: ${jobId}`);
 
       pollRef.current = setInterval(async () => {
-        const r = await fetch(`${API}/build-index/status/${jobId}`);
+        const currentCursor = cursorRef.current;
+        const r = await fetch(`${API}/build-index/status/${jobId}?cursor=${currentCursor}`);
         const d = await r.json();
-        d.new_lines?.forEach((l) => appendLog(l));
+        appendPolledLines(d.new_lines);
+        if (typeof d.next_cursor === 'number') {
+          cursorRef.current = Math.max(currentCursor, d.next_cursor);
+        } else {
+          cursorRef.current = currentCursor + (d.new_lines?.length ?? 0);
+        }
         if (d.status === 'done') {
           clearInterval(pollRef.current);
-          appendLog(`[OK] Done — ${d.total_chunks} chunks indexed.`);
+          // API contract: completion message always reflects chunk total from
+          // build_index.py summary line "Total chunks  : <num>".
+          const indexedChunks = Number.isFinite(d.total_chunks) ? d.total_chunks : 0;
+          appendLog(`[OK] Done — ${indexedChunks} chunks indexed.`);
           setStatus('ok');
           fetchIndexInfo();
         } else if (d.status === 'error') {
@@ -98,19 +130,17 @@ function IndexBuilderPanel() {
           MiniLM-L12 and saves a FAISS index for RAG retrieval.
         </p>
 
-        {indexInfo && (
-          <div className="km-index-info">
-            <div className="km-info-row">
-              <span>Vectors</span><span>{indexInfo.total_vectors ?? '—'}</span>
-            </div>
-            <div className="km-info-row">
-              <span>Documents</span><span>{indexInfo.total_docs ?? '—'}</span>
-            </div>
-            <div className="km-info-row">
-              <span>Built</span><span>{indexInfo.built_at ?? '—'}</span>
-            </div>
+        <div className="km-index-info">
+          <div className="km-info-row">
+            <span>Vectors</span><span>{indexInfo.total_vectors ?? '—'}</span>
           </div>
-        )}
+          <div className="km-info-row">
+            <span>Documents</span><span>{indexInfo.total_docs ?? '—'}</span>
+          </div>
+          <div className="km-info-row">
+            <span>Built</span><span>{indexInfo.built_at ?? '—'}</span>
+          </div>
+        </div>
 
         <label className="km-checkbox-row">
           <input
@@ -120,6 +150,27 @@ function IndexBuilderPanel() {
           />
           <span>Incremental (skip unchanged files)</span>
         </label>
+
+        <div className="row row-wrap">
+          <label>
+            <span>Embed batch size</span>
+            <input
+              type="number"
+              min={1}
+              value={batchSize}
+              onChange={(e) => setBatchSize(Math.max(1, Number(e.target.value) || 1))}
+            />
+          </label>
+          <label>
+            <span>Chunk stream batch</span>
+            <input
+              type="number"
+              min={1}
+              value={chunkBatchSize}
+              onChange={(e) => setChunkBatchSize(Math.max(1, Number(e.target.value) || 1))}
+            />
+          </label>
+        </div>
 
         <div className="row row-wrap">
           <button

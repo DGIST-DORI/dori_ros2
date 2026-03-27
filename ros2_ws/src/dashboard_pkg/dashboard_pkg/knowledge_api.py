@@ -33,7 +33,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -95,7 +95,17 @@ KNOWLEDGE_FILE = INDEXED_DIR / 'campus_knowledge.json'
 # ── Job registry ───────────────────────────────────────────────────────────────
 
 _jobs: dict[str, dict] = {}
-# job schema: { status: idle|running|done|error, lines: [str], total_chunks: int, error: str }
+# job schema:
+# {
+#   status: idle|running|done|error,
+#   lines: [str],
+#   total_chunks: int,   # parsed only from final "Total chunks  : <num>" summary line
+#   total_vectors: int,  # parsed only from final "Total vectors : <num>" summary line
+#   error: str,
+# }
+
+_TOTAL_CHUNKS_RE = re.compile(r'^\s*Total chunks\s*:\s*(\d+)\s*$')
+_TOTAL_VECTORS_RE = re.compile(r'^\s*Total vectors\s*:\s*(\d+)\s*$')
 
 _crawl_jobs: dict[str, dict] = {}
 # job schema: { status: pending|running|done|error, lines: [str], started_at: str|None,
@@ -195,7 +205,12 @@ async def parse_menu(files: list[UploadFile] = File(...)):
 
 # ── /api/knowledge/build-index ────────────────────────────────────────────────
 
-def _run_build_index(job_id: str, incremental: bool):
+def _run_build_index(
+    job_id: str,
+    incremental: bool,
+    batch_size: int | None = None,
+    chunk_batch_size: int | None = None,
+):
     """Run build_index.py in a background thread, capture stdout line by line."""
     job = _jobs[job_id]
     job['status'] = 'running'
@@ -205,23 +220,36 @@ def _run_build_index(job_id: str, incremental: bool):
            '--output', str(INDEXED_DIR)]
     if incremental:
         cmd.append('--incremental')
+    if batch_size is not None:
+        cmd.extend(['--batch-size', str(batch_size)])
+    if chunk_batch_size is not None:
+        cmd.extend(['--chunk-batch-size', str(chunk_batch_size)])
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                 text=True, bufsize=1)
         total_chunks = 0
+        total_vectors = 0
         for line in proc.stdout:
             line = line.rstrip()
             job['lines'].append(line)
-            # Parse chunk count from build_index.py output
-            if 'Total vectors' in line or 'chunks' in line.lower():
-                parts = [w for w in line.split() if w.isdigit()]
-                if parts:
-                    total_chunks = int(parts[-1])
+            # Parse only final summary lines:
+            #   "Total vectors : <num>"
+            #   "Total chunks  : <num>"
+            # Ignore progress lines like "Batch 1/10", "cumulative=...".
+            chunks_match = _TOTAL_CHUNKS_RE.match(line)
+            if chunks_match:
+                total_chunks = int(chunks_match.group(1))
+                continue
+
+            vectors_match = _TOTAL_VECTORS_RE.match(line)
+            if vectors_match:
+                total_vectors = int(vectors_match.group(1))
         proc.wait()
         if proc.returncode == 0:
             job['status'] = 'done'
             job['total_chunks'] = total_chunks
+            job['total_vectors'] = total_vectors
         else:
             job['status'] = 'error'
             job['error'] = f'Exit code {proc.returncode}'
@@ -233,25 +261,62 @@ def _run_build_index(job_id: str, incremental: bool):
 @app.post('/api/knowledge/build-index')
 async def build_index(body: dict):
     incremental = body.get('incremental', True)
+    batch_size = body.get('batch_size')
+    chunk_batch_size = body.get('chunk_batch_size')
+
+    if not isinstance(incremental, bool):
+        raise HTTPException(400, 'incremental must be a boolean')
+    if batch_size is not None:
+        if not isinstance(batch_size, int):
+            raise HTTPException(400, 'batch_size must be an integer')
+        if batch_size <= 0:
+            raise HTTPException(400, 'batch_size must be > 0')
+    if chunk_batch_size is not None:
+        if not isinstance(chunk_batch_size, int):
+            raise HTTPException(400, 'chunk_batch_size must be an integer')
+        if chunk_batch_size <= 0:
+            raise HTTPException(400, 'chunk_batch_size must be > 0')
+
     job_id = str(uuid.uuid4())[:8]
-    _jobs[job_id] = {'status': 'pending', 'lines': [], 'total_chunks': 0, 'error': ''}
-    t = threading.Thread(target=_run_build_index, args=(job_id, incremental), daemon=True)
+    _jobs[job_id] = {
+        'status': 'pending',
+        'lines': [],
+        'total_chunks': 0,
+        'total_vectors': 0,
+        'error': '',
+    }
+    t = threading.Thread(
+        target=_run_build_index,
+        args=(job_id, incremental, batch_size, chunk_batch_size),
+        daemon=True,
+    )
     t.start()
     return {'job_id': job_id}
 
 
 @app.get('/api/knowledge/build-index/status/{job_id}')
-async def build_index_status(job_id: str):
+async def build_index_status(job_id: str, cursor: int = Query(0, ge=0)):
+    """
+    Build-index status contract:
+      - total_chunks is sourced from build_index.py final summary line:
+        "Total chunks  : <num>"
+      - total_vectors is sourced from final summary line:
+        "Total vectors : <num>"
+      - Frontend completion text ("Done — N chunks indexed") MUST use total_chunks.
+    """
     job = _jobs.get(job_id)
     if not job:
         raise HTTPException(404, 'Job not found')
 
-    # Return new lines since last poll (client tracks cursor)
-    # Simple approach: always return full lines (small output)
+    lines = job['lines']
+    safe_cursor = min(cursor, len(lines))
+
     return {
         'status': job['status'],
-        'new_lines': job['lines'],
+        'new_lines': lines[safe_cursor:],
+        'next_cursor': len(lines),
         'total_chunks': job['total_chunks'],
+        'total_vectors': job['total_vectors'],
         'error': job['error'],
     }
 
