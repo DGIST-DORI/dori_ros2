@@ -1,9 +1,10 @@
 = ROS2 Node API Reference
 
-This is a single source (SSOT) for ROS2 node details documentation.
+This document is the SSOT for ROS2 node details in the current workspace.
 
 * Node anchors use the `node-...` format.
-* Details are maintained in the common format below.
+* Topic links refer to <<topic-template-example,topics.adoc>> anchors where available.
+* Parameter details refer to <<param-template-example,parameters.adoc>> anchors.
 
 .Template (Click to expand)
 [%collapsible]
@@ -29,3 +30,251 @@ This is a single source (SSOT) for ROS2 node details documentation.
 
 *Description*:: Node role, main logic, and caveats.
 ====
+
+
+== Perception
+
+[[node-depth-camera-node]]
+=== depth_camera_node (Python/C++)
+
+*Package*:: `perception_pkg` (Python), `perception_camera_cpp` (C++)
+*Executable*:: `depth_camera_node`
+*Language*:: Python / C++
+*Launch*:: `bringup/launch/perception.launch.py` (`depth_camera_front`, `depth_camera_rear`)
+*Subscriptions*:: (none)
+*Publications*:: <<topic-dori-camera-color-image-raw,/dori/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/dori/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image_colormap,/dori/camera/depth/image_colormap>> (`sensor_msgs/msg/Image`, Python impl), <<topic-dori-camera-color-camera_info,/dori/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topic-dori-camera-depth-camera_info,/dori/camera/depth/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topic-dori-camera-depth_scale,/dori/camera/depth_scale>> (`std_msgs/msg/Float32`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-depth_camera_node, depth_camera_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: Intel RealSense device, `pyrealsense2` (Python) or librealsense (C++)
+*Failure behavior*:: If device open/stream start fails, logs an error and the node exits.
+
+*Description*:: Source node for front/rear camera streams. In bringup, the C++ implementation is selected by default and remapped into the `/dori/...` namespace.
+
+
+[[node-person-detection-node]]
+=== person_detection_node
+
+*Package*:: `perception_pkg`
+*Executable*:: `person_detection_node`
+*Language*:: Python
+*Launch*:: `bringup/launch/perception.launch.py`
+*Subscriptions*:: <<topic-dori-camera-color-image-raw,/dori/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/dori/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth_scale,/dori/camera/depth_scale>> (`std_msgs/msg/Float32`), <<topic-dori-hri-set_follow_mode,/dori/hri/set_follow_mode>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topic-dori-hri-persons,/dori/hri/persons>> (`std_msgs/msg/String`), <<topic-dori-hri-interaction_trigger,/dori/hri/interaction_trigger>> (`std_msgs/msg/Bool`), <<topic-dori-hri-tracking_state,/dori/hri/tracking_state>> (`std_msgs/msg/String`), <<topic-dori-follow-target_offset,/dori/follow/target_offset>> (`geometry_msgs/msg/Point`), <<topic-dori-hri-annotated_image,/dori/hri/annotated_image>> (`sensor_msgs/msg/Image`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-person_detection_node, person_detection_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: YOLO model file, OpenCV/NumPy, optional depth stream
+*Failure behavior*:: Model load failures raise errors; without depth input it falls back to partial 2D-only behavior.
+
+*Description*:: Performs person detection/tracking and evaluates HRI interaction triggers. In follow mode it publishes target offsets for follower control.
+
+
+[[node-landmark-detection-node]]
+=== landmark_detection_node
+
+*Package*:: `perception_pkg`
+*Executable*:: `landmark_detection_node`
+*Language*:: Python
+*Launch*:: `bringup/launch/perception.launch.py`
+*Subscriptions*:: <<topic-dori-camera-color-image-raw,/dori/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/dori/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-color-camera_info,/dori/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`)
+*Publications*:: <<topic-dori-landmark-detections,/dori/landmark/detections>> (`std_msgs/msg/String`), <<topic-dori-landmark-localization,/dori/landmark/localization>> (`std_msgs/msg/String`), <<topic-dori-landmark-context,/dori/landmark/context>> (`std_msgs/msg/String`), <<topic-dori-hri-annotated_landmark,/dori/hri/annotated_landmark>> (`sensor_msgs/msg/Image`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-landmark_detection_node, landmark_detection_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: YOLO model, landmark DB JSON, camera intrinsics
+*Failure behavior*:: DB/model load failures can degrade detection/localization quality or fail initialization.
+
+*Description*:: Detects landmark objects and applies distance-based filtering to publish location context (`context`) and localization output.
+
+
+[[node-gesture-recognition-node]]
+=== gesture_recognition_node
+
+*Package*:: `perception_pkg`
+*Executable*:: `gesture_recognition_node`
+*Language*:: Python
+*Launch*:: `bringup/launch/perception.launch.py`
+*Subscriptions*:: <<topic-dori-camera-color-image-raw,/dori/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-hri-interaction_trigger,/dori/hri/interaction_trigger>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topic-dori-hri-gesture,/dori/hri/gesture>> (`std_msgs/msg/String`), <<topic-dori-hri-gesture_command,/dori/hri/gesture_command>> (`std_msgs/msg/String`), <<topic-dori-stt-wake_word_detected,/dori/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-hri-annotated_gesture,/dori/hri/annotated_gesture>> (`sensor_msgs/msg/Image`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-gesture_recognition_node, gesture_recognition_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: MediaPipe hand model, OpenCV
+*Failure behavior*:: If input frames are missing or hands cannot be tracked, publishing decreases and warnings are logged.
+
+*Description*:: Publishes gesture recognition outputs and commands (e.g., STOP/CALL), and can convert WAVE gestures to wake events.
+
+
+[[node-facial-expression-node]]
+=== facial_expression_node
+
+*Package*:: `perception_pkg`
+*Executable*:: `facial_expression_node`
+*Language*:: Python
+*Launch*:: `bringup/launch/perception.launch.py`
+*Subscriptions*:: <<topic-dori-camera-color-image-raw,/dori/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-hri-interaction_trigger,/dori/hri/interaction_trigger>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topic-dori-hri-expression,/dori/hri/expression>> (`std_msgs/msg/String`), <<topic-dori-hri-expression_command,/dori/hri/expression_command>> (`std_msgs/msg/String`), <<topic-dori-hri-annotated_expression,/dori/hri/annotated_expression>> (`sensor_msgs/msg/Image`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-facial_expression_node, facial_expression_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: MediaPipe face landmarks, OpenCV
+*Failure behavior*:: If no face is detected, it keeps state and may skip publishing.
+
+*Description*:: Generates expression classification and HRI command hints from face landmarks.
+
+
+== Interaction / Voice
+
+[[node-hri-manager-node]]
+=== hri_manager_node
+
+*Package*:: `interaction_pkg`
+*Executable*:: `hri_manager_node`
+*Language*:: Python
+*Launch*:: `bringup/launch/interaction.launch.py`
+*Subscriptions*:: <<topic-dori-stt-wake_word_detected,/dori/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-stt-result,/dori/stt/result>> (`std_msgs/msg/String`), <<topic-dori-hri-tracking_state,/dori/hri/tracking_state>> (`std_msgs/msg/String`), <<topic-dori-hri-gesture_command,/dori/hri/gesture_command>> (`std_msgs/msg/String`), <<topic-dori-hri-expression_command,/dori/hri/expression_command>> (`std_msgs/msg/String`), <<topic-dori-landmark-context,/dori/landmark/context>> (`std_msgs/msg/String`), <<topic-dori-tts-done,/dori/tts/done>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topic-dori-hri-set_follow_mode,/dori/hri/set_follow_mode>> (`std_msgs/msg/Bool`), <<topic-dori-hri-manager-state,/dori/hri/manager_state>> (`std_msgs/msg/String`), <<topic-dori-llm-query,/dori/llm/query>> (`std_msgs/msg/String`), <<topic-dori-tts-text,/dori/tts/text>> (`std_msgs/msg/String`), <<topic-dori-nav-command,/dori/nav/command>> (`std_msgs/msg/String`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-hri_manager_node, hri_manager_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: STT/LLM/TTS nodes and perception command topics
+*Failure behavior*:: If inputs are missing, returns via IDLE timeout; malformed JSON falls back to a safe default flow.
+
+*Description*:: Central orchestrator for the HRI state machine. Controls wake→listening→responding→idle flow and follow mode.
+
+
+[[node-stt-node]]
+=== stt_node
+
+*Package*:: `stt_pkg`
+*Executable*:: `stt_node`
+*Language*:: Python
+*Launch*:: `bringup/launch/voice.launch.py`
+*Subscriptions*:: <<topic-dori-tts-speaking,/dori/tts/speaking>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topic-dori-stt-wake_word_detected,/dori/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-stt-result,/dori/stt/result>> (`std_msgs/msg/String`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-stt_node, stt_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: Porcupine wake-word model, Whisper model/device, microphone input
+*Failure behavior*:: Model initialization failures can disable voice features or terminate with an exception.
+
+*Description*:: Detects wake words and publishes STT results. Uses TTS speaking signals to suppress self-listening.
+
+
+[[node-llm-node]]
+=== llm_node
+
+*Package*:: `llm_pkg`
+*Executable*:: `llm_node`
+*Language*:: Python
+*Launch*:: `bringup/launch/voice.launch.py`
+*Subscriptions*:: <<topic-dori-llm-query,/dori/llm/query>> (`std_msgs/msg/String`)
+*Publications*:: <<topic-dori-llm-response,/dori/llm/response>> (`std_msgs/msg/String`), <<topic-dori-nav-destination,/dori/nav/destination>> (`geometry_msgs/msg/PoseStamped`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-llm_node, llm_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: Knowledge file/RAG index, optional external LLM API
+*Failure behavior*:: On external API failure, uses internal fallback response paths (based on configuration/code path).
+
+*Description*:: Performs intent classification, RAG-based answer generation, and navigation destination extraction.
+
+
+[[node-tts-node]]
+=== tts_node
+
+*Package*:: `tts_pkg`
+*Executable*:: `tts_node`
+*Language*:: Python
+*Launch*:: `bringup/launch/voice.launch.py`
+*Subscriptions*:: <<topic-dori-llm-response,/dori/llm/response>> (`std_msgs/msg/String`), <<topic-dori-tts-text,/dori/tts/text>> (`std_msgs/msg/String`)
+*Publications*:: <<topic-dori-tts-speaking,/dori/tts/speaking>> (`std_msgs/msg/Bool`), <<topic-dori-tts-done,/dori/tts/done>> (`std_msgs/msg/Bool`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-tts_node, tts_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: gTTS or pyttsx3 engine, audio output device
+*Failure behavior*:: On synthesis failure, emits done/log signals so upstream state machine can recover.
+
+*Description*:: Synthesizes response text to speech and publishes speaking/done state events.
+
+
+== Navigation
+
+[[node-navigator-node]]
+=== navigator_node
+
+*Package*:: `navigation_pkg`
+*Executable*:: `navigator_node`
+*Language*:: Python
+*Launch*:: `navigation_pkg/launch/navigation.launch.py`
+*Subscriptions*:: <<topic-dori-nav-destination,/dori/nav/destination>> (`geometry_msgs/msg/PoseStamped`), `/odom` (`nav_msgs/msg/Odometry`), `/scan` (`sensor_msgs/msg/LaserScan`), `/map` (`nav_msgs/msg/OccupancyGrid`), <<topic-dori-nav-cancel,/dori/nav/cancel>> (`std_msgs/msg/Bool`)
+*Publications*:: `/cmd_vel` (`geometry_msgs/msg/Twist`), <<topic-dori-nav-global_path,/dori/nav/global_path>> (`nav_msgs/msg/Path`), <<topic-dori-nav-local_path,/dori/nav/local_path>> (`nav_msgs/msg/Path`), <<topic-dori-nav-status,/dori/nav/status>> (`std_msgs/msg/String`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-navigator_node, navigator_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: odom/scan/map inputs, robot base cmd_vel interface
+*Failure behavior*:: On path-planning failure, transitions to FAILED and stops.
+
+*Description*:: After receiving a destination, performs planning/obstacle avoidance and publishes status/paths.
+
+
+== HRI Utilities / System
+
+[[node-emotion-publisher-node]]
+=== emotion_publisher_node
+
+*Package*:: `hri_pkg`
+*Executable*:: `emotion_publisher_node`
+*Language*:: Python
+*Launch*:: (not included in the default bringup path)
+*Subscriptions*:: <<topic-dori-hri-manager-state,/dori/hri/manager_state>> (`std_msgs/msg/String`), <<topic-dori-hri-emotion_override,/dori/hri/emotion_override>> (`std_msgs/msg/String`)
+*Publications*:: <<topic-dori-hri-emotion,/dori/hri/emotion>> (`std_msgs/msg/String`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-emotion_publisher_node, emotion_publisher_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: HRI manager state payload(JSON)
+*Failure behavior*:: If override JSON parsing fails, ignores it and publishes state-based default emotion.
+
+*Description*:: Maps state-machine states to expression/emotion events and applies external overrides when present.
+
+
+[[node-system-monitor-node]]
+=== system_monitor_node
+
+*Package*:: `system_monitor_pkg`
+*Executable*:: `system_monitor_node`
+*Language*:: Python
+*Launch*:: (requires separate launch; used by dashboard/monitoring)
+*Subscriptions*:: (none)
+*Publications*:: <<topic-dori-system-metrics,/dori/system/metrics>> (`std_msgs/msg/String`)
+*Services (server)*:: -
+*Services (client)*:: -
+*Actions*:: -
+*Parameters*:: See <<param-system_monitor_node, system_monitor_node parameters>>
+*Lifecycle*:: unmanaged
+*Dependencies*:: `psutil`, optional `nvidia-smi` or `tegrastats`
+*Failure behavior*:: If GPU collection fails, publishes null GPU fields while continuing system metrics.
+
+*Description*:: Monitoring node that periodically publishes CPU/RAM/Disk/GPU metrics as JSON.
