@@ -277,7 +277,6 @@ class IndexBuilder:
             keep_idx = [i for i, m in enumerate(self._meta)
                         if self._meta_source_key(m, docs_dir) not in stale_sources]
             if keep_idx:
-                kept_vecs = faiss.extract_index_ivf if False else None
                 # Rebuild a fresh index from kept vectors
                 dim = self._index.d
                 old_vecs = np.zeros((len(keep_idx), dim), dtype="float32")
