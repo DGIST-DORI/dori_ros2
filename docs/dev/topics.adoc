@@ -268,6 +268,46 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 *Description*:: Current HRI state for observability and debugging.
 
 
+[[topic-dori-hri-emotion_override]]
+=== /dori/hri/emotion_override
+
+*Type (msg)*:: `std_msgs/msg/String`
+*Publishers*:: external UI/control node
+*Subscribers*:: emotion_publisher_node
+*Frequency*:: Expected: event-driven, Actual: TBD
+*QoS*:: Reliability: Reliable, Durability: Volatile
+*Flow*:: external UI/control node → /dori/hri/emotion_override → emotion_publisher_node
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | string | - | JSON override payload (`emotion`, optional `duration_sec`).
+|===
+
+*Description*:: Input channel to temporarily/permanently override state-based emotion output.
+
+
+[[topic-dori-hri-emotion]]
+=== /dori/hri/emotion
+
+*Type (msg)*:: `std_msgs/msg/String`
+*Publishers*:: emotion_publisher_node
+*Subscribers*:: face UI / actuator bridge node (expected)
+*Frequency*:: Expected: 2 Hz, Actual: TBD
+*QoS*:: Reliability: Reliable, Durability: Volatile
+*Flow*:: emotion_publisher_node → /dori/hri/emotion → face UI / actuator bridge node
+
+.Message fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| data | string | - | JSON payload (`emotion`, `source`, `hri_state`, `timestamp`).
+|===
+
+*Description*:: Topic that delivers current robot emotion state to the expression display layer.
+
+
 [[topic-dori-hri-annotated_expression]]
 === /dori/hri/annotated_expression
 
