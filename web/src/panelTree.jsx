@@ -27,10 +27,12 @@ const CampusCrawlerPanel = lazy(() => import('./panels/perception/CampusCrawlerP
 const DocumentBrowserPanel = lazy(() => import('./panels/perception/DocumentBrowserPanel'));
 const BuildingEditorPanel = lazy(() => import('./panels/perception/BuildingEditorPanel'));
 
+const ConnectionInfoPanel = lazy(() => import('./panels/system/ConnectionInfoPanel'));
 const TopicDiagnosticsPanel = lazy(() => import('./panels/system/TopicDiagnosticsPanel'));
 const MetricsPanel = lazy(() => import('./panels/system/MetricsPanel'));
 const EventLogPanel = lazy(() => import('./panels/system/EventLogPanel'));
 const TopicPublisherPanel = lazy(() => import('./panels/system/TopicPublisherPanel'));
+const DeployStatusPanel = lazy(() => import('./panels/system/DeployStatusPanel'));
 
 import HriIcon        from './assets/icons/icon-hri.svg?react';
 import ControlIcon    from './assets/icons/icon-control.svg?react';
@@ -135,12 +137,14 @@ export const PANEL_TREE = [
     id: 'system', label: 'System', icon: <SystemIcon />,
     children: [
       {
-        id: 'sys-flat', label: 'Robot Status',
+        id: 'sys-flat', label: null,
         children: [
-          { id: 'sys-topics',     label: 'Topic Health',      component: TopicDiagnosticsPanel },
-          { id: 'sys-metrics',    label: 'Robot Metrics',     component: MetricsPanel },
-          { id: 'event-log',      label: 'Robot Event Log',   component: EventLogPanel },
-          { id: 'sys-topic-publisher', label: 'Topic Publisher (Debug)', component: TopicPublisherPanel },
+          { id: 'sys-connection', label: 'Connection',        component: ConnectionInfoPanel },
+          { id: 'sys-topics',     label: 'Topic Diagnostics', component: TopicDiagnosticsPanel },
+          { id: 'sys-metrics',    label: 'Metrics',           component: MetricsPanel },
+          { id: 'event-log',      label: 'Event Log',         component: EventLogPanel },
+          { id: 'sys-topic-publisher', label: 'Topic Publisher', component: TopicPublisherPanel },
+          { id: 'sys-deploy', label: 'Deploy Status', component: DeployStatusPanel },
         ],
       },
     ],
