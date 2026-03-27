@@ -1,0 +1,30 @@
+= ROS2 Parameter API Reference
+
+This is a single source (SSOT) for ROS2 parameter details documentation.
+
+* Parameter anchors use the `param-...` format.
+* Parameters are grouped by node.
+* NOTE: Use `-` for unitless parameters. Prefer SI units (`s`, `m`, `Hz`, `rad`) unless domain conventions require otherwise.
+
+.Template (Click to expand)
+[%collapsible]
+====
+== Template
+
+[[param-template-example]]
+=== node_name parameters
+
+[cols="1,1,1,1,1,3",options="header"]
+|===
+| Name | Type | Default | Range/Enum | Unit | Description
+| update_rate_hz | double | 10.0 | (0, ) | Hz | Main processing loop frequency.
+| model_path | string | "models/x.onnx" | file path | - | Inference model file path.
+| use_gpu | bool | true | true/false | - | Enable CUDA inference.
+| max_speed | float | 1.0 | [0, 2.0] | m/s | Safety-limited
+|===
+
+*Dynamic reconfigure*:: Supported | Not supported
+*Read timing*:: startup only | runtime polling
+*Validation rules*:: Invalid values handling policy (clamp/reject/warn)
+*Related node*:: <<node-node_name, node_name>>
+====
