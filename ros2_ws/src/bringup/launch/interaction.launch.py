@@ -13,7 +13,7 @@ def _topic(ns, suffix: str):
 
 
 def generate_launch_description():
-    dori_ns = LaunchConfiguration('dori_namespace')
+    dori_ns = LaunchConfiguration('namespace')
     args = [
         DeclareLaunchArgument(
             'idle_timeout_sec',
@@ -25,7 +25,7 @@ def generate_launch_description():
             default_value='안녕하세요! 저는 캠퍼스 안내 로봇 도리입니다. 어디로 안내해드릴까요?',
             description='Greeting spoken when wake word is detected',
         ),
-        DeclareLaunchArgument('dori_namespace', default_value='/dori'),
+        DeclareLaunchArgument('namespace', default_value='/dori'),
     ]
 
     hri_manager_node = Node(

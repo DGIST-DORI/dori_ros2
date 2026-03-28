@@ -4,20 +4,20 @@ Central coordinator for all HRI subsystems.
 Manages state machine and routes commands between nodes.
 
 Subscribe topics:
-  /dori/stt/wake_word_detected   (Bool)   - wake word detected signal
-  /dori/stt/result               (String) - transcribed text from STT
-  /dori/hri/tracking_state       (String) - person tracking state
-  /dori/hri/gesture_command      (String) - gesture command
-  /dori/hri/expression_command   (String) - expression command
-  /dori/landmark/context         (String) - current location context for LLM
-  /dori/tts/done                 (Bool)   - TTS playback finished
+  stt/wake_word_detected   (Bool)   - wake word detected signal
+  stt/result               (String) - transcribed text from STT
+  hri/tracking_state       (String) - person tracking state
+  hri/gesture_command      (String) - gesture command
+  hri/expression_command   (String) - expression command
+  landmark/context         (String) - current location context for LLM
+  tts/done                 (Bool)   - TTS playback finished
 
 Publish topics:
-  /dori/hri/set_follow_mode      (Bool)   - enable/disable person following
-  /dori/hri/manager_state        (String) - current HRI state (1 Hz)
-  /dori/llm/query                (String) - query + context sent to LLM node
-  /dori/tts/text                 (String) - direct TTS output (bypass LLM)
-  /dori/nav/command              (String) - high-level navigation command
+  hri/set_follow_mode      (Bool)   - enable/disable person following
+  hri/manager_state        (String) - current HRI state (1 Hz)
+  llm/query                (String) - query + context sent to LLM node
+  tts/text                 (String) - direct TTS output (bypass LLM)
+  nav/command              (String) - high-level navigation command
 
 State machine:
   IDLE        - waiting for wake word
@@ -49,18 +49,18 @@ class HRIManagerNode(Node):
         # Parameters
         self.declare_parameter('greeting_text', '안녕하세요! 저는 캠퍼스 안내 로봇 도리입니다. 어디로 안내해드릴까요?')
         self.declare_parameter('idle_timeout_sec', 10.0)
-        self.declare_parameter('topics.wake_word_sub', '/dori/stt/wake_word_detected')
-        self.declare_parameter('topics.stt_result_sub', '/dori/stt/result')
-        self.declare_parameter('topics.tracking_state_sub', '/dori/hri/tracking_state')
-        self.declare_parameter('topics.gesture_command_sub', '/dori/hri/gesture_command')
-        self.declare_parameter('topics.expression_command_sub', '/dori/hri/expression_command')
-        self.declare_parameter('topics.landmark_context_sub', '/dori/landmark/context')
-        self.declare_parameter('topics.tts_done_sub', '/dori/tts/done')
-        self.declare_parameter('topics.follow_mode_pub', '/dori/hri/set_follow_mode')
-        self.declare_parameter('topics.manager_state_pub', '/dori/hri/manager_state')
-        self.declare_parameter('topics.llm_query_pub', '/dori/llm/query')
-        self.declare_parameter('topics.tts_text_pub', '/dori/tts/text')
-        self.declare_parameter('topics.nav_command_pub', '/dori/nav/command')
+        self.declare_parameter('topics.wake_word_sub', 'stt/wake_word_detected')
+        self.declare_parameter('topics.stt_result_sub', 'stt/result')
+        self.declare_parameter('topics.tracking_state_sub', 'hri/tracking_state')
+        self.declare_parameter('topics.gesture_command_sub', 'hri/gesture_command')
+        self.declare_parameter('topics.expression_command_sub', 'hri/expression_command')
+        self.declare_parameter('topics.landmark_context_sub', 'landmark/context')
+        self.declare_parameter('topics.tts_done_sub', 'tts/done')
+        self.declare_parameter('topics.follow_mode_pub', 'hri/set_follow_mode')
+        self.declare_parameter('topics.manager_state_pub', 'hri/manager_state')
+        self.declare_parameter('topics.llm_query_pub', 'llm/query')
+        self.declare_parameter('topics.tts_text_pub', 'tts/text')
+        self.declare_parameter('topics.nav_command_pub', 'nav/command')
 
         self.greeting_text = self.get_parameter('greeting_text').value
         self.idle_timeout  = self.get_parameter('idle_timeout_sec').value
@@ -119,7 +119,7 @@ class HRIManagerNode(Node):
         """
         Wake word detected → start HRI session.
         Only responds when IDLE to prevent re-triggering mid-conversation.
-        WAVE gesture also routes here via /dori/stt/wake_word_detected.
+        WAVE gesture also routes here via stt/wake_word_detected.
         """
         if not msg.data:
             return

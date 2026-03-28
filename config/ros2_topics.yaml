@@ -2,7 +2,7 @@
   "version": 1,
   "topics": [
     {
-      "topic": "/dori/camera/color/image_raw",
+      "topic": "camera/color/image_raw",
       "msg_type": "sensor_msgs/msg/Image",
       "publishers": [
         "depth_camera_node"
@@ -18,7 +18,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/camera/depth/image_raw",
+      "topic": "camera/depth/image_raw",
       "msg_type": "sensor_msgs/msg/Image",
       "publishers": [
         "depth_camera_node"
@@ -32,7 +32,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/camera/depth/image_colormap",
+      "topic": "camera/depth/image_colormap",
       "msg_type": "sensor_msgs/msg/Image",
       "publishers": [
         "depth_camera_node"
@@ -43,7 +43,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/camera/color/camera_info",
+      "topic": "camera/color/camera_info",
       "msg_type": "sensor_msgs/msg/CameraInfo",
       "publishers": [
         "depth_camera_node"
@@ -56,7 +56,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/camera/depth/camera_info",
+      "topic": "camera/depth/camera_info",
       "msg_type": "sensor_msgs/msg/CameraInfo",
       "publishers": [
         "depth_camera_node"
@@ -67,7 +67,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/camera/depth_scale",
+      "topic": "camera/depth_scale",
       "msg_type": "std_msgs/msg/Float32",
       "publishers": [],
       "subscribers": [
@@ -78,7 +78,7 @@
       "owner_pkg": "external"
     },
     {
-      "topic": "/dori/hri/persons",
+      "topic": "hri/persons",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "person_detection_node"
@@ -89,7 +89,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/hri/interaction_trigger",
+      "topic": "hri/interaction_trigger",
       "msg_type": "std_msgs/msg/Bool",
       "publishers": [
         "person_detection_node"
@@ -103,7 +103,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/hri/tracking_state",
+      "topic": "hri/tracking_state",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "person_detection_node"
@@ -116,7 +116,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/follow/target_offset",
+      "topic": "follow/target_offset",
       "msg_type": "geometry_msgs/msg/Point",
       "publishers": [
         "person_detection_node"
@@ -127,7 +127,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/hri/annotated_image",
+      "topic": "hri/annotated_image",
       "msg_type": "sensor_msgs/msg/Image",
       "publishers": [
         "person_detection_node"
@@ -138,7 +138,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/hri/gesture",
+      "topic": "hri/gesture",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "gesture_recognition_node"
@@ -149,7 +149,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/hri/gesture_command",
+      "topic": "hri/gesture_command",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "gesture_recognition_node"
@@ -162,7 +162,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/stt/wake_word_detected",
+      "topic": "stt/wake_word_detected",
       "msg_type": "std_msgs/msg/Bool",
       "publishers": [
         "gesture_recognition_node (WAVE trigger)",
@@ -176,7 +176,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/hri/annotated_gesture",
+      "topic": "hri/annotated_gesture",
       "msg_type": "sensor_msgs/msg/Image",
       "publishers": [
         "gesture_recognition_node"
@@ -187,7 +187,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/hri/expression",
+      "topic": "hri/expression",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "facial_expression_node"
@@ -198,7 +198,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/hri/expression_command",
+      "topic": "hri/expression_command",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "facial_expression_node"
@@ -211,7 +211,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/hri/annotated_expression",
+      "topic": "hri/annotated_expression",
       "msg_type": "sensor_msgs/msg/Image",
       "publishers": [
         "facial_expression_node"
@@ -222,7 +222,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/landmark/detections",
+      "topic": "landmark/detections",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "landmark_detection_node"
@@ -233,7 +233,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/landmark/localization",
+      "topic": "landmark/localization",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "landmark_detection_node"
@@ -244,7 +244,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/landmark/context",
+      "topic": "landmark/context",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "landmark_detection_node"
@@ -257,7 +257,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/hri/annotated_landmark",
+      "topic": "hri/annotated_landmark",
       "msg_type": "sensor_msgs/msg/Image",
       "publishers": [
         "landmark_detection_node"
@@ -268,7 +268,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "/dori/stt/result",
+      "topic": "stt/result",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "external STT node"
@@ -281,7 +281,7 @@
       "owner_pkg": "external"
     },
     {
-      "topic": "/dori/tts/done",
+      "topic": "tts/done",
       "msg_type": "std_msgs/msg/Bool",
       "publishers": [
         "tts_node"
@@ -294,7 +294,7 @@
       "owner_pkg": "tts_pkg"
     },
     {
-      "topic": "/dori/hri/set_follow_mode",
+      "topic": "hri/set_follow_mode",
       "msg_type": "std_msgs/msg/Bool",
       "publishers": [
         "hri_manager_node"
@@ -307,7 +307,7 @@
       "owner_pkg": "interaction_pkg"
     },
     {
-      "topic": "/dori/hri/manager_state",
+      "topic": "hri/manager_state",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "hri_manager_node"
@@ -318,7 +318,7 @@
       "owner_pkg": "interaction_pkg"
     },
     {
-      "topic": "/dori/llm/query",
+      "topic": "llm/query",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "hri_manager_node"
@@ -331,7 +331,7 @@
       "owner_pkg": "interaction_pkg"
     },
     {
-      "topic": "/dori/tts/text",
+      "topic": "tts/text",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "hri_manager_node"
@@ -344,7 +344,7 @@
       "owner_pkg": "interaction_pkg"
     },
     {
-      "topic": "/dori/nav/command",
+      "topic": "nav/command",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "hri_manager_node"
@@ -355,7 +355,7 @@
       "owner_pkg": "interaction_pkg"
     },
     {
-      "topic": "/dori/llm/response",
+      "topic": "llm/response",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "llm_node"
@@ -368,7 +368,7 @@
       "owner_pkg": "llm_pkg"
     },
     {
-      "topic": "/dori/nav/destination",
+      "topic": "nav/destination",
       "msg_type": "geometry_msgs/msg/PoseStamped",
       "publishers": [
         "llm_node"
@@ -381,7 +381,7 @@
       "owner_pkg": "llm_pkg"
     },
     {
-      "topic": "/dori/tts/speaking",
+      "topic": "tts/speaking",
       "msg_type": "std_msgs/msg/Bool",
       "publishers": [
         "tts_node"
@@ -392,7 +392,7 @@
       "owner_pkg": "tts_pkg"
     },
     {
-      "topic": "/dori/nav/global_path",
+      "topic": "nav/global_path",
       "msg_type": "nav_msgs/msg/Path",
       "publishers": [
         "navigator_node"
@@ -403,7 +403,7 @@
       "owner_pkg": "navigation_pkg"
     },
     {
-      "topic": "/dori/nav/local_path",
+      "topic": "nav/local_path",
       "msg_type": "nav_msgs/msg/Path",
       "publishers": [
         "navigator_node"
@@ -414,7 +414,7 @@
       "owner_pkg": "navigation_pkg"
     },
     {
-      "topic": "/dori/nav/status",
+      "topic": "nav/status",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "navigator_node"
@@ -425,7 +425,7 @@
       "owner_pkg": "navigation_pkg"
     },
     {
-      "topic": "/dori/nav/cancel",
+      "topic": "nav/cancel",
       "msg_type": "std_msgs/msg/Bool",
       "publishers": [
         "external/nav client node"
@@ -438,7 +438,7 @@
       "owner_pkg": "external"
     },
     {
-      "topic": "/dori/system/metrics",
+      "topic": "system/metrics",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
         "system_monitor_node"
@@ -449,7 +449,7 @@
       "owner_pkg": "system_monitor_pkg"
     },
     {
-      "topic": "/odom",
+      "topic": "/dori/odom",
       "msg_type": "nav_msgs/msg/Odometry",
       "publishers": [
         "Base controller / localization stack"
@@ -462,7 +462,7 @@
       "owner_pkg": "base_platform"
     },
     {
-      "topic": "/scan",
+      "topic": "/dori/scan",
       "msg_type": "sensor_msgs/msg/LaserScan",
       "publishers": [
         "LiDAR driver"
@@ -488,7 +488,7 @@
       "owner_pkg": "base_platform"
     },
     {
-      "topic": "/cmd_vel",
+      "topic": "/dori/cmd_vel",
       "msg_type": "geometry_msgs/msg/Twist",
       "publishers": [
         "navigator_node"

@@ -42,7 +42,7 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Language*:: Python / C++
 *Launch*:: `bringup/launch/perception.launch.py` (`depth_camera_front`, `depth_camera_rear`)
 *Subscriptions*:: (none)
-*Publications*:: <<topic-dori-camera-color-image-raw,/dori/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/dori/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image_colormap,/dori/camera/depth/image_colormap>> (`sensor_msgs/msg/Image`, Python impl), <<topic-dori-camera-color-camera_info,/dori/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topic-dori-camera-depth-camera_info,/dori/camera/depth/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topic-dori-camera-depth_scale,/dori/camera/depth_scale>> (`std_msgs/msg/Float32`)
+*Publications*:: <<topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image_colormap,/camera/depth/image_colormap>> (`sensor_msgs/msg/Image`, Python impl), <<topic-dori-camera-color-camera_info,/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topic-dori-camera-depth-camera_info,/camera/depth/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topic-dori-camera-depth_scale,/camera/depth_scale>> (`std_msgs/msg/Float32`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
@@ -51,7 +51,7 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Dependencies*:: Intel RealSense device, `pyrealsense2` (Python) or librealsense (C++)
 *Failure behavior*:: If device open/stream start fails, logs an error and the node exits.
 
-*Description*:: Source node for front/rear camera streams. In bringup, the C++ implementation is selected by default and remapped into the `/dori/...` namespace.
+*Description*:: Source node for front/rear camera streams. In bringup, the C++ implementation is selected by default and remapped into the `...` namespace.
 
 
 [[node-person-detection-node]]
@@ -61,8 +61,8 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `person_detection_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/perception.launch.py`
-*Subscriptions*:: <<topic-dori-camera-color-image-raw,/dori/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/dori/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth_scale,/dori/camera/depth_scale>> (`std_msgs/msg/Float32`), <<topic-dori-hri-set_follow_mode,/dori/hri/set_follow_mode>> (`std_msgs/msg/Bool`)
-*Publications*:: <<topic-dori-hri-persons,/dori/hri/persons>> (`std_msgs/msg/String`), <<topic-dori-hri-interaction_trigger,/dori/hri/interaction_trigger>> (`std_msgs/msg/Bool`), <<topic-dori-hri-tracking_state,/dori/hri/tracking_state>> (`std_msgs/msg/String`), <<topic-dori-follow-target_offset,/dori/follow/target_offset>> (`geometry_msgs/msg/Point`), <<topic-dori-hri-annotated_image,/dori/hri/annotated_image>> (`sensor_msgs/msg/Image`)
+*Subscriptions*:: <<topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth_scale,/camera/depth_scale>> (`std_msgs/msg/Float32`), <<topic-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topic-dori-hri-persons,/hri/persons>> (`std_msgs/msg/String`), <<topic-dori-hri-interaction_trigger,/hri/interaction_trigger>> (`std_msgs/msg/Bool`), <<topic-dori-hri-tracking_state,/hri/tracking_state>> (`std_msgs/msg/String`), <<topic-dori-follow-target_offset,/follow/target_offset>> (`geometry_msgs/msg/Point`), <<topic-dori-hri-annotated_image,/hri/annotated_image>> (`sensor_msgs/msg/Image`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
@@ -81,8 +81,8 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `landmark_detection_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/perception.launch.py`
-*Subscriptions*:: <<topic-dori-camera-color-image-raw,/dori/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/dori/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-color-camera_info,/dori/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`)
-*Publications*:: <<topic-dori-landmark-detections,/dori/landmark/detections>> (`std_msgs/msg/String`), <<topic-dori-landmark-localization,/dori/landmark/localization>> (`std_msgs/msg/String`), <<topic-dori-landmark-context,/dori/landmark/context>> (`std_msgs/msg/String`), <<topic-dori-hri-annotated_landmark,/dori/hri/annotated_landmark>> (`sensor_msgs/msg/Image`)
+*Subscriptions*:: <<topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-color-camera_info,/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`)
+*Publications*:: <<topic-dori-landmark-detections,/landmark/detections>> (`std_msgs/msg/String`), <<topic-dori-landmark-localization,/landmark/localization>> (`std_msgs/msg/String`), <<topic-dori-landmark-context,/landmark/context>> (`std_msgs/msg/String`), <<topic-dori-hri-annotated_landmark,/hri/annotated_landmark>> (`sensor_msgs/msg/Image`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
@@ -101,8 +101,8 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `gesture_recognition_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/perception.launch.py`
-*Subscriptions*:: <<topic-dori-camera-color-image-raw,/dori/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-hri-interaction_trigger,/dori/hri/interaction_trigger>> (`std_msgs/msg/Bool`)
-*Publications*:: <<topic-dori-hri-gesture,/dori/hri/gesture>> (`std_msgs/msg/String`), <<topic-dori-hri-gesture_command,/dori/hri/gesture_command>> (`std_msgs/msg/String`), <<topic-dori-stt-wake_word_detected,/dori/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-hri-annotated_gesture,/dori/hri/annotated_gesture>> (`sensor_msgs/msg/Image`)
+*Subscriptions*:: <<topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-hri-interaction_trigger,/hri/interaction_trigger>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topic-dori-hri-gesture,/hri/gesture>> (`std_msgs/msg/String`), <<topic-dori-hri-gesture_command,/hri/gesture_command>> (`std_msgs/msg/String`), <<topic-dori-stt-wake_word_detected,/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-hri-annotated_gesture,/hri/annotated_gesture>> (`sensor_msgs/msg/Image`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
@@ -121,8 +121,8 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `facial_expression_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/perception.launch.py`
-*Subscriptions*:: <<topic-dori-camera-color-image-raw,/dori/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-hri-interaction_trigger,/dori/hri/interaction_trigger>> (`std_msgs/msg/Bool`)
-*Publications*:: <<topic-dori-hri-expression,/dori/hri/expression>> (`std_msgs/msg/String`), <<topic-dori-hri-expression_command,/dori/hri/expression_command>> (`std_msgs/msg/String`), <<topic-dori-hri-annotated_expression,/dori/hri/annotated_expression>> (`sensor_msgs/msg/Image`)
+*Subscriptions*:: <<topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-hri-interaction_trigger,/hri/interaction_trigger>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topic-dori-hri-expression,/hri/expression>> (`std_msgs/msg/String`), <<topic-dori-hri-expression_command,/hri/expression_command>> (`std_msgs/msg/String`), <<topic-dori-hri-annotated_expression,/hri/annotated_expression>> (`sensor_msgs/msg/Image`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
@@ -143,8 +143,8 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `hri_manager_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/interaction.launch.py`
-*Subscriptions*:: <<topic-dori-stt-wake_word_detected,/dori/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-stt-result,/dori/stt/result>> (`std_msgs/msg/String`), <<topic-dori-hri-tracking_state,/dori/hri/tracking_state>> (`std_msgs/msg/String`), <<topic-dori-hri-gesture_command,/dori/hri/gesture_command>> (`std_msgs/msg/String`), <<topic-dori-hri-expression_command,/dori/hri/expression_command>> (`std_msgs/msg/String`), <<topic-dori-landmark-context,/dori/landmark/context>> (`std_msgs/msg/String`), <<topic-dori-tts-done,/dori/tts/done>> (`std_msgs/msg/Bool`)
-*Publications*:: <<topic-dori-hri-set_follow_mode,/dori/hri/set_follow_mode>> (`std_msgs/msg/Bool`), <<topic-dori-hri-manager-state,/dori/hri/manager_state>> (`std_msgs/msg/String`), <<topic-dori-llm-query,/dori/llm/query>> (`std_msgs/msg/String`), <<topic-dori-tts-text,/dori/tts/text>> (`std_msgs/msg/String`), <<topic-dori-nav-command,/dori/nav/command>> (`std_msgs/msg/String`)
+*Subscriptions*:: <<topic-dori-stt-wake_word_detected,/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-stt-result,/stt/result>> (`std_msgs/msg/String`), <<topic-dori-hri-tracking_state,/hri/tracking_state>> (`std_msgs/msg/String`), <<topic-dori-hri-gesture_command,/hri/gesture_command>> (`std_msgs/msg/String`), <<topic-dori-hri-expression_command,/hri/expression_command>> (`std_msgs/msg/String`), <<topic-dori-landmark-context,/landmark/context>> (`std_msgs/msg/String`), <<topic-dori-tts-done,/tts/done>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topic-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_msgs/msg/Bool`), <<topic-dori-hri-manager-state,/hri/manager_state>> (`std_msgs/msg/String`), <<topic-dori-llm-query,/llm/query>> (`std_msgs/msg/String`), <<topic-dori-tts-text,/tts/text>> (`std_msgs/msg/String`), <<topic-dori-nav-command,/nav/command>> (`std_msgs/msg/String`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
@@ -163,8 +163,8 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `stt_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/voice.launch.py`
-*Subscriptions*:: <<topic-dori-tts-speaking,/dori/tts/speaking>> (`std_msgs/msg/Bool`)
-*Publications*:: <<topic-dori-stt-wake_word_detected,/dori/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-stt-result,/dori/stt/result>> (`std_msgs/msg/String`)
+*Subscriptions*:: <<topic-dori-tts-speaking,/tts/speaking>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topic-dori-stt-wake_word_detected,/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-stt-result,/stt/result>> (`std_msgs/msg/String`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
@@ -183,8 +183,8 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `llm_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/voice.launch.py`
-*Subscriptions*:: <<topic-dori-llm-query,/dori/llm/query>> (`std_msgs/msg/String`)
-*Publications*:: <<topic-dori-llm-response,/dori/llm/response>> (`std_msgs/msg/String`), <<topic-dori-nav-destination,/dori/nav/destination>> (`geometry_msgs/msg/PoseStamped`)
+*Subscriptions*:: <<topic-dori-llm-query,/llm/query>> (`std_msgs/msg/String`)
+*Publications*:: <<topic-dori-llm-response,/llm/response>> (`std_msgs/msg/String`), <<topic-dori-nav-destination,/nav/destination>> (`geometry_msgs/msg/PoseStamped`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
@@ -203,8 +203,8 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `tts_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/voice.launch.py`
-*Subscriptions*:: <<topic-dori-llm-response,/dori/llm/response>> (`std_msgs/msg/String`), <<topic-dori-tts-text,/dori/tts/text>> (`std_msgs/msg/String`)
-*Publications*:: <<topic-dori-tts-speaking,/dori/tts/speaking>> (`std_msgs/msg/Bool`), <<topic-dori-tts-done,/dori/tts/done>> (`std_msgs/msg/Bool`)
+*Subscriptions*:: <<topic-dori-llm-response,/llm/response>> (`std_msgs/msg/String`), <<topic-dori-tts-text,/tts/text>> (`std_msgs/msg/String`)
+*Publications*:: <<topic-dori-tts-speaking,/tts/speaking>> (`std_msgs/msg/Bool`), <<topic-dori-tts-done,/tts/done>> (`std_msgs/msg/Bool`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
@@ -225,14 +225,14 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `navigator_node`
 *Language*:: Python
 *Launch*:: `navigation_pkg/launch/navigation.launch.py`
-*Subscriptions*:: <<topic-dori-nav-destination,/dori/nav/destination>> (`geometry_msgs/msg/PoseStamped`), `/odom` (`nav_msgs/msg/Odometry`), `/scan` (`sensor_msgs/msg/LaserScan`), `/map` (`nav_msgs/msg/OccupancyGrid`), <<topic-dori-nav-cancel,/dori/nav/cancel>> (`std_msgs/msg/Bool`)
-*Publications*:: `/cmd_vel` (`geometry_msgs/msg/Twist`), <<topic-dori-nav-global_path,/dori/nav/global_path>> (`nav_msgs/msg/Path`), <<topic-dori-nav-local_path,/dori/nav/local_path>> (`nav_msgs/msg/Path`), <<topic-dori-nav-status,/dori/nav/status>> (`std_msgs/msg/String`)
+*Subscriptions*:: <<topic-dori-nav-destination,/nav/destination>> (`geometry_msgs/msg/PoseStamped`), `/dori/odom` (`nav_msgs/msg/Odometry`), `/dori/scan` (`sensor_msgs/msg/LaserScan`), `/map` (`nav_msgs/msg/OccupancyGrid`), <<topic-dori-nav-cancel,/nav/cancel>> (`std_msgs/msg/Bool`)
+*Publications*:: `/dori/cmd_vel` (`geometry_msgs/msg/Twist`), <<topic-dori-nav-global_path,/nav/global_path>> (`nav_msgs/msg/Path`), <<topic-dori-nav-local_path,/nav/local_path>> (`nav_msgs/msg/Path`), <<topic-dori-nav-status,/nav/status>> (`std_msgs/msg/String`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
 *Parameters*:: See <<param-navigator_node, navigator_node parameters>>
 *Lifecycle*:: unmanaged
-*Dependencies*:: odom/scan/map inputs, robot base cmd_vel interface
+*Dependencies*:: /dori/odom, /dori/scan, /map inputs, robot base /dori/cmd_vel interface
 *Failure behavior*:: On path-planning failure, transitions to FAILED and stops.
 
 *Description*:: After receiving a destination, performs planning/obstacle avoidance and publishes status/paths.
@@ -247,8 +247,8 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `emotion_publisher_node`
 *Language*:: Python
 *Launch*:: (not included in the default bringup path)
-*Subscriptions*:: <<topic-dori-hri-manager-state,/dori/hri/manager_state>> (`std_msgs/msg/String`), <<topic-dori-hri-emotion_override,/dori/hri/emotion_override>> (`std_msgs/msg/String`)
-*Publications*:: <<topic-dori-hri-emotion,/dori/hri/emotion>> (`std_msgs/msg/String`)
+*Subscriptions*:: <<topic-dori-hri-manager-state,/hri/manager_state>> (`std_msgs/msg/String`), <<topic-dori-hri-emotion_override,/hri/emotion_override>> (`std_msgs/msg/String`)
+*Publications*:: <<topic-dori-hri-emotion,/hri/emotion>> (`std_msgs/msg/String`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
@@ -268,7 +268,7 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Language*:: Python
 *Launch*:: (requires separate launch; used by dashboard/monitoring)
 *Subscriptions*:: (none)
-*Publications*:: <<topic-dori-system-metrics,/dori/system/metrics>> (`std_msgs/msg/String`)
+*Publications*:: <<topic-dori-system-metrics,/system/metrics>> (`std_msgs/msg/String`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -

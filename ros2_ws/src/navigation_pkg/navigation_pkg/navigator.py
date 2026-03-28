@@ -59,29 +59,29 @@ class NavigatorNode(Node):
         self.map_origin = (0.0, 0.0)
         
         # Publishers
-        self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.global_path_pub = self.create_publisher(Path, '/dori/nav/global_path', 10)
-        self.local_path_pub = self.create_publisher(Path, '/dori/nav/local_path', 10)
-        self.status_pub = self.create_publisher(String, '/dori/nav/status', 10)
+        self.cmd_vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.global_path_pub = self.create_publisher(Path, 'nav/global_path', 10)
+        self.local_path_pub = self.create_publisher(Path, 'nav/local_path', 10)
+        self.status_pub = self.create_publisher(String, 'nav/status', 10)
         
         # Subscribers
         self.goal_sub = self.create_subscription(
             PoseStamped,
-            '/dori/nav/destination',
+            'nav/destination',
             self.goal_callback,
             10
         )
         
         self.odom_sub = self.create_subscription(
             Odometry,
-            '/odom',
+            'odom',
             self.odom_callback,
             10
         )
         
         self.scan_sub = self.create_subscription(
             LaserScan,
-            '/scan',
+            'scan',
             self.scan_callback,
             10
         )
@@ -95,7 +95,7 @@ class NavigatorNode(Node):
         
         self.cancel_sub = self.create_subscription(
             Bool,
-            '/dori/nav/cancel',
+            'nav/cancel',
             self.cancel_callback,
             10
         )

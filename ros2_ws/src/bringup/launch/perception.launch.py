@@ -24,7 +24,7 @@ def _topic(ns, suffix: str):
 
 
 def generate_launch_description():
-    dori_ns = LaunchConfiguration('dori_namespace')
+    dori_ns = LaunchConfiguration('namespace')
 
     try:
         perception_pkg_dir = get_package_share_directory('perception_pkg')
@@ -45,7 +45,7 @@ def generate_launch_description():
         DeclareLaunchArgument('camera_width', default_value='640'),
         DeclareLaunchArgument('camera_height', default_value='480'),
         DeclareLaunchArgument('use_cpp_depth_camera', default_value='true'),
-        DeclareLaunchArgument('dori_namespace', default_value='/dori'),
+        DeclareLaunchArgument('namespace', default_value='/dori'),
     ]
 
     camera_params = {

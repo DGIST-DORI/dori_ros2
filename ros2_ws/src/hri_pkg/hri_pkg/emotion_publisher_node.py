@@ -5,15 +5,15 @@ Converts HRI state machine state into robot emotion and publishes it.
 
 Design: 2-layer separation
   Layer 1 (what): HRI state machine (IDLE / LISTENING / RESPONDING / NAVIGATING)
-  Layer 2 (how):  Emotion (/dori/hri/emotion) — can be overridden externally
+  Layer 2 (how):  Emotion (hri/emotion) — can be overridden externally
 
 Subscribe topics:
-  /dori/hri/manager_state   (String) - HRI state machine state
-  /dori/hri/emotion_override (String) - optional external emotion override
+  hri/manager_state   (String) - HRI state machine state
+  hri/emotion_override (String) - optional external emotion override
                                         JSON: { "emotion": "EXCITED", "duration_sec": 5.0 }
 
 Publish topics:
-  /dori/hri/emotion         (String) - current robot emotion JSON
+  hri/emotion         (String) - current robot emotion JSON
                                        { "emotion": str, "source": str, "timestamp": float }
 
 Emotion types (extensible):
@@ -56,9 +56,9 @@ class EmotionPublisherNode(Node):
     def __init__(self):
         super().__init__('emotion_publisher_node')
 
-        self.declare_parameter('topics.manager_state_sub', '/dori/hri/manager_state')
-        self.declare_parameter('topics.emotion_override_sub', '/dori/hri/emotion_override')
-        self.declare_parameter('topics.emotion_pub', '/dori/hri/emotion')
+        self.declare_parameter('topics.manager_state_sub', 'hri/manager_state')
+        self.declare_parameter('topics.emotion_override_sub', 'hri/emotion_override')
+        self.declare_parameter('topics.emotion_pub', 'hri/emotion')
 
         # State
         self._hri_state: str = 'IDLE'

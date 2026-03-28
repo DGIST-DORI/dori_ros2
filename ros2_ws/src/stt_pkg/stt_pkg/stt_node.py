@@ -6,11 +6,11 @@ Pipeline:
   Microphone → Porcupine (wake word) → Whisper (transcription) → publish
 
 Publish topics:
-  /dori/stt/wake_word_detected   (Bool)   - rising edge on wake word detection
-  /dori/stt/result               (String) - JSON: {text, language, confidence, timestamp}
+  stt/wake_word_detected   (Bool)   - rising edge on wake word detection
+  stt/result               (String) - JSON: {text, language, confidence, timestamp}
 
 Subscribe topics:
-  /dori/tts/speaking             (Bool)   - mute microphone while robot is speaking
+  tts/speaking             (Bool)   - mute microphone while robot is speaking
 """
 
 import json
@@ -105,9 +105,9 @@ class STTNode(Node):
         self.declare_parameter('whisper_device', 'cpu')
         self.declare_parameter('vad_threshold', 0.5)
         self.declare_parameter('silence_duration', 1.2)
-        self.declare_parameter('topics.wake_word_pub', '/dori/stt/wake_word_detected')
-        self.declare_parameter('topics.result_pub', '/dori/stt/result')
-        self.declare_parameter('topics.tts_speaking_sub', '/dori/tts/speaking')
+        self.declare_parameter('topics.wake_word_pub', 'stt/wake_word_detected')
+        self.declare_parameter('topics.result_pub', 'stt/result')
+        self.declare_parameter('topics.tts_speaking_sub', 'tts/speaking')
 
         wake_word        = self.get_parameter('wake_word').value
         wake_word_paths  = self.get_parameter('wake_word_paths').value

@@ -3,11 +3,11 @@
 Intent classification + RAG-based campus knowledge retrieval + LLM response generation.
 
 Subscribe topics:
-  /dori/llm/query        (String) - JSON from HRI Manager: {user_text, location_context, ...}
+  llm/query        (String) - JSON from HRI Manager: {user_text, location_context, ...}
 
 Publish topics:
-  /dori/llm/response     (String) - generated response text (consumed by TTS node)
-  /dori/nav/destination  (PoseStamped) - navigation goal when intent is navigation
+  llm/response     (String) - generated response text (consumed by TTS node)
+  nav/destination  (PoseStamped) - navigation goal when intent is navigation
 """
 
 import json
@@ -257,9 +257,9 @@ class LLMNode(Node):
         self.declare_parameter('model_name',       'gemini-2.5-flash')
         self.declare_parameter('api_key',          '')
         self.declare_parameter('rag_top_k',        3)
-        self.declare_parameter('topics.query_sub', '/dori/llm/query')
-        self.declare_parameter('topics.response_pub', '/dori/llm/response')
-        self.declare_parameter('topics.destination_pub', '/dori/nav/destination')
+        self.declare_parameter('topics.query_sub', 'llm/query')
+        self.declare_parameter('topics.response_pub', 'llm/response')
+        self.declare_parameter('topics.destination_pub', 'nav/destination')
 
         knowledge_file   = self.get_parameter('knowledge_file').value
         rag_index_dir    = self.get_parameter('rag_index_dir').value

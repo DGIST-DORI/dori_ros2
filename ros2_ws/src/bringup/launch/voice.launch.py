@@ -13,7 +13,7 @@ def _topic(ns, suffix: str):
 
 
 def generate_launch_description():
-    dori_ns = LaunchConfiguration('dori_namespace')
+    dori_ns = LaunchConfiguration('namespace')
     args = [
         DeclareLaunchArgument('use_external_llm', default_value='false'),
         DeclareLaunchArgument('knowledge_file', default_value=''),
@@ -26,7 +26,7 @@ def generate_launch_description():
         DeclareLaunchArgument('wake_word_paths', default_value=''),
         DeclareLaunchArgument('tts_engine', default_value='gtts'),
         DeclareLaunchArgument('tts_language', default_value='ko'),
-        DeclareLaunchArgument('dori_namespace', default_value='/dori'),
+        DeclareLaunchArgument('namespace', default_value='/dori'),
     ]
 
     stt_node = Node(
