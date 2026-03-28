@@ -8,12 +8,12 @@ Engines (priority order):
   NOTE: Consider replacing gTTS with Piper TTS for fully offline operation.
 
 Subscribe topics:
-  /dori/llm/response     (String) - response text from LLM node
-  /dori/tts/text         (String) - direct TTS from HRI Manager (bypasses LLM)
+  llm/response     (String) - response text from LLM node
+  tts/text         (String) - direct TTS from HRI Manager (bypasses LLM)
 
 Publish topics:
-  /dori/tts/speaking     (Bool)   - True while speaking (STT mutes itself)
-  /dori/tts/done         (Bool)   - True when playback finishes (HRI Manager transitions state)
+  tts/speaking     (Bool)   - True while speaking (STT mutes itself)
+  tts/done         (Bool)   - True when playback finishes (HRI Manager transitions state)
 """
 
 import os
@@ -55,10 +55,10 @@ class TTSNode(Node):
         self.declare_parameter('language', 'ko')
         self.declare_parameter('speech_rate', 150)
         self.declare_parameter('volume', 0.9)
-        self.declare_parameter('topics.speaking_pub', '/dori/tts/speaking')
-        self.declare_parameter('topics.done_pub', '/dori/tts/done')
-        self.declare_parameter('topics.llm_response_sub', '/dori/llm/response')
-        self.declare_parameter('topics.tts_text_sub', '/dori/tts/text')
+        self.declare_parameter('topics.speaking_pub', 'tts/speaking')
+        self.declare_parameter('topics.done_pub', 'tts/done')
+        self.declare_parameter('topics.llm_response_sub', 'llm/response')
+        self.declare_parameter('topics.tts_text_sub', 'tts/text')
 
         self.engine_name  = self.get_parameter('tts_engine').value
         self.language     = self.get_parameter('language').value

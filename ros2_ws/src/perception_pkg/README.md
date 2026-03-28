@@ -12,10 +12,10 @@
 
 Production topic names are finalized in launch (`bringup/launch/perception.launch.py`) via namespace/remapping, for example:
 
-- `/dori/camera/color/image_raw`
-- `/dori/camera/depth/image_raw`
-- `/dori/camera/depth/image_colormap`
-- `/dori/camera/color/camera_info`
-- `/dori/camera/depth/camera_info`
+- `camera/color/image_raw`
+- `camera/depth/image_raw`
+- `camera/depth/image_colormap`
+- `camera/color/camera_info`
+- `camera/depth/camera_info`
 
-Do not hardcode absolute `/dori/...` camera publish topics inside node code.
+Do not hardcode absolute `...` camera publish topics inside node code.

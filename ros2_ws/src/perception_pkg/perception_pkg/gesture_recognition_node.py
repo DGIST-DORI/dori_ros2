@@ -13,14 +13,14 @@ Recognized gestures:
   NONE      : no hand / unclassified
 
 Publish topics:
-  /dori/hri/gesture           (String) - gesture detection JSON
-  /dori/hri/gesture_command   (String) - gesture → command mapping
-  /dori/stt/wake_word_detected (Bool)  - published on WAVE (routes to HRI Manager)
-  /dori/hri/annotated_gesture (Image)  - visualization (optional)
+  hri/gesture           (String) - gesture detection JSON
+  hri/gesture_command   (String) - gesture → command mapping
+  stt/wake_word_detected (Bool)  - published on WAVE (routes to HRI Manager)
+  hri/annotated_gesture (Image)  - visualization (optional)
 
 Subscribe topics:
-  /dori/camera/color/image_raw    (Image)
-  /dori/hri/interaction_trigger   (Bool)
+  camera/color/image_raw    (Image)
+  hri/interaction_trigger   (Bool)
 """
 
 import json
@@ -98,12 +98,12 @@ class GestureRecognitionNode(Node):
         self.declare_parameter('publish_cooldown_sec', 1.5)      # 동일 명령 중복 발행 억제
         self.declare_parameter('min_result_confidence', 0.5)     # 결과 사용 최소 confidence
         self.declare_parameter('use_handedness_correction', True)
-        self.declare_parameter('topics.color_image_sub', '/dori/camera/color/image_raw')
-        self.declare_parameter('topics.interaction_trigger_sub', '/dori/hri/interaction_trigger')
-        self.declare_parameter('topics.gesture_pub', '/dori/hri/gesture')
-        self.declare_parameter('topics.gesture_command_pub', '/dori/hri/gesture_command')
-        self.declare_parameter('topics.wake_word_pub', '/dori/stt/wake_word_detected')
-        self.declare_parameter('topics.annotated_pub', '/dori/hri/annotated_gesture')
+        self.declare_parameter('topics.color_image_sub', 'camera/color/image_raw')
+        self.declare_parameter('topics.interaction_trigger_sub', 'hri/interaction_trigger')
+        self.declare_parameter('topics.gesture_pub', 'hri/gesture')
+        self.declare_parameter('topics.gesture_command_pub', 'hri/gesture_command')
+        self.declare_parameter('topics.wake_word_pub', 'stt/wake_word_detected')
+        self.declare_parameter('topics.annotated_pub', 'hri/annotated_gesture')
 
         hand_model_path = self.get_parameter('hand_model_path').value
         num_hands = self.get_parameter('num_hands').value

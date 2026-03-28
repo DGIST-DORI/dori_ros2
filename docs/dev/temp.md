@@ -39,15 +39,15 @@ Perception and voice nodes can be tested independently using manual topic inject
 ros2 run interaction_pkg hri_manager_node
 
 # Terminal 2: simulate wake word
-ros2 topic pub /dori/stt/wake_word_detected std_msgs/msg/Bool "data: true" --once
+ros2 topic pub /stt/wake_word_detected std_msgs/msg/Bool "data: true" --once
 
 # Terminal 3: simulate STT result
-ros2 topic pub /dori/stt/result std_msgs/msg/String \
+ros2 topic pub /stt/result std_msgs/msg/String \
   'data: "{\"text\": \"도서관 어디야\", \"language\": \"ko\", \"confidence\": 0.95}"' --once
 
 # Monitor state
-ros2 topic echo /dori/hri/manager_state
-ros2 topic echo /dori/tts/text
+ros2 topic echo /hri/manager_state
+ros2 topic echo /tts/text
 ```
 
 ---

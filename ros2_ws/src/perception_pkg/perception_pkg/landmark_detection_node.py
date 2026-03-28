@@ -41,13 +41,13 @@ class LandmarkDetectionNode(Node):
         self.declare_parameter('landmark_db_path', 'landmark_db.json')
         self.declare_parameter('max_detection_distance_m', 8.0)  # max distance to consider a detection valid for localization
         self.declare_parameter('localization_confidence_threshold', 0.6)
-        self.declare_parameter('topics.color_image_sub', '/dori/camera/color/image_raw')
-        self.declare_parameter('topics.depth_image_sub', '/dori/camera/depth/image_raw')
-        self.declare_parameter('topics.color_camera_info_sub', '/dori/camera/color/camera_info')
-        self.declare_parameter('topics.detections_pub', '/dori/landmark/detections')
-        self.declare_parameter('topics.localization_pub', '/dori/landmark/localization')
-        self.declare_parameter('topics.context_pub', '/dori/landmark/context')
-        self.declare_parameter('topics.annotated_pub', '/dori/hri/annotated_landmark')
+        self.declare_parameter('topics.color_image_sub', 'camera/color/image_raw')
+        self.declare_parameter('topics.depth_image_sub', 'camera/depth/image_raw')
+        self.declare_parameter('topics.color_camera_info_sub', 'camera/color/camera_info')
+        self.declare_parameter('topics.detections_pub', 'landmark/detections')
+        self.declare_parameter('topics.localization_pub', 'landmark/localization')
+        self.declare_parameter('topics.context_pub', 'landmark/context')
+        self.declare_parameter('topics.annotated_pub', 'hri/annotated_landmark')
 
         model_path = self.get_parameter('model_path').value
         custom_model_path = self.get_parameter('custom_model_path').value

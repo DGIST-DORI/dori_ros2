@@ -35,14 +35,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 == Perception
 
 [[topic-dori-camera-color-image-raw]]
-=== /dori/camera/color/image_raw
+=== /camera/color/image_raw
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
 *Publishers*:: depth_camera_node
 *Subscribers*:: person_detection_node, gesture_recognition_node, facial_expression_node, landmark_detection_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /dori/camera/color/image_raw → person_detection_node, gesture_recognition_node, facial_expression_node, landmark_detection_node
+*Flow*:: depth_camera_node → /camera/color/image_raw → person_detection_node, gesture_recognition_node, facial_expression_node, landmark_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -61,14 +61,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-camera-depth-image-raw]]
-=== /dori/camera/depth/image_raw
+=== /camera/depth/image_raw
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
 *Publishers*:: depth_camera_node
 *Subscribers*:: person_detection_node, landmark_detection_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /dori/camera/depth/image_raw → person_detection_node, landmark_detection_node
+*Flow*:: depth_camera_node → /camera/depth/image_raw → person_detection_node, landmark_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -87,14 +87,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-camera-color-camera_info]]
-=== /dori/camera/color/camera_info
+=== /camera/color/camera_info
 
 *Type (msg)*:: `sensor_msgs/msg/CameraInfo`
 *Publishers*:: depth_camera_node
 *Subscribers*:: landmark_detection_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /dori/camera/color/camera_info → landmark_detection_node
+*Flow*:: depth_camera_node → /camera/color/camera_info → landmark_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -107,14 +107,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-camera-depth-camera_info]]
-=== /dori/camera/depth/camera_info
+=== /camera/depth/camera_info
 
 *Type (msg)*:: `sensor_msgs/msg/CameraInfo`
 *Publishers*:: depth_camera_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /dori/camera/depth/camera_info → (none documented)
+*Flow*:: depth_camera_node → /camera/depth/camera_info → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -127,14 +127,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-camera-depth-image_colormap]]
-=== /dori/camera/depth/image_colormap
+=== /camera/depth/image_colormap
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
 *Publishers*:: depth_camera_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /dori/camera/depth/image_colormap → (none documented)
+*Flow*:: depth_camera_node → /camera/depth/image_colormap → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -147,14 +147,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-camera-depth_scale]]
-=== /dori/camera/depth_scale
+=== /camera/depth_scale
 
 *Type (msg)*:: `std_msgs/msg/Float32`
 *Publishers*:: (none documented)
 *Subscribers*:: person_detection_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: (none documented) → /dori/camera/depth_scale → person_detection_node
+*Flow*:: (none documented) → /camera/depth_scale → person_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -167,14 +167,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-follow-target_offset]]
-=== /dori/follow/target_offset
+=== /follow/target_offset
 
 *Type (msg)*:: `geometry_msgs/msg/Point`
 *Publishers*:: person_detection_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: person_detection_node → /dori/follow/target_offset → (none documented)
+*Flow*:: person_detection_node → /follow/target_offset → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -187,14 +187,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-landmark-context]]
-=== /dori/landmark/context
+=== /landmark/context
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: landmark_detection_node
 *Subscribers*:: hri_manager_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: landmark_detection_node → /dori/landmark/context → hri_manager_node
+*Flow*:: landmark_detection_node → /landmark/context → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -207,14 +207,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-landmark-detections]]
-=== /dori/landmark/detections
+=== /landmark/detections
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: landmark_detection_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: landmark_detection_node → /dori/landmark/detections → (none documented)
+*Flow*:: landmark_detection_node → /landmark/detections → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -223,18 +223,18 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 | data | TBD | - | See message definition for field-level details.
 |===
 
-*Description*:: Raw landmark/candidate detections as JSON.
+*Description*:: Raw /landmark/candidate detections as JSON.
 
 
 [[topic-dori-landmark-localization]]
-=== /dori/landmark/localization
+=== /landmark/localization
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: landmark_detection_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: landmark_detection_node → /dori/landmark/localization → (none documented)
+*Flow*:: landmark_detection_node → /landmark/localization → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -249,14 +249,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 == HRI
 
 [[topic-dori-hri-manager-state]]
-=== /dori/hri/manager_state
+=== /hri/manager_state
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: hri_manager_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: hri_manager_node → /dori/hri/manager_state → (none documented)
+*Flow*:: hri_manager_node → /hri/manager_state → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -269,14 +269,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-emotion_override]]
-=== /dori/hri/emotion_override
+=== /hri/emotion_override
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: external UI/control node
 *Subscribers*:: emotion_publisher_node
 *Frequency*:: Expected: event-driven, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: external UI/control node → /dori/hri/emotion_override → emotion_publisher_node
+*Flow*:: external UI/control node → /hri/emotion_override → emotion_publisher_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -289,14 +289,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-emotion]]
-=== /dori/hri/emotion
+=== /hri/emotion
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: emotion_publisher_node
 *Subscribers*:: face UI / actuator bridge node (expected)
 *Frequency*:: Expected: 2 Hz, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: emotion_publisher_node → /dori/hri/emotion → face UI / actuator bridge node
+*Flow*:: emotion_publisher_node → /hri/emotion → face UI / actuator bridge node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -309,14 +309,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-annotated_expression]]
-=== /dori/hri/annotated_expression
+=== /hri/annotated_expression
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
 *Publishers*:: facial_expression_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: facial_expression_node → /dori/hri/annotated_expression → (none documented)
+*Flow*:: facial_expression_node → /hri/annotated_expression → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -329,14 +329,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-annotated_gesture]]
-=== /dori/hri/annotated_gesture
+=== /hri/annotated_gesture
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
 *Publishers*:: gesture_recognition_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: gesture_recognition_node → /dori/hri/annotated_gesture → (none documented)
+*Flow*:: gesture_recognition_node → /hri/annotated_gesture → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -349,14 +349,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-annotated_image]]
-=== /dori/hri/annotated_image
+=== /hri/annotated_image
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
 *Publishers*:: person_detection_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: person_detection_node → /dori/hri/annotated_image → (none documented)
+*Flow*:: person_detection_node → /hri/annotated_image → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -369,14 +369,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-annotated_landmark]]
-=== /dori/hri/annotated_landmark
+=== /hri/annotated_landmark
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
 *Publishers*:: landmark_detection_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: landmark_detection_node → /dori/hri/annotated_landmark → (none documented)
+*Flow*:: landmark_detection_node → /hri/annotated_landmark → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -389,14 +389,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-expression]]
-=== /dori/hri/expression
+=== /hri/expression
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: facial_expression_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: facial_expression_node → /dori/hri/expression → (none documented)
+*Flow*:: facial_expression_node → /hri/expression → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -409,14 +409,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-expression_command]]
-=== /dori/hri/expression_command
+=== /hri/expression_command
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: facial_expression_node
 *Subscribers*:: hri_manager_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: facial_expression_node → /dori/hri/expression_command → hri_manager_node
+*Flow*:: facial_expression_node → /hri/expression_command → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -429,14 +429,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-gesture]]
-=== /dori/hri/gesture
+=== /hri/gesture
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: gesture_recognition_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: gesture_recognition_node → /dori/hri/gesture → (none documented)
+*Flow*:: gesture_recognition_node → /hri/gesture → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -449,14 +449,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-gesture_command]]
-=== /dori/hri/gesture_command
+=== /hri/gesture_command
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: gesture_recognition_node
 *Subscribers*:: hri_manager_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: gesture_recognition_node → /dori/hri/gesture_command → hri_manager_node
+*Flow*:: gesture_recognition_node → /hri/gesture_command → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -469,14 +469,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-interaction_trigger]]
-=== /dori/hri/interaction_trigger
+=== /hri/interaction_trigger
 
 *Type (msg)*:: `std_msgs/msg/Bool`
 *Publishers*:: person_detection_node
 *Subscribers*:: gesture_recognition_node, facial_expression_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: person_detection_node → /dori/hri/interaction_trigger → gesture_recognition_node, facial_expression_node
+*Flow*:: person_detection_node → /hri/interaction_trigger → gesture_recognition_node, facial_expression_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -489,14 +489,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-persons]]
-=== /dori/hri/persons
+=== /hri/persons
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: person_detection_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: person_detection_node → /dori/hri/persons → (none documented)
+*Flow*:: person_detection_node → /hri/persons → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -509,14 +509,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-set_follow_mode]]
-=== /dori/hri/set_follow_mode
+=== /hri/set_follow_mode
 
 *Type (msg)*:: `std_msgs/msg/Bool`
 *Publishers*:: hri_manager_node
 *Subscribers*:: person_detection_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: hri_manager_node → /dori/hri/set_follow_mode → person_detection_node
+*Flow*:: hri_manager_node → /hri/set_follow_mode → person_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -529,14 +529,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-hri-tracking_state]]
-=== /dori/hri/tracking_state
+=== /hri/tracking_state
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: person_detection_node
 *Subscribers*:: hri_manager_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: person_detection_node → /dori/hri/tracking_state → hri_manager_node
+*Flow*:: person_detection_node → /hri/tracking_state → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -549,14 +549,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-stt-result]]
-=== /dori/stt/result
+=== /stt/result
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: external STT node
 *Subscribers*:: hri_manager_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: external STT node → /dori/stt/result → hri_manager_node
+*Flow*:: external STT node → /stt/result → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -569,14 +569,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-stt-wake_word_detected]]
-=== /dori/stt/wake_word_detected
+=== /stt/wake_word_detected
 
 *Type (msg)*:: `std_msgs/msg/Bool`
 *Publishers*:: gesture_recognition_node (WAVE trigger), external STT node
 *Subscribers*:: hri_manager_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: gesture_recognition_node (WAVE trigger), external STT node → /dori/stt/wake_word_detected → hri_manager_node
+*Flow*:: gesture_recognition_node (WAVE trigger), external STT node → /stt/wake_word_detected → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -589,14 +589,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-tts-done]]
-=== /dori/tts/done
+=== /tts/done
 
 *Type (msg)*:: `std_msgs/msg/Bool`
 *Publishers*:: tts_node
 *Subscribers*:: hri_manager_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: tts_node → /dori/tts/done → hri_manager_node
+*Flow*:: tts_node → /tts/done → hri_manager_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -609,14 +609,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-tts-speaking]]
-=== /dori/tts/speaking
+=== /tts/speaking
 
 *Type (msg)*:: `std_msgs/msg/Bool`
 *Publishers*:: tts_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: tts_node → /dori/tts/speaking → (none documented)
+*Flow*:: tts_node → /tts/speaking → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -629,14 +629,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-tts-text]]
-=== /dori/tts/text
+=== /tts/text
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: hri_manager_node
 *Subscribers*:: tts_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: hri_manager_node → /dori/tts/text → tts_node
+*Flow*:: hri_manager_node → /tts/text → tts_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -651,14 +651,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 == LLM
 
 [[topic-dori-llm-query]]
-=== /dori/llm/query
+=== /llm/query
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: hri_manager_node
 *Subscribers*:: llm_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: hri_manager_node → /dori/llm/query → llm_node
+*Flow*:: hri_manager_node → /llm/query → llm_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -671,14 +671,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-llm-response]]
-=== /dori/llm/response
+=== /llm/response
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: llm_node
 *Subscribers*:: tts_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: llm_node → /dori/llm/response → tts_node
+*Flow*:: llm_node → /llm/response → tts_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -693,14 +693,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 == Navigation
 
 [[topic-dori-nav-status]]
-=== /dori/nav/status
+=== /nav/status
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: navigator_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: navigator_node → /dori/nav/status → (none documented)
+*Flow*:: navigator_node → /nav/status → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -713,14 +713,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-nav-cancel]]
-=== /dori/nav/cancel
+=== /nav/cancel
 
 *Type (msg)*:: `std_msgs/msg/Bool`
 *Publishers*:: external/nav client node
 *Subscribers*:: navigator_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: external/nav client node → /dori/nav/cancel → navigator_node
+*Flow*:: external/nav client node → /nav/cancel → navigator_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -733,14 +733,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-nav-command]]
-=== /dori/nav/command
+=== /nav/command
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: hri_manager_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: hri_manager_node → /dori/nav/command → (none documented)
+*Flow*:: hri_manager_node → /nav/command → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -753,14 +753,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-nav-destination]]
-=== /dori/nav/destination
+=== /nav/destination
 
 *Type (msg)*:: `geometry_msgs/msg/PoseStamped`
 *Publishers*:: llm_node
 *Subscribers*:: navigator_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: llm_node → /dori/nav/destination → navigator_node
+*Flow*:: llm_node → /nav/destination → navigator_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -773,14 +773,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-nav-global_path]]
-=== /dori/nav/global_path
+=== /nav/global_path
 
 *Type (msg)*:: `nav_msgs/msg/Path`
 *Publishers*:: navigator_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: navigator_node → /dori/nav/global_path → (none documented)
+*Flow*:: navigator_node → /nav/global_path → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -793,14 +793,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 
 [[topic-dori-nav-local_path]]
-=== /dori/nav/local_path
+=== /nav/local_path
 
 *Type (msg)*:: `nav_msgs/msg/Path`
 *Publishers*:: navigator_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: navigator_node → /dori/nav/local_path → (none documented)
+*Flow*:: navigator_node → /nav/local_path → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -815,14 +815,14 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 == System
 
 [[topic-dori-system-metrics]]
-=== /dori/system/metrics
+=== /system/metrics
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: system_monitor_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: system_monitor_node → /dori/system/metrics → (none documented)
+*Flow*:: system_monitor_node → /system/metrics → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]

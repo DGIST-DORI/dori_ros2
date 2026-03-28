@@ -14,7 +14,7 @@ class SystemMonitorNode(Node):
     def __init__(self) -> None:
         super().__init__('system_monitor_node')
 
-        self.declare_parameter('topics.metrics_pub', '/dori/system/metrics')
+        self.declare_parameter('topics.metrics_pub', 'system/metrics')
         self.declare_parameter('interval_sec', 1.0)
 
         topic = self.get_parameter('topics.metrics_pub').get_parameter_value().string_value

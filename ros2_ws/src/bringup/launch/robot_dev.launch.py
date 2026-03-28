@@ -30,7 +30,7 @@ def generate_launch_description():
             description='Launch rosbridge + web dashboard (development only)',
         ),
         DeclareLaunchArgument(
-            'dori_namespace',
+            'namespace',
             default_value='/dori',
             description='Base namespace for all DORI topics',
         ),
@@ -41,7 +41,7 @@ def generate_launch_description():
             os.path.join(bringup_dir, 'launch', 'robot.launch.py')
         ),
         launch_arguments={
-            'dori_namespace': LaunchConfiguration('dori_namespace'),
+            'namespace': LaunchConfiguration('namespace'),
         }.items(),
     )
 

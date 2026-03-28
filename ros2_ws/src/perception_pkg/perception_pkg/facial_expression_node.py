@@ -8,13 +8,13 @@ Facial Expression Recognition Node (MediaPipe Face Mesh)
 Expressions: SATISFIED / CONFUSED / NEUTRAL
 
 Publish topics:
-  /dori/hri/expression           (String) - expression JSON
-  /dori/hri/expression_command   (String) - expression → response command
-  /dori/hri/annotated_expression (Image)  - visualization (optional)
+  hri/expression           (String) - expression JSON
+  hri/expression_command   (String) - expression → response command
+  hri/annotated_expression (Image)  - visualization (optional)
 
 Subscribe topics:
-  /dori/camera/color/image_raw   (Image)
-  /dori/hri/interaction_trigger  (Bool)
+  camera/color/image_raw   (Image)
+  hri/interaction_trigger  (Bool)
 """
 
 import json
@@ -105,11 +105,11 @@ class FacialExpressionNode(Node):
         self.declare_parameter('confirm_frames', 5)
         self.declare_parameter('publish_cooldown_sec', 3.0)
         self.declare_parameter('min_face_presence_confidence', 0.5)
-        self.declare_parameter('topics.color_image_sub', '/dori/camera/color/image_raw')
-        self.declare_parameter('topics.interaction_trigger_sub', '/dori/hri/interaction_trigger')
-        self.declare_parameter('topics.expression_pub', '/dori/hri/expression')
-        self.declare_parameter('topics.expression_command_pub', '/dori/hri/expression_command')
-        self.declare_parameter('topics.annotated_pub', '/dori/hri/annotated_expression')
+        self.declare_parameter('topics.color_image_sub', 'camera/color/image_raw')
+        self.declare_parameter('topics.interaction_trigger_sub', 'hri/interaction_trigger')
+        self.declare_parameter('topics.expression_pub', 'hri/expression')
+        self.declare_parameter('topics.expression_command_pub', 'hri/expression_command')
+        self.declare_parameter('topics.annotated_pub', 'hri/annotated_expression')
 
         # Face expression thresholds (needs to be tuned)
         self.declare_parameter('smile_threshold', 0.02)

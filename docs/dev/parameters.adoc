@@ -76,15 +76,15 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | lost_timeout_sec | double | 5.0 | >0 | s | Tracking loss timeout.
 | follow_distance_m | double | 1.2 | >0 | m | Desired follow distance.
 | reacquire_iou_thresh | double | 0.3 | [0,1] | - | Reacquire IOU threshold.
-| topics.color_image_sub | string | `/dori/camera/color/image_raw` | topic path | - | RGB input topic.
-| topics.depth_image_sub | string | `/dori/camera/depth/image_raw` | topic path | - | Depth input topic.
-| topics.depth_scale_sub | string | `/dori/camera/depth_scale` | topic path | - | Depth scale input topic.
-| topics.follow_mode_sub | string | `/dori/hri/set_follow_mode` | topic path | - | Follow-mode enable topic.
-| topics.persons_pub | string | `/dori/hri/persons` | topic path | - | Detected person list topic.
-| topics.interaction_trigger_pub | string | `/dori/hri/interaction_trigger` | topic path | - | Interaction trigger topic.
-| topics.tracking_state_pub | string | `/dori/hri/tracking_state` | topic path | - | Tracking state topic.
-| topics.follow_offset_pub | string | `/dori/follow/target_offset` | topic path | - | Follow offset topic.
-| topics.annotated_pub | string | `/dori/hri/annotated_image` | topic path | - | Annotated image topic.
+| topics.color_image_sub | string | `/camera/color/image_raw` | topic path | - | RGB input topic.
+| topics.depth_image_sub | string | `/camera/depth/image_raw` | topic path | - | Depth input topic.
+| topics.depth_scale_sub | string | `/camera/depth_scale` | topic path | - | Depth scale input topic.
+| topics.follow_mode_sub | string | `/hri/set_follow_mode` | topic path | - | Follow-mode enable topic.
+| topics.persons_pub | string | `/hri/persons` | topic path | - | Detected person list topic.
+| topics.interaction_trigger_pub | string | `/hri/interaction_trigger` | topic path | - | Interaction trigger topic.
+| topics.tracking_state_pub | string | `/hri/tracking_state` | topic path | - | Tracking state topic.
+| topics.follow_offset_pub | string | `/follow/target_offset` | topic path | - | Follow offset topic.
+| topics.annotated_pub | string | `/hri/annotated_image` | topic path | - | Annotated image topic.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -107,13 +107,13 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | landmark_db_path | string | `landmark_db.json` | file path | - | Landmark DB JSON path.
 | max_detection_distance_m | double | 8.0 | >0 | m | Max valid detection distance.
 | localization_confidence_threshold | double | 0.6 | [0,1] | - | Localization confidence threshold.
-| topics.color_image_sub | string | `/dori/camera/color/image_raw` | topic path | - | RGB input topic.
-| topics.depth_image_sub | string | `/dori/camera/depth/image_raw` | topic path | - | Depth input topic.
-| topics.color_camera_info_sub | string | `/dori/camera/color/camera_info` | topic path | - | Camera intrinsics topic.
-| topics.detections_pub | string | `/dori/landmark/detections` | topic path | - | Raw detection topic.
-| topics.localization_pub | string | `/dori/landmark/localization` | topic path | - | Localization output topic.
-| topics.context_pub | string | `/dori/landmark/context` | topic path | - | Context summary topic.
-| topics.annotated_pub | string | `/dori/hri/annotated_landmark` | topic path | - | Annotated image topic.
+| topics.color_image_sub | string | `/camera/color/image_raw` | topic path | - | RGB input topic.
+| topics.depth_image_sub | string | `/camera/depth/image_raw` | topic path | - | Depth input topic.
+| topics.color_camera_info_sub | string | `/camera/color/camera_info` | topic path | - | Camera intrinsics topic.
+| topics.detections_pub | string | `/landmark/detections` | topic path | - | Raw detection topic.
+| topics.localization_pub | string | `/landmark/localization` | topic path | - | Localization output topic.
+| topics.context_pub | string | `/landmark/context` | topic path | - | Context summary topic.
+| topics.annotated_pub | string | `/hri/annotated_landmark` | topic path | - | Annotated image topic.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -141,12 +141,12 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | publish_cooldown_sec | double | 1.5 | >=0 | s | Cooldown between same command publications.
 | min_result_confidence | double | 0.5 | [0,1] | - | Minimum result confidence.
 | use_handedness_correction | bool | true | true/false | - | Correct handedness heuristics.
-| topics.color_image_sub | string | `/dori/camera/color/image_raw` | topic path | - | RGB input topic.
-| topics.interaction_trigger_sub | string | `/dori/hri/interaction_trigger` | topic path | - | Trigger topic.
-| topics.gesture_pub | string | `/dori/hri/gesture` | topic path | - | Gesture detail topic.
-| topics.gesture_command_pub | string | `/dori/hri/gesture_command` | topic path | - | Gesture command topic.
-| topics.wake_word_pub | string | `/dori/stt/wake_word_detected` | topic path | - | Wave→wake-word bridge topic.
-| topics.annotated_pub | string | `/dori/hri/annotated_gesture` | topic path | - | Annotated image topic.
+| topics.color_image_sub | string | `/camera/color/image_raw` | topic path | - | RGB input topic.
+| topics.interaction_trigger_sub | string | `/hri/interaction_trigger` | topic path | - | Trigger topic.
+| topics.gesture_pub | string | `/hri/gesture` | topic path | - | Gesture detail topic.
+| topics.gesture_command_pub | string | `/hri/gesture_command` | topic path | - | Gesture command topic.
+| topics.wake_word_pub | string | `/stt/wake_word_detected` | topic path | - | Wave→wake-word bridge topic.
+| topics.annotated_pub | string | `/hri/annotated_gesture` | topic path | - | Annotated image topic.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -173,11 +173,11 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | frown_threshold | double | -0.015 | tuned value | - | Frown feature threshold.
 | brow_frown_threshold | double | 0.025 | tuned value | - | Brow-frown threshold.
 | ear_open_threshold | double | 0.25 | tuned value | - | Eye aspect ratio threshold.
-| topics.color_image_sub | string | `/dori/camera/color/image_raw` | topic path | - | RGB input topic.
-| topics.interaction_trigger_sub | string | `/dori/hri/interaction_trigger` | topic path | - | Trigger topic.
-| topics.expression_pub | string | `/dori/hri/expression` | topic path | - | Expression detail topic.
-| topics.expression_command_pub | string | `/dori/hri/expression_command` | topic path | - | Expression command topic.
-| topics.annotated_pub | string | `/dori/hri/annotated_expression` | topic path | - | Annotated image topic.
+| topics.color_image_sub | string | `/camera/color/image_raw` | topic path | - | RGB input topic.
+| topics.interaction_trigger_sub | string | `/hri/interaction_trigger` | topic path | - | Trigger topic.
+| topics.expression_pub | string | `/hri/expression` | topic path | - | Expression detail topic.
+| topics.expression_command_pub | string | `/hri/expression_command` | topic path | - | Expression command topic.
+| topics.annotated_pub | string | `/hri/annotated_expression` | topic path | - | Annotated image topic.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -196,18 +196,18 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | Name | Type | Default | Range/Enum | Unit | Description
 | greeting_text | string | "Hello! ..." | any text | - | Greeting utterance after wake.
 | idle_timeout_sec | double | 10.0 | >0 | s | Idle timeout while in Listening state.
-| topics.wake_word_sub | string | `/dori/stt/wake_word_detected` | topic path | - | Wake-word input.
-| topics.stt_result_sub | string | `/dori/stt/result` | topic path | - | STT text input.
-| topics.tracking_state_sub | string | `/dori/hri/tracking_state` | topic path | - | Person tracking state input.
-| topics.gesture_command_sub | string | `/dori/hri/gesture_command` | topic path | - | Gesture command input.
-| topics.expression_command_sub | string | `/dori/hri/expression_command` | topic path | - | Expression command input.
-| topics.landmark_context_sub | string | `/dori/landmark/context` | topic path | - | Landmark context input.
-| topics.tts_done_sub | string | `/dori/tts/done` | topic path | - | TTS completion input.
-| topics.follow_mode_pub | string | `/dori/hri/set_follow_mode` | topic path | - | Follow mode control output.
-| topics.manager_state_pub | string | `/dori/hri/manager_state` | topic path | - | HRI state output.
-| topics.llm_query_pub | string | `/dori/llm/query` | topic path | - | LLM query output.
-| topics.tts_text_pub | string | `/dori/tts/text` | topic path | - | Direct TTS text output.
-| topics.nav_command_pub | string | `/dori/nav/command` | topic path | - | High-level nav command output.
+| topics.wake_word_sub | string | `/stt/wake_word_detected` | topic path | - | Wake-word input.
+| topics.stt_result_sub | string | `/stt/result` | topic path | - | STT text input.
+| topics.tracking_state_sub | string | `/hri/tracking_state` | topic path | - | Person tracking state input.
+| topics.gesture_command_sub | string | `/hri/gesture_command` | topic path | - | Gesture command input.
+| topics.expression_command_sub | string | `/hri/expression_command` | topic path | - | Expression command input.
+| topics.landmark_context_sub | string | `/landmark/context` | topic path | - | Landmark context input.
+| topics.tts_done_sub | string | `/tts/done` | topic path | - | TTS completion input.
+| topics.follow_mode_pub | string | `/hri/set_follow_mode` | topic path | - | Follow mode control output.
+| topics.manager_state_pub | string | `/hri/manager_state` | topic path | - | HRI state output.
+| topics.llm_query_pub | string | `/llm/query` | topic path | - | LLM query output.
+| topics.tts_text_pub | string | `/tts/text` | topic path | - | Direct TTS text output.
+| topics.nav_command_pub | string | `/nav/command` | topic path | - | High-level nav command output.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -229,9 +229,9 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | whisper_device | string | `cpu` | `cpu/cuda` | - | STT inference device.
 | vad_threshold | double | 0.5 | [0,1] | - | Voice activity threshold.
 | silence_duration | double | 1.2 | >0 | s | End-of-utterance silence duration.
-| topics.wake_word_pub | string | `/dori/stt/wake_word_detected` | topic path | - | Wake event output.
-| topics.result_pub | string | `/dori/stt/result` | topic path | - | STT result output.
-| topics.tts_speaking_sub | string | `/dori/tts/speaking` | topic path | - | TTS speaking input.
+| topics.wake_word_pub | string | `/stt/wake_word_detected` | topic path | - | Wake event output.
+| topics.result_pub | string | `/stt/result` | topic path | - | STT result output.
+| topics.tts_speaking_sub | string | `/tts/speaking` | topic path | - | TTS speaking input.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -252,9 +252,9 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | model_name | string | `gemini-2.5-flash` | provider model id | - | External model identifier.
 | api_key | string | `""` | secret string | - | External API key.
 | rag_top_k | int | 3 | >=1 | - | Number of retrieved chunks.
-| topics.query_sub | string | `/dori/llm/query` | topic path | - | Query input topic.
-| topics.response_pub | string | `/dori/llm/response` | topic path | - | Response output topic.
-| topics.destination_pub | string | `/dori/nav/destination` | topic path | - | Parsed nav goal output.
+| topics.query_sub | string | `/llm/query` | topic path | - | Query input topic.
+| topics.response_pub | string | `/llm/response` | topic path | - | Response output topic.
+| topics.destination_pub | string | `/nav/destination` | topic path | - | Parsed nav goal output.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -273,10 +273,10 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | language | string | `ko` | locale code | - | Speech language.
 | speech_rate | int | 150 | >0 | - | Speech rate (engine-dependent).
 | volume | double | 0.9 | [0,1] | - | Playback volume.
-| topics.speaking_pub | string | `/dori/tts/speaking` | topic path | - | Speaking-state output.
-| topics.done_pub | string | `/dori/tts/done` | topic path | - | Playback done output.
-| topics.llm_response_sub | string | `/dori/llm/response` | topic path | - | LLM text input.
-| topics.tts_text_sub | string | `/dori/tts/text` | topic path | - | Direct TTS text input.
+| topics.speaking_pub | string | `/tts/speaking` | topic path | - | Speaking-state output.
+| topics.done_pub | string | `/tts/done` | topic path | - | Playback done output.
+| topics.llm_response_sub | string | `/llm/response` | topic path | - | LLM text input.
+| topics.tts_text_sub | string | `/tts/text` | topic path | - | Direct TTS text input.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -312,9 +312,9 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 [cols="1,1,1,1,1,3",options="header"]
 |===
 | Name | Type | Default | Range/Enum | Unit | Description
-| topics.manager_state_sub | string | `/dori/hri/manager_state` | topic path | - | HRI state input topic.
-| topics.emotion_override_sub | string | `/dori/hri/emotion_override` | topic path | - | External emotion override input.
-| topics.emotion_pub | string | `/dori/hri/emotion` | topic path | - | Emotion output topic.
+| topics.manager_state_sub | string | `/hri/manager_state` | topic path | - | HRI state input topic.
+| topics.emotion_override_sub | string | `/hri/emotion_override` | topic path | - | External emotion override input.
+| topics.emotion_pub | string | `/hri/emotion` | topic path | - | Emotion output topic.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -329,7 +329,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 [cols="1,1,1,1,1,3",options="header"]
 |===
 | Name | Type | Default | Range/Enum | Unit | Description
-| topics.metrics_pub | string | `/dori/system/metrics` | topic path | - | Metrics JSON publish topic.
+| topics.metrics_pub | string | `/system/metrics` | topic path | - | Metrics JSON publish topic.
 | interval_sec | double | 1.0 | >0 | s | Metrics publish interval.
 |===
 
