@@ -26,7 +26,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Supported | Not supported
 *Read timing*:: startup only | runtime polling
 *Validation rules*:: Invalid values handling policy (clamp/reject/warn)
-*Related node*:: <<node-node_name, node_name>>
+*Related node*:: <<nodes.adoc#node-node_name, node_name>>
 ====
 
 
@@ -57,7 +57,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: Invalid device/stream settings can cause camera initialization failure.
-*Related node*:: <<node-depth-camera-node, depth_camera_node>>
+*Related node*:: <<nodes.adoc#node-depth-camera-node, depth_camera_node>>
 
 
 [[param-person_detection_node]]
@@ -90,7 +90,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: Abnormal threshold values can reduce detection/tracking stability.
-*Related node*:: <<node-person-detection-node, person_detection_node>>
+*Related node*:: <<nodes.adoc#node-person-detection-node, person_detection_node>>
 
 
 [[param-landmark_detection_node]]
@@ -119,7 +119,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: DB/model load failures can trigger runtime errors or invalidate outputs.
-*Related node*:: <<node-landmark-detection-node, landmark_detection_node>>
+*Related node*:: <<nodes.adoc#node-landmark-detection-node, landmark_detection_node>>
 
 
 [[param-gesture_recognition_node]]
@@ -152,7 +152,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: Improper confidence/threshold values can increase false positives/negatives.
-*Related node*:: <<node-gesture-recognition-node, gesture_recognition_node>>
+*Related node*:: <<nodes.adoc#node-gesture-recognition-node, gesture_recognition_node>>
 
 
 [[param-facial_expression_node]]
@@ -183,7 +183,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: Behavior is highly dependent on threshold tuning.
-*Related node*:: <<node-facial-expression-node, facial_expression_node>>
+*Related node*:: <<nodes.adoc#node-facial-expression-node, facial_expression_node>>
 
 
 == Interaction / Voice
@@ -213,7 +213,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: Invalid values such as timeout<=0 can break expected state transitions.
-*Related node*:: <<node-hri-manager-node, hri_manager_node>>
+*Related node*:: <<nodes.adoc#node-hri-manager-node, hri_manager_node>>
 
 
 [[param-stt_node]]
@@ -237,7 +237,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: Model path/device mismatches can fail initialization.
-*Related node*:: <<node-stt-node, stt_node>>
+*Related node*:: <<nodes.adoc#node-stt-node, stt_node>>
 
 
 [[param-llm_node]]
@@ -260,7 +260,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: Missing key/model configuration can fail external LLM calls.
-*Related node*:: <<node-llm-node, llm_node>>
+*Related node*:: <<nodes.adoc#node-llm-node, llm_node>>
 
 
 [[param-tts_node]]
@@ -282,7 +282,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: Out-of-range volume/rate may raise engine-specific errors or be ignored.
-*Related node*:: <<node-tts-node, tts_node>>
+*Related node*:: <<nodes.adoc#node-tts-node, tts_node>>
 
 
 == Navigation / System
@@ -303,7 +303,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: Abnormal speed/frequency values can destabilize control.
-*Related node*:: <<node-navigator-node, navigator_node>>
+*Related node*:: <<nodes.adoc#node-navigator-node, navigator_node>>
 
 
 [[param-emotion_publisher_node]]
@@ -320,7 +320,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: Override values are applied only after internal whitelist validation.
-*Related node*:: <<node-emotion-publisher-node, emotion_publisher_node>>
+*Related node*:: <<nodes.adoc#node-emotion-publisher-node, emotion_publisher_node>>
 
 
 [[param-system_monitor_node]]
@@ -336,4 +336,4 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 *Dynamic reconfigure*:: Not supported
 *Read timing*:: startup only
 *Validation rules*:: interval<=0 can fail timer creation.
-*Related node*:: <<node-system-monitor-node, system_monitor_node>>
+*Related node*:: <<nodes.adoc#node-system-monitor-node, system_monitor_node>>
