@@ -3,8 +3,8 @@
 This document is the SSOT for ROS2 node details in the current workspace.
 
 * Node anchors use the `node-...` format.
-* Topic links refer to <<topic-template-example,topics.adoc>> anchors where available.
-* Parameter details refer to <<param-template-example,parameters.adoc>> anchors.
+* Topic links refer to <<topics.adoc#topic-template-example,topics.adoc>> anchors where available.
+* Parameter details refer to <<parameters.adoc#param-template-example,parameters.adoc>> anchors.
 
 .Template (Click to expand)
 [%collapsible]
@@ -18,12 +18,12 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: executable_name
 *Language*:: Python | C++
 *Launch*:: bringup/xxx.launch.py
-*Subscriptions*:: <<topic-a, /topic/a>> (`pkg/msg/Type`), <<topic-b, /topic/b>> (`pkg/msg/Type`)
-*Publications*:: <<topic-c, /topic/c>> (`pkg/msg/Type`)
+*Subscriptions*:: <<topics.adoc#topic-a, /topic/a>> (`pkg/msg/Type`), <<topics.adoc#topic-b, /topic/b>> (`pkg/msg/Type`)
+*Publications*:: <<topics.adoc#topic-c, /topic/c>> (`pkg/msg/Type`)
 *Services (server)*:: /service/a (`pkg/srv/Type`)
 *Services (client)*:: /service/b (`pkg/srv/Type`)
 *Actions*:: /action/a (`pkg/action/Type`)
-*Parameters*:: See <<param-node_name, node_name parameters>>
+*Parameters*:: See <<parameters.adoc#param-node_name, node_name parameters>>
 *Lifecycle*:: unmanaged | lifecycle node (state transitions)
 *Dependencies*:: model files, hardware, external APIs, etc.
 *Failure behavior*:: retry policy, degraded mode, fallback
@@ -42,11 +42,11 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Language*:: Python / C++
 *Launch*:: `bringup/launch/perception.launch.py` (`depth_camera_front`, `depth_camera_rear`)
 *Subscriptions*:: (none)
-*Publications*:: <<topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image_colormap,/camera/depth/image_colormap>> (`sensor_msgs/msg/Image`, Python impl), <<topic-dori-camera-color-camera_info,/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topic-dori-camera-depth-camera_info,/camera/depth/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topic-dori-camera-depth_scale,/camera/depth_scale>> (`std_msgs/msg/Float32`)
+*Publications*:: <<topics.adoc#topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth-image_colormap,/camera/depth/image_colormap>> (`sensor_msgs/msg/Image`, Python impl), <<topics.adoc#topic-dori-camera-color-camera_info,/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topics.adoc#topic-dori-camera-depth-camera_info,/camera/depth/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topics.adoc#topic-dori-camera-depth_scale,/camera/depth_scale>> (`std_msgs/msg/Float32`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-depth_camera_node, depth_camera_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-depth_camera_node, depth_camera_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: Intel RealSense device, `pyrealsense2` (Python) or librealsense (C++)
 *Failure behavior*:: If device open/stream start fails, logs an error and the node exits.
@@ -61,12 +61,12 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `person_detection_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/perception.launch.py`
-*Subscriptions*:: <<topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth_scale,/camera/depth_scale>> (`std_msgs/msg/Float32`), <<topic-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_msgs/msg/Bool`)
-*Publications*:: <<topic-dori-hri-persons,/hri/persons>> (`std_msgs/msg/String`), <<topic-dori-hri-interaction_trigger,/hri/interaction_trigger>> (`std_msgs/msg/Bool`), <<topic-dori-hri-tracking_state,/hri/tracking_state>> (`std_msgs/msg/String`), <<topic-dori-follow-target_offset,/follow/target_offset>> (`geometry_msgs/msg/Point`), <<topic-dori-hri-annotated_image,/hri/annotated_image>> (`sensor_msgs/msg/Image`)
+*Subscriptions*:: <<topics.adoc#topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth_scale,/camera/depth_scale>> (`std_msgs/msg/Float32`), <<topics.adoc#topic-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topics.adoc#topic-dori-hri-persons,/hri/persons>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-interaction_trigger,/hri/interaction_trigger>> (`std_msgs/msg/Bool`), <<topics.adoc#topic-dori-hri-tracking_state,/hri/tracking_state>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-follow-target_offset,/follow/target_offset>> (`geometry_msgs/msg/Point`), <<topics.adoc#topic-dori-hri-annotated_image,/hri/annotated_image>> (`sensor_msgs/msg/Image`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-person_detection_node, person_detection_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-person_detection_node, person_detection_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: YOLO model file, OpenCV/NumPy, optional depth stream
 *Failure behavior*:: Model load failures raise errors; without depth input it falls back to partial 2D-only behavior.
@@ -81,12 +81,12 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `landmark_detection_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/perception.launch.py`
-*Subscriptions*:: <<topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-camera-color-camera_info,/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`)
-*Publications*:: <<topic-dori-landmark-detections,/landmark/detections>> (`std_msgs/msg/String`), <<topic-dori-landmark-localization,/landmark/localization>> (`std_msgs/msg/String`), <<topic-dori-landmark-context,/landmark/context>> (`std_msgs/msg/String`), <<topic-dori-hri-annotated_landmark,/hri/annotated_landmark>> (`sensor_msgs/msg/Image`)
+*Subscriptions*:: <<topics.adoc#topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-color-camera_info,/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`)
+*Publications*:: <<topics.adoc#topic-dori-landmark-detections,/landmark/detections>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-landmark-localization,/landmark/localization>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-landmark-context,/landmark/context>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-annotated_landmark,/hri/annotated_landmark>> (`sensor_msgs/msg/Image`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-landmark_detection_node, landmark_detection_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-landmark_detection_node, landmark_detection_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: YOLO model, landmark DB JSON, camera intrinsics
 *Failure behavior*:: DB/model load failures can degrade detection/localization quality or fail initialization.
@@ -101,12 +101,12 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `gesture_recognition_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/perception.launch.py`
-*Subscriptions*:: <<topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-hri-interaction_trigger,/hri/interaction_trigger>> (`std_msgs/msg/Bool`)
-*Publications*:: <<topic-dori-hri-gesture,/hri/gesture>> (`std_msgs/msg/String`), <<topic-dori-hri-gesture_command,/hri/gesture_command>> (`std_msgs/msg/String`), <<topic-dori-stt-wake_word_detected,/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-hri-annotated_gesture,/hri/annotated_gesture>> (`sensor_msgs/msg/Image`)
+*Subscriptions*:: <<topics.adoc#topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-hri-interaction_trigger,/hri/interaction_trigger>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topics.adoc#topic-dori-hri-gesture,/hri/gesture>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-gesture_command,/hri/gesture_command>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-stt-wake_word_detected,/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topics.adoc#topic-dori-hri-annotated_gesture,/hri/annotated_gesture>> (`sensor_msgs/msg/Image`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-gesture_recognition_node, gesture_recognition_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-gesture_recognition_node, gesture_recognition_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: MediaPipe hand model, OpenCV
 *Failure behavior*:: If input frames are missing or hands cannot be tracked, publishing decreases and warnings are logged.
@@ -121,12 +121,12 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `facial_expression_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/perception.launch.py`
-*Subscriptions*:: <<topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topic-dori-hri-interaction_trigger,/hri/interaction_trigger>> (`std_msgs/msg/Bool`)
-*Publications*:: <<topic-dori-hri-expression,/hri/expression>> (`std_msgs/msg/String`), <<topic-dori-hri-expression_command,/hri/expression_command>> (`std_msgs/msg/String`), <<topic-dori-hri-annotated_expression,/hri/annotated_expression>> (`sensor_msgs/msg/Image`)
+*Subscriptions*:: <<topics.adoc#topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-hri-interaction_trigger,/hri/interaction_trigger>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topics.adoc#topic-dori-hri-expression,/hri/expression>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-expression_command,/hri/expression_command>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-annotated_expression,/hri/annotated_expression>> (`sensor_msgs/msg/Image`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-facial_expression_node, facial_expression_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-facial_expression_node, facial_expression_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: MediaPipe face landmarks, OpenCV
 *Failure behavior*:: If no face is detected, it keeps state and may skip publishing.
@@ -143,12 +143,12 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `hri_manager_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/interaction.launch.py`
-*Subscriptions*:: <<topic-dori-stt-wake_word_detected,/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-stt-result,/stt/result>> (`std_msgs/msg/String`), <<topic-dori-hri-tracking_state,/hri/tracking_state>> (`std_msgs/msg/String`), <<topic-dori-hri-gesture_command,/hri/gesture_command>> (`std_msgs/msg/String`), <<topic-dori-hri-expression_command,/hri/expression_command>> (`std_msgs/msg/String`), <<topic-dori-landmark-context,/landmark/context>> (`std_msgs/msg/String`), <<topic-dori-tts-done,/tts/done>> (`std_msgs/msg/Bool`)
-*Publications*:: <<topic-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_msgs/msg/Bool`), <<topic-dori-hri-manager-state,/hri/manager_state>> (`std_msgs/msg/String`), <<topic-dori-llm-query,/llm/query>> (`std_msgs/msg/String`), <<topic-dori-tts-text,/tts/text>> (`std_msgs/msg/String`), <<topic-dori-nav-command,/nav/command>> (`std_msgs/msg/String`)
+*Subscriptions*:: <<topics.adoc#topic-dori-stt-wake_word_detected,/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topics.adoc#topic-dori-stt-result,/stt/result>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-tracking_state,/hri/tracking_state>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-gesture_command,/hri/gesture_command>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-expression_command,/hri/expression_command>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-landmark-context,/landmark/context>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-tts-done,/tts/done>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topics.adoc#topic-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_msgs/msg/Bool`), <<topics.adoc#topic-dori-hri-manager-state,/hri/manager_state>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-llm-query,/llm/query>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-tts-text,/tts/text>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-nav-command,/nav/command>> (`std_msgs/msg/String`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-hri_manager_node, hri_manager_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-hri_manager_node, hri_manager_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: STT/LLM/TTS nodes and perception command topics
 *Failure behavior*:: If inputs are missing, returns via IDLE timeout; malformed JSON falls back to a safe default flow.
@@ -163,12 +163,12 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `stt_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/voice.launch.py`
-*Subscriptions*:: <<topic-dori-tts-speaking,/tts/speaking>> (`std_msgs/msg/Bool`)
-*Publications*:: <<topic-dori-stt-wake_word_detected,/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topic-dori-stt-result,/stt/result>> (`std_msgs/msg/String`)
+*Subscriptions*:: <<topics.adoc#topic-dori-tts-speaking,/tts/speaking>> (`std_msgs/msg/Bool`)
+*Publications*:: <<topics.adoc#topic-dori-stt-wake_word_detected,/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topics.adoc#topic-dori-stt-result,/stt/result>> (`std_msgs/msg/String`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-stt_node, stt_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-stt_node, stt_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: Porcupine wake-word model, Whisper model/device, microphone input
 *Failure behavior*:: Model initialization failures can disable voice features or terminate with an exception.
@@ -183,12 +183,12 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `llm_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/voice.launch.py`
-*Subscriptions*:: <<topic-dori-llm-query,/llm/query>> (`std_msgs/msg/String`)
-*Publications*:: <<topic-dori-llm-response,/llm/response>> (`std_msgs/msg/String`), <<topic-dori-nav-destination,/nav/destination>> (`geometry_msgs/msg/PoseStamped`)
+*Subscriptions*:: <<topics.adoc#topic-dori-llm-query,/llm/query>> (`std_msgs/msg/String`)
+*Publications*:: <<topics.adoc#topic-dori-llm-response,/llm/response>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-nav-destination,/nav/destination>> (`geometry_msgs/msg/PoseStamped`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-llm_node, llm_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-llm_node, llm_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: Knowledge file/RAG index, optional external LLM API
 *Failure behavior*:: On external API failure, uses internal fallback response paths (based on configuration/code path).
@@ -203,12 +203,12 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `tts_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/voice.launch.py`
-*Subscriptions*:: <<topic-dori-llm-response,/llm/response>> (`std_msgs/msg/String`), <<topic-dori-tts-text,/tts/text>> (`std_msgs/msg/String`)
-*Publications*:: <<topic-dori-tts-speaking,/tts/speaking>> (`std_msgs/msg/Bool`), <<topic-dori-tts-done,/tts/done>> (`std_msgs/msg/Bool`)
+*Subscriptions*:: <<topics.adoc#topic-dori-llm-response,/llm/response>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-tts-text,/tts/text>> (`std_msgs/msg/String`)
+*Publications*:: <<topics.adoc#topic-dori-tts-speaking,/tts/speaking>> (`std_msgs/msg/Bool`), <<topics.adoc#topic-dori-tts-done,/tts/done>> (`std_msgs/msg/Bool`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-tts_node, tts_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-tts_node, tts_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: gTTS or pyttsx3 engine, audio output device
 *Failure behavior*:: On synthesis failure, emits done/log signals so upstream state machine can recover.
@@ -225,12 +225,12 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `navigator_node`
 *Language*:: Python
 *Launch*:: `navigation_pkg/launch/navigation.launch.py`
-*Subscriptions*:: <<topic-dori-nav-destination,/nav/destination>> (`geometry_msgs/msg/PoseStamped`), `/dori/odom` (`nav_msgs/msg/Odometry`), `/dori/scan` (`sensor_msgs/msg/LaserScan`), `/map` (`nav_msgs/msg/OccupancyGrid`), <<topic-dori-nav-cancel,/nav/cancel>> (`std_msgs/msg/Bool`)
-*Publications*:: `/dori/cmd_vel` (`geometry_msgs/msg/Twist`), <<topic-dori-nav-global_path,/nav/global_path>> (`nav_msgs/msg/Path`), <<topic-dori-nav-local_path,/nav/local_path>> (`nav_msgs/msg/Path`), <<topic-dori-nav-status,/nav/status>> (`std_msgs/msg/String`)
+*Subscriptions*:: <<topics.adoc#topic-dori-nav-destination,/nav/destination>> (`geometry_msgs/msg/PoseStamped`), `/dori/odom` (`nav_msgs/msg/Odometry`), `/dori/scan` (`sensor_msgs/msg/LaserScan`), `/map` (`nav_msgs/msg/OccupancyGrid`), <<topics.adoc#topic-dori-nav-cancel,/nav/cancel>> (`std_msgs/msg/Bool`)
+*Publications*:: `/dori/cmd_vel` (`geometry_msgs/msg/Twist`), <<topics.adoc#topic-dori-nav-global_path,/nav/global_path>> (`nav_msgs/msg/Path`), <<topics.adoc#topic-dori-nav-local_path,/nav/local_path>> (`nav_msgs/msg/Path`), <<topics.adoc#topic-dori-nav-status,/nav/status>> (`std_msgs/msg/String`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-navigator_node, navigator_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-navigator_node, navigator_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: /dori/odom, /dori/scan, /map inputs, robot base /dori/cmd_vel interface
 *Failure behavior*:: On path-planning failure, transitions to FAILED and stops.
@@ -247,12 +247,12 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `emotion_publisher_node`
 *Language*:: Python
 *Launch*:: (not included in the default bringup path)
-*Subscriptions*:: <<topic-dori-hri-manager-state,/hri/manager_state>> (`std_msgs/msg/String`), <<topic-dori-hri-emotion_override,/hri/emotion_override>> (`std_msgs/msg/String`)
-*Publications*:: <<topic-dori-hri-emotion,/hri/emotion>> (`std_msgs/msg/String`)
+*Subscriptions*:: <<topics.adoc#topic-dori-hri-manager-state,/hri/manager_state>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-emotion_override,/hri/emotion_override>> (`std_msgs/msg/String`)
+*Publications*:: <<topics.adoc#topic-dori-hri-emotion,/hri/emotion>> (`std_msgs/msg/String`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-emotion_publisher_node, emotion_publisher_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-emotion_publisher_node, emotion_publisher_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: HRI manager state payload(JSON)
 *Failure behavior*:: If override JSON parsing fails, ignores it and publishes state-based default emotion.
@@ -268,11 +268,11 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Language*:: Python
 *Launch*:: (requires separate launch; used by dashboard/monitoring)
 *Subscriptions*:: (none)
-*Publications*:: <<topic-dori-system-metrics,/system/metrics>> (`std_msgs/msg/String`)
+*Publications*:: <<topics.adoc#topic-dori-system-metrics,/system/metrics>> (`std_msgs/msg/String`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
-*Parameters*:: See <<param-system_monitor_node, system_monitor_node parameters>>
+*Parameters*:: See <<parameters.adoc#param-system_monitor_node, system_monitor_node parameters>>
 *Lifecycle*:: unmanaged
 *Dependencies*:: `psutil`, optional `nvidia-smi` or `tegrastats`
 *Failure behavior*:: If GPU collection fails, publishes null GPU fields while continuing system metrics.
