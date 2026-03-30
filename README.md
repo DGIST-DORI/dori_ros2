@@ -105,7 +105,6 @@ If model files are missing/unreadable/corrupted, the nodes log explicit errors a
 echo 'export PORCUPINE_ACCESS_KEY="your_key_here"' >> ~/.bashrc
 
 # Optional: external LLM providers
-echo 'export OPENAI_API_KEY="your_key_here"' >> ~/.bashrc
 echo 'export GEMINI_API_KEY="your_key_here"' >> ~/.bashrc
 
 source ~/.bashrc
