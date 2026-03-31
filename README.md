@@ -30,7 +30,7 @@
 
 ### Prerequisites
 
-- JetPack 6
+- JetPack 6 (for Jetson)
 - Ubuntu 22.04
 - ROS2 Humble
 - Python 3.10+
