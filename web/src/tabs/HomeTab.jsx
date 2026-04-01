@@ -5,7 +5,7 @@
  */
 
 import { useStore } from '../core/store';
-import '../styles/home.css';
+import './HomeTab.css';
 
 export default function HomeTab() {
   const connected  = useStore(s => s.connected);
