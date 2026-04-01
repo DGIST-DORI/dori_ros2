@@ -146,15 +146,15 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 *Description*:: Colorized depth visualization stream.
 
 
-[[topic-dori-camera-depth_scale]]
-=== /camera/depth_scale
+[[topic-dori-camera-depth-scale]]
+=== /camera/depth/scale
 
 *Type (msg)*:: `std_msgs/msg/Float32`
 *Publishers*:: (none documented)
 *Subscribers*:: person_detection_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: (none documented) → /camera/depth_scale → person_detection_node
+*Flow*:: (none documented) → /camera/depth/scale → person_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]

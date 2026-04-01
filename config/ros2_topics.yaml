@@ -67,7 +67,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "camera/depth_scale",
+      "topic": "camera/depth/scale",
       "msg_type": "std_msgs/msg/Float32",
       "publishers": [],
       "subscribers": [

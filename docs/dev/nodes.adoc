@@ -42,7 +42,7 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Language*:: Python / C++
 *Launch*:: `bringup/launch/perception.launch.py` (`depth_camera_front`, `depth_camera_rear`)
 *Subscriptions*:: (none)
-*Publications*:: <<topics.adoc#topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth-image_colormap,/camera/depth/image_colormap>> (`sensor_msgs/msg/Image`, Python impl), <<topics.adoc#topic-dori-camera-color-camera_info,/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topics.adoc#topic-dori-camera-depth-camera_info,/camera/depth/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topics.adoc#topic-dori-camera-depth_scale,/camera/depth_scale>> (`std_msgs/msg/Float32`)
+*Publications*:: <<topics.adoc#topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth-image_colormap,/camera/depth/image_colormap>> (`sensor_msgs/msg/Image`, Python impl), <<topics.adoc#topic-dori-camera-color-camera_info,/camera/color/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topics.adoc#topic-dori-camera-depth-camera_info,/camera/depth/camera_info>> (`sensor_msgs/msg/CameraInfo`), <<topics.adoc#topic-dori-camera-depth-scale,/camera/depth/scale>> (`std_msgs/msg/Float32`)
 *Services (server)*:: -
 *Services (client)*:: -
 *Actions*:: -
@@ -61,7 +61,7 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `person_detection_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/perception.launch.py`
-*Subscriptions*:: <<topics.adoc#topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth_scale,/camera/depth_scale>> (`std_msgs/msg/Float32`), <<topics.adoc#topic-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_msgs/msg/Bool`)
+*Subscriptions*:: <<topics.adoc#topic-dori-camera-color-image-raw,/camera/color/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth-image-raw,/camera/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-depth-scale,/camera/depth/scale>> (`std_msgs/msg/Float32`), <<topics.adoc#topic-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_msgs/msg/Bool`)
 *Publications*:: <<topics.adoc#topic-dori-hri-persons,/hri/persons>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-interaction_trigger,/hri/interaction_trigger>> (`std_msgs/msg/Bool`), <<topics.adoc#topic-dori-hri-tracking_state,/hri/tracking_state>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-follow-target_offset,/follow/target_offset>> (`geometry_msgs/msg/Point`), <<topics.adoc#topic-dori-hri-annotated_image,/hri/annotated_image>> (`sensor_msgs/msg/Image`)
 *Services (server)*:: -
 *Services (client)*:: -

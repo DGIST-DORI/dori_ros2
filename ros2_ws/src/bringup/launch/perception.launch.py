@@ -70,7 +70,7 @@ def generate_launch_description():
             ('depth/image_colormap', _topic(dori_ns, '/camera/depth/image_colormap')),
             ('color/camera_info', _topic(dori_ns, '/camera/color/camera_info')),
             ('depth/camera_info', _topic(dori_ns, '/camera/depth/camera_info')),
-            ('depth_scale', _topic(dori_ns, '/camera/depth_scale')),
+            ('depth/scale', _topic(dori_ns, '/camera/depth/scale')),
         ],
     )
 
@@ -88,7 +88,7 @@ def generate_launch_description():
             ('depth/image_colormap', _topic(dori_ns, '/camera/rear/depth/image_colormap')),
             ('color/camera_info', _topic(dori_ns, '/camera/rear/color/camera_info')),
             ('depth/camera_info', _topic(dori_ns, '/camera/rear/depth/camera_info')),
-            ('depth_scale', _topic(dori_ns, '/camera/rear/depth_scale')),
+            ('depth/scale', _topic(dori_ns, '/camera/rear/depth/scale')),
         ],
     )
 
@@ -105,7 +105,7 @@ def generate_launch_description():
             ('depth/image_raw', _topic(dori_ns, '/camera/depth/image_raw')),
             ('color/camera_info', _topic(dori_ns, '/camera/color/camera_info')),
             ('depth/camera_info', _topic(dori_ns, '/camera/depth/camera_info')),
-            ('depth_scale', _topic(dori_ns, '/camera/depth_scale')),
+            ('depth/scale', _topic(dori_ns, '/camera/depth/scale')),
         ],
     )
 
@@ -122,7 +122,7 @@ def generate_launch_description():
             ('depth/image_raw', _topic(dori_ns, '/camera/rear/depth/image_raw')),
             ('color/camera_info', _topic(dori_ns, '/camera/rear/color/camera_info')),
             ('depth/camera_info', _topic(dori_ns, '/camera/rear/depth/camera_info')),
-            ('depth_scale', _topic(dori_ns, '/camera/rear/depth_scale')),
+            ('depth/scale', _topic(dori_ns, '/camera/rear/depth/scale')),
         ],
     )
 
@@ -142,7 +142,7 @@ def generate_launch_description():
             'lost_timeout_sec': 5.0,
             'topics.color_image_sub': _topic(dori_ns, '/camera/color/image_raw'),
             'topics.depth_image_sub': _topic(dori_ns, '/camera/depth/image_raw'),
-            'topics.depth_scale_sub': _topic(dori_ns, '/camera/depth_scale'),
+            'topics.depth_scale_sub': _topic(dori_ns, '/camera/depth/scale'),
             'topics.follow_mode_sub': _topic(dori_ns, '/hri/set_follow_mode'),
             'topics.persons_pub': _topic(dori_ns, '/hri/persons'),
             'topics.interaction_trigger_pub': _topic(dori_ns, '/hri/interaction_trigger'),

@@ -41,7 +41,7 @@ class PersonDetectionNode(Node):
         self.declare_parameter('reacquire_iou_thresh', 0.3)
         self.declare_parameter('topics.color_image_sub', 'camera/color/image_raw')
         self.declare_parameter('topics.depth_image_sub', 'camera/depth/image_raw')
-        self.declare_parameter('topics.depth_scale_sub', 'camera/depth_scale')
+        self.declare_parameter('topics.depth_scale_sub', 'camera/depth/scale')
         self.declare_parameter('topics.follow_mode_sub', 'hri/set_follow_mode')
         self.declare_parameter('topics.persons_pub', 'hri/persons')
         self.declare_parameter('topics.interaction_trigger_pub', 'hri/interaction_trigger')

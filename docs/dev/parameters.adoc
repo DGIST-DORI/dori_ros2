@@ -51,7 +51,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | topics.depth_colormap_pub | string | `depth/image_colormap` (Python impl) | topic path | - | Colorized depth image topic.
 | topics.color_info_pub | string | `color/camera_info` | topic path | - | Color camera info topic.
 | topics.depth_info_pub | string | `depth/camera_info` | topic path | - | Depth camera info topic.
-| topics.depth_scale_pub | string | `depth_scale` | topic path | - | Depth scale topic.
+| topics.depth_scale_pub | string | `depth/scale` | topic path | - | Depth scale topic.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -78,7 +78,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | reacquire_iou_thresh | double | 0.3 | [0,1] | - | Reacquire IOU threshold.
 | topics.color_image_sub | string | `/camera/color/image_raw` | topic path | - | RGB input topic.
 | topics.depth_image_sub | string | `/camera/depth/image_raw` | topic path | - | Depth input topic.
-| topics.depth_scale_sub | string | `/camera/depth_scale` | topic path | - | Depth scale input topic.
+| topics.depth_scale_sub | string | `/camera/depth/scale` | topic path | - | Depth scale input topic.
 | topics.follow_mode_sub | string | `/hri/set_follow_mode` | topic path | - | Follow-mode enable topic.
 | topics.persons_pub | string | `/hri/persons` | topic path | - | Detected person list topic.
 | topics.interaction_trigger_pub | string | `/hri/interaction_trigger` | topic path | - | Interaction trigger topic.

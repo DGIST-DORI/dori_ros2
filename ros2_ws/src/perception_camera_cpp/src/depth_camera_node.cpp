@@ -28,7 +28,7 @@ public:
     depth_topic_ = this->declare_parameter<std::string>("topics.depth_pub", "depth/image_raw");
     color_info_topic_ = this->declare_parameter<std::string>("topics.color_info_pub", "color/camera_info");
     depth_info_topic_ = this->declare_parameter<std::string>("topics.depth_info_pub", "depth/camera_info");
-    depth_scale_topic_ = this->declare_parameter<std::string>("topics.depth_scale_pub", "depth_scale");
+    depth_scale_topic_ = this->declare_parameter<std::string>("topics.depth_scale_pub", "depth/scale");
 
     color_pub_ = this->create_publisher<sensor_msgs::msg::Image>(color_topic_, 10);
     depth_pub_ = this->create_publisher<sensor_msgs::msg::Image>(depth_topic_, 10);
