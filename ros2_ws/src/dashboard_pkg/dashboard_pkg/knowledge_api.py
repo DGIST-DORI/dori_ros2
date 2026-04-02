@@ -122,11 +122,48 @@ _crawl_jobs: dict[str, dict] = {}
 app = FastAPI(title='DORI Knowledge API', version='1.0.0')
 logger = logging.getLogger(__name__)
 
+_DEFAULT_ALLOWED_ORIGINS = (
+    'https://dash.dgist-dori.xyz',
+)
+
+
+def _parse_allowed_origins(raw: str) -> list[str]:
+    if not raw:
+        return list(_DEFAULT_ALLOWED_ORIGINS)
+
+    origins: list[str] = []
+    for item in (part.strip() for part in raw.split(',') if part.strip()):
+        normalized = item.rstrip('/')
+        if normalized and normalized not in origins:
+            origins.append(normalized)
+    return origins or list(_DEFAULT_ALLOWED_ORIGINS)
+
+
+_ALLOWED_ORIGINS = _parse_allowed_origins(os.environ.get('DORI_ALLOWED_ORIGINS', '').strip())
+_ALLOWED_ORIGIN_SET = set(_ALLOWED_ORIGINS)
+
+
+@app.middleware('http')
+async def enforce_origin_allowlist(request: Request, call_next):
+    origin = request.headers.get('origin', '').strip().rstrip('/')
+    if origin and origin not in _ALLOWED_ORIGIN_SET:
+        logger.warning(
+            'cors_origin_blocked origin=%s path=%s method=%s client=%s',
+            origin,
+            request.url.path,
+            request.method,
+            request.client.host if request.client else '-',
+        )
+        return JSONResponse(status_code=403, content={'detail': 'Origin is not allowed'})
+    return await call_next(request)
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['*'],
-    allow_methods=['*'],
-    allow_headers=['*'],
+    allow_origins=_ALLOWED_ORIGINS,
+    allow_credentials=False,
+    allow_methods=['GET', 'POST', 'PUT', 'OPTIONS'],
+    allow_headers=['Authorization', 'Content-Type'],
 )
 
 
