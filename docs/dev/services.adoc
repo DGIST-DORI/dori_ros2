@@ -62,4 +62,4 @@ This document is the SSOT for ROS2 service details in the current workspace.
 | message | string | - | Human-readable result details.
 |===
 
-*Description*:: Follow mode 제어를 요청하고 success/message로 적용 결과를 즉시 반환한다.
+*Description*:: Request follow mode control and immediately return the application result with success/message.
