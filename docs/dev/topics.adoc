@@ -5,6 +5,7 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 * Topic anchors use the `topic-...` format, and `/` in topic paths is replaced with `-`.
 * The details list is not duplicated in `architecture.md`; instead, this document is referenced.
 * Topic details are maintained in the common format below.
+* Node names in publishers/subscribers/flow are linked to <<nodes.adoc#node-template-example,nodes.adoc>> anchors where available.
 
 .Template (Click to expand)
 [%collapsible]
@@ -38,11 +39,11 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 === /camera/front/color/image_raw
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
-*Publishers*:: depth_camera_node
-*Subscribers*:: person_detection_node, gesture_recognition_node, facial_expression_node, landmark_detection_node
+*Publishers*:: <<nodes.adoc#node-depth-camera-node,depth_camera_node>>
+*Subscribers*:: <<nodes.adoc#node-person-detection-node,person_detection_node>>, <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>>, <<nodes.adoc#node-facial-expression-node,facial_expression_node>>, <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /camera/front/color/image_raw → person_detection_node, gesture_recognition_node, facial_expression_node, landmark_detection_node
+*Flow*:: <<nodes.adoc#node-depth-camera-node,depth_camera_node>> → /camera/front/color/image_raw → <<nodes.adoc#node-person-detection-node,person_detection_node>>, <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>>, <<nodes.adoc#node-facial-expression-node,facial_expression_node>>, <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -64,11 +65,11 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 === /camera/front/depth/image_raw
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
-*Publishers*:: depth_camera_node
-*Subscribers*:: person_detection_node, landmark_detection_node
+*Publishers*:: <<nodes.adoc#node-depth-camera-node,depth_camera_node>>
+*Subscribers*:: <<nodes.adoc#node-person-detection-node,person_detection_node>>, <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /camera/front/depth/image_raw → person_detection_node, landmark_detection_node
+*Flow*:: <<nodes.adoc#node-depth-camera-node,depth_camera_node>> → /camera/front/depth/image_raw → <<nodes.adoc#node-person-detection-node,person_detection_node>>, <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -90,11 +91,11 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 === /camera/front/color/camera_info
 
 *Type (msg)*:: `sensor_msgs/msg/CameraInfo`
-*Publishers*:: depth_camera_node
-*Subscribers*:: landmark_detection_node
+*Publishers*:: <<nodes.adoc#node-depth-camera-node,depth_camera_node>>
+*Subscribers*:: <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /camera/front/color/camera_info → landmark_detection_node
+*Flow*:: <<nodes.adoc#node-depth-camera-node,depth_camera_node>> → /camera/front/color/camera_info → <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -110,11 +111,11 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 === /camera/front/depth/camera_info
 
 *Type (msg)*:: `sensor_msgs/msg/CameraInfo`
-*Publishers*:: depth_camera_node
+*Publishers*:: <<nodes.adoc#node-depth-camera-node,depth_camera_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /camera/front/depth/camera_info → (none documented)
+*Flow*:: <<nodes.adoc#node-depth-camera-node,depth_camera_node>> → /camera/front/depth/camera_info → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -130,11 +131,11 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 === /camera/front/depth/image_colormap
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
-*Publishers*:: depth_camera_node
+*Publishers*:: <<nodes.adoc#node-depth-camera-node,depth_camera_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /camera/front/depth/image_colormap → (none documented)
+*Flow*:: <<nodes.adoc#node-depth-camera-node,depth_camera_node>> → /camera/front/depth/image_colormap → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -151,10 +152,10 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 *Type (msg)*:: `std_msgs/msg/Float32`
 *Publishers*:: (none documented)
-*Subscribers*:: person_detection_node
+*Subscribers*:: <<nodes.adoc#node-person-detection-node,person_detection_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: (none documented) → /camera/front/depth/scale → person_detection_node
+*Flow*:: (none documented) → /camera/front/depth/scale → <<nodes.adoc#node-person-detection-node,person_detection_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -172,11 +173,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /follow/target_offset
 
 *Type (msg)*:: `geometry_msgs/msg/Point`
-*Publishers*:: person_detection_node
+*Publishers*:: <<nodes.adoc#node-person-detection-node,person_detection_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: person_detection_node → /follow/target_offset → (none documented)
+*Flow*:: <<nodes.adoc#node-person-detection-node,person_detection_node>> → /follow/target_offset → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -192,11 +193,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /landmark/context
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: landmark_detection_node
-*Subscribers*:: hri_manager_node
+*Publishers*:: <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>>
+*Subscribers*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: landmark_detection_node → /landmark/context → hri_manager_node
+*Flow*:: <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>> → /landmark/context → <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -212,11 +213,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /landmark/detections
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: landmark_detection_node
+*Publishers*:: <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: landmark_detection_node → /landmark/detections → (none documented)
+*Flow*:: <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>> → /landmark/detections → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -232,11 +233,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /landmark/localization
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: landmark_detection_node
+*Publishers*:: <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: landmark_detection_node → /landmark/localization → (none documented)
+*Flow*:: <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>> → /landmark/localization → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -254,11 +255,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/manager_state
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: hri_manager_node
+*Publishers*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: hri_manager_node → /hri/manager_state → (none documented)
+*Flow*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>> → /hri/manager_state → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -275,10 +276,10 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: external UI/control node
-*Subscribers*:: emotion_publisher_node
+*Subscribers*:: <<nodes.adoc#node-emotion-publisher-node,emotion_publisher_node>>
 *Frequency*:: Expected: event-driven, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: external UI/control node → /hri/emotion_override → emotion_publisher_node
+*Flow*:: external UI/control node → /hri/emotion_override → <<nodes.adoc#node-emotion-publisher-node,emotion_publisher_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -294,11 +295,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/emotion
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: emotion_publisher_node
+*Publishers*:: <<nodes.adoc#node-emotion-publisher-node,emotion_publisher_node>>
 *Subscribers*:: face UI / actuator bridge node (expected)
 *Frequency*:: Expected: 2 Hz, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: emotion_publisher_node → /hri/emotion → face UI / actuator bridge node
+*Flow*:: <<nodes.adoc#node-emotion-publisher-node,emotion_publisher_node>> → /hri/emotion → face UI / actuator bridge node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -314,11 +315,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/annotated_expression
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
-*Publishers*:: facial_expression_node
+*Publishers*:: <<nodes.adoc#node-facial-expression-node,facial_expression_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: facial_expression_node → /hri/annotated_expression → (none documented)
+*Flow*:: <<nodes.adoc#node-facial-expression-node,facial_expression_node>> → /hri/annotated_expression → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -334,11 +335,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/annotated_gesture
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
-*Publishers*:: gesture_recognition_node
+*Publishers*:: <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: gesture_recognition_node → /hri/annotated_gesture → (none documented)
+*Flow*:: <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>> → /hri/annotated_gesture → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -354,11 +355,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/annotated_image
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
-*Publishers*:: person_detection_node
+*Publishers*:: <<nodes.adoc#node-person-detection-node,person_detection_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: person_detection_node → /hri/annotated_image → (none documented)
+*Flow*:: <<nodes.adoc#node-person-detection-node,person_detection_node>> → /hri/annotated_image → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -374,11 +375,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/annotated_landmark
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
-*Publishers*:: landmark_detection_node
+*Publishers*:: <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: landmark_detection_node → /hri/annotated_landmark → (none documented)
+*Flow*:: <<nodes.adoc#node-landmark-detection-node,landmark_detection_node>> → /hri/annotated_landmark → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -394,11 +395,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/expression
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: facial_expression_node
+*Publishers*:: <<nodes.adoc#node-facial-expression-node,facial_expression_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: facial_expression_node → /hri/expression → (none documented)
+*Flow*:: <<nodes.adoc#node-facial-expression-node,facial_expression_node>> → /hri/expression → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -414,11 +415,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/expression_command
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: facial_expression_node
-*Subscribers*:: hri_manager_node
+*Publishers*:: <<nodes.adoc#node-facial-expression-node,facial_expression_node>>
+*Subscribers*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: facial_expression_node → /hri/expression_command → hri_manager_node
+*Flow*:: <<nodes.adoc#node-facial-expression-node,facial_expression_node>> → /hri/expression_command → <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -434,11 +435,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/gesture
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: gesture_recognition_node
+*Publishers*:: <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: gesture_recognition_node → /hri/gesture → (none documented)
+*Flow*:: <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>> → /hri/gesture → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -454,11 +455,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/gesture_command
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: gesture_recognition_node
-*Subscribers*:: hri_manager_node
+*Publishers*:: <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>>
+*Subscribers*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: gesture_recognition_node → /hri/gesture_command → hri_manager_node
+*Flow*:: <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>> → /hri/gesture_command → <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -474,11 +475,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/interaction_trigger
 
 *Type (msg)*:: `std_msgs/msg/Bool`
-*Publishers*:: person_detection_node
-*Subscribers*:: gesture_recognition_node, facial_expression_node
+*Publishers*:: <<nodes.adoc#node-person-detection-node,person_detection_node>>
+*Subscribers*:: <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>>, <<nodes.adoc#node-facial-expression-node,facial_expression_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: person_detection_node → /hri/interaction_trigger → gesture_recognition_node, facial_expression_node
+*Flow*:: <<nodes.adoc#node-person-detection-node,person_detection_node>> → /hri/interaction_trigger → <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>>, <<nodes.adoc#node-facial-expression-node,facial_expression_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -494,11 +495,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /hri/persons
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: person_detection_node
+*Publishers*:: <<nodes.adoc#node-person-detection-node,person_detection_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: person_detection_node → /hri/persons → (none documented)
+*Flow*:: <<nodes.adoc#node-person-detection-node,person_detection_node>> → /hri/persons → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -510,41 +511,15 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 *Description*:: JSON list of detected persons/tracks.
 
 
-[[service-dori-hri-set_follow_mode]]
-=== /hri/set_follow_mode (service)
-
-*Type (srv)*:: `std_srvs/srv/SetBool`
-*Clients*:: hri_manager_node
-*Servers*:: person_detection_node
-*Flow*:: hri_manager_node → /hri/set_follow_mode (SetBool) → person_detection_node
-
-.Request fields
-[cols="1,1,1,3",options="header"]
-|===
-| Field | Type | Unit | Description
-| data | bool | - | `true` enables follow mode; `false` disables and releases target.
-|===
-
-.Response fields
-[cols="1,1,1,3",options="header"]
-|===
-| Field | Type | Unit | Description
-| success | bool | - | Service application result.
-| message | string | - | Human-readable result details.
-|===
-
-*Description*:: Follow mode 제어를 요청하고 success/message로 적용 결과를 즉시 반환한다.
-
-
 [[topic-dori-hri-tracking_state]]
 === /hri/tracking_state
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: person_detection_node
-*Subscribers*:: hri_manager_node
+*Publishers*:: <<nodes.adoc#node-person-detection-node,person_detection_node>>
+*Subscribers*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: person_detection_node → /hri/tracking_state → hri_manager_node
+*Flow*:: <<nodes.adoc#node-person-detection-node,person_detection_node>> → /hri/tracking_state → <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -561,10 +536,10 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 
 *Type (msg)*:: `std_msgs/msg/String`
 *Publishers*:: external STT node
-*Subscribers*:: hri_manager_node
+*Subscribers*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: external STT node → /stt/result → hri_manager_node
+*Flow*:: external STT node → /stt/result → <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -580,11 +555,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /stt/wake_word_detected
 
 *Type (msg)*:: `std_msgs/msg/Bool`
-*Publishers*:: gesture_recognition_node (WAVE trigger), external STT node
-*Subscribers*:: hri_manager_node
+*Publishers*:: <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>> (WAVE trigger), external STT node
+*Subscribers*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: gesture_recognition_node (WAVE trigger), external STT node → /stt/wake_word_detected → hri_manager_node
+*Flow*:: <<nodes.adoc#node-gesture-recognition-node,gesture_recognition_node>> (WAVE trigger), external STT node → /stt/wake_word_detected → <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -600,11 +575,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /tts/done
 
 *Type (msg)*:: `std_msgs/msg/Bool`
-*Publishers*:: tts_node
-*Subscribers*:: hri_manager_node
+*Publishers*:: <<nodes.adoc#node-tts-node,tts_node>>
+*Subscribers*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: tts_node → /tts/done → hri_manager_node
+*Flow*:: <<nodes.adoc#node-tts-node,tts_node>> → /tts/done → <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -620,11 +595,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /tts/speaking
 
 *Type (msg)*:: `std_msgs/msg/Bool`
-*Publishers*:: tts_node
+*Publishers*:: <<nodes.adoc#node-tts-node,tts_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: tts_node → /tts/speaking → (none documented)
+*Flow*:: <<nodes.adoc#node-tts-node,tts_node>> → /tts/speaking → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -640,11 +615,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /tts/text
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: hri_manager_node
-*Subscribers*:: tts_node
+*Publishers*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
+*Subscribers*:: <<nodes.adoc#node-tts-node,tts_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: hri_manager_node → /tts/text → tts_node
+*Flow*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>> → /tts/text → <<nodes.adoc#node-tts-node,tts_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -662,11 +637,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /llm/query
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: hri_manager_node
-*Subscribers*:: llm_node
+*Publishers*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
+*Subscribers*:: <<nodes.adoc#node-llm-node,llm_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: hri_manager_node → /llm/query → llm_node
+*Flow*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>> → /llm/query → <<nodes.adoc#node-llm-node,llm_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -682,11 +657,11 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 === /llm/response
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: llm_node
-*Subscribers*:: tts_node
+*Publishers*:: <<nodes.adoc#node-llm-node,llm_node>>
+*Subscribers*:: <<nodes.adoc#node-tts-node,tts_node>>
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: llm_node → /llm/response → tts_node
+*Flow*:: <<nodes.adoc#node-llm-node,llm_node>> → /llm/response → <<nodes.adoc#node-tts-node,tts_node>>
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -708,11 +683,11 @@ NOTE: `/nav/destination`, `/nav/status`, and `/nav/cancel` are deprecated. Use <
 === /nav/command
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: hri_manager_node
+*Publishers*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: hri_manager_node → /nav/command → (none documented)
+*Flow*:: <<nodes.adoc#node-hri-manager-node,hri_manager_node>> → /nav/command → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -729,11 +704,11 @@ NOTE: `/nav/destination`, `/nav/status`, and `/nav/cancel` are deprecated. Use <
 === /nav/global_path
 
 *Type (msg)*:: `nav_msgs/msg/Path`
-*Publishers*:: navigator_node
+*Publishers*:: <<nodes.adoc#node-navigator-node,navigator_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: navigator_node → /nav/global_path → (none documented)
+*Flow*:: <<nodes.adoc#node-navigator-node,navigator_node>> → /nav/global_path → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -749,11 +724,11 @@ NOTE: `/nav/destination`, `/nav/status`, and `/nav/cancel` are deprecated. Use <
 === /nav/local_path
 
 *Type (msg)*:: `nav_msgs/msg/Path`
-*Publishers*:: navigator_node
+*Publishers*:: <<nodes.adoc#node-navigator-node,navigator_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: navigator_node → /nav/local_path → (none documented)
+*Flow*:: <<nodes.adoc#node-navigator-node,navigator_node>> → /nav/local_path → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -771,11 +746,11 @@ NOTE: `/nav/destination`, `/nav/status`, and `/nav/cancel` are deprecated. Use <
 === /system/metrics
 
 *Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: system_monitor_node
+*Publishers*:: <<nodes.adoc#node-system-monitor-node,system_monitor_node>>
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: system_monitor_node → /system/metrics → (none documented)
+*Flow*:: <<nodes.adoc#node-system-monitor-node,system_monitor_node>> → /system/metrics → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
