@@ -141,53 +141,83 @@ class NavigatorNode(Node):
         self._plan_global_path()
 
         result = Navigate.Result()
-        while rclpy.ok():
-            if goal_handle.is_cancel_requested:
-                self.get_logger().info('Navigation canceled by client')
+        try:
+            while rclpy.ok():
                 with self.state_lock:
-                    self._stop_robot()
-                    self.state = NavigationState.IDLE
-                    self.current_goal = None
-                goal_handle.canceled()
-                result.code = Navigate.Result.CANCELED
-                result.message = 'Navigation canceled'
-                return result
+                    is_current_goal = self.active_goal_handle is goal_handle
+                    is_goal_active = goal_handle.is_active
 
+                if not is_current_goal or not is_goal_active:
+                    self.get_logger().info(
+                        'Ending execute loop for goal due to preemption/state change: '
+                        f'is_current_goal={is_current_goal}, is_goal_active={is_goal_active}'
+                    )
+                    result.code = Navigate.Result.INVALID_STATE
+                    result.message = 'Preempted by newer goal'
+                    return result
+
+                if goal_handle.is_cancel_requested:
+                    self.get_logger().info('Navigation canceled by client')
+                    with self.state_lock:
+                        self._stop_robot()
+                        self.state = NavigationState.IDLE
+                        self.current_goal = None
+                    if not goal_handle.is_active:
+                        result.code = Navigate.Result.INVALID_STATE
+                        result.message = 'Goal became inactive before cancel transition'
+                        return result
+                    goal_handle.canceled()
+                    result.code = Navigate.Result.CANCELED
+                    result.message = 'Navigation canceled'
+                    return result
+
+                with self.state_lock:
+                    state = self.state
+                    distance = self._distance_to_goal()
+
+                feedback = Navigate.Feedback()
+                feedback.distance_remaining = float(distance)
+                feedback.state = state.name
+                feedback.status_message = self._state_to_status(state)
+                goal_handle.publish_feedback(feedback)
+
+                if state == NavigationState.GOAL_REACHED:
+                    with self.state_lock:
+                        self._stop_robot()
+                        self.state = NavigationState.IDLE
+                        self.current_goal = None
+                    if not goal_handle.is_active:
+                        result.code = Navigate.Result.INVALID_STATE
+                        result.message = 'Goal became inactive before succeed transition'
+                        return result
+                    goal_handle.succeed()
+                    result.code = Navigate.Result.SUCCESS
+                    result.message = 'Goal reached'
+                    return result
+
+                if state == NavigationState.FAILED:
+                    with self.state_lock:
+                        self._stop_robot()
+                        self.state = NavigationState.IDLE
+                        self.current_goal = None
+                    if not goal_handle.is_active:
+                        result.code = Navigate.Result.INVALID_STATE
+                        result.message = 'Goal became inactive before abort transition'
+                        return result
+                    goal_handle.abort()
+                    result.code = Navigate.Result.PLANNING_FAILED
+                    result.message = 'Navigation failed'
+                    return result
+
+                time.sleep(0.2)
+
+            result.code = Navigate.Result.INVALID_STATE
+            result.message = 'Navigation interrupted by shutdown'
+            return result
+        finally:
             with self.state_lock:
-                state = self.state
-                distance = self._distance_to_goal()
-
-            feedback = Navigate.Feedback()
-            feedback.distance_remaining = float(distance)
-            feedback.state = state.name
-            feedback.status_message = self._state_to_status(state)
-            goal_handle.publish_feedback(feedback)
-
-            if state == NavigationState.GOAL_REACHED:
-                with self.state_lock:
-                    self._stop_robot()
-                    self.state = NavigationState.IDLE
-                    self.current_goal = None
-                goal_handle.succeed()
-                result.code = Navigate.Result.SUCCESS
-                result.message = 'Goal reached'
-                return result
-
-            if state == NavigationState.FAILED:
-                with self.state_lock:
-                    self._stop_robot()
-                    self.state = NavigationState.IDLE
-                    self.current_goal = None
-                goal_handle.abort()
-                result.code = Navigate.Result.PLANNING_FAILED
-                result.message = 'Navigation failed'
-                return result
-
-            time.sleep(0.2)
-
-        result.code = Navigate.Result.INVALID_STATE
-        result.message = 'Navigation interrupted by shutdown'
-        return result
+                if self.active_goal_handle is goal_handle:
+                    self.active_goal_handle = None
 
     def odom_callback(self, msg: Odometry):
         pose = PoseStamped()
