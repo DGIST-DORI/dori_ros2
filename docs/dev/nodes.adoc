@@ -61,9 +61,9 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Executable*:: `person_detection_node`
 *Language*:: Python
 *Launch*:: `bringup/launch/perception.launch.py`
-*Subscriptions*:: <<topics.adoc#topic-dori-camera-front-color-image-raw,/camera/front/color/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-front-depth-image-raw,/camera/front/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-front-depth-scale,/camera/front/depth/scale>> (`std_msgs/msg/Float32`), <<topics.adoc#topic-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_msgs/msg/Bool`)
+*Subscriptions*:: <<topics.adoc#topic-dori-camera-front-color-image-raw,/camera/front/color/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-front-depth-image-raw,/camera/front/depth/image_raw>> (`sensor_msgs/msg/Image`), <<topics.adoc#topic-dori-camera-front-depth-scale,/camera/front/depth/scale>> (`std_msgs/msg/Float32`)
 *Publications*:: <<topics.adoc#topic-dori-hri-persons,/hri/persons>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-interaction_trigger,/hri/interaction_trigger>> (`std_msgs/msg/Bool`), <<topics.adoc#topic-dori-hri-tracking_state,/hri/tracking_state>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-follow-target_offset,/follow/target_offset>> (`geometry_msgs/msg/Point`), <<topics.adoc#topic-dori-hri-annotated_image,/hri/annotated_image>> (`sensor_msgs/msg/Image`)
-*Services (server)*:: -
+*Services (server)*:: <<topics.adoc#service-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_srvs/srv/SetBool`)
 *Services (client)*:: -
 *Actions*:: -
 *Parameters*:: See <<parameters.adoc#param-person_detection_node, person_detection_node parameters>>
@@ -144,9 +144,9 @@ This document is the SSOT for ROS2 node details in the current workspace.
 *Language*:: Python
 *Launch*:: `bringup/launch/interaction.launch.py`
 *Subscriptions*:: <<topics.adoc#topic-dori-stt-wake_word_detected,/stt/wake_word_detected>> (`std_msgs/msg/Bool`), <<topics.adoc#topic-dori-stt-result,/stt/result>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-tracking_state,/hri/tracking_state>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-gesture_command,/hri/gesture_command>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-hri-expression_command,/hri/expression_command>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-landmark-context,/landmark/context>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-tts-done,/tts/done>> (`std_msgs/msg/Bool`)
-*Publications*:: <<topics.adoc#topic-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_msgs/msg/Bool`), <<topics.adoc#topic-dori-hri-manager-state,/hri/manager_state>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-llm-query,/llm/query>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-tts-text,/tts/text>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-nav-command,/nav/command>> (`std_msgs/msg/String`)
+*Publications*:: <<topics.adoc#topic-dori-hri-manager-state,/hri/manager_state>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-llm-query,/llm/query>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-tts-text,/tts/text>> (`std_msgs/msg/String`), <<topics.adoc#topic-dori-nav-command,/nav/command>> (`std_msgs/msg/String`)
 *Services (server)*:: -
-*Services (client)*:: -
+*Services (client)*:: <<topics.adoc#service-dori-hri-set_follow_mode,/hri/set_follow_mode>> (`std_srvs/srv/SetBool`)
 *Actions*:: -
 *Parameters*:: See <<parameters.adoc#param-hri_manager_node, hri_manager_node parameters>>
 *Lifecycle*:: unmanaged

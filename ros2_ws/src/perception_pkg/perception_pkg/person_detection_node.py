@@ -11,6 +11,7 @@ from geometry_msgs.msg import Point
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import Bool, Float32, String
+from std_srvs.srv import SetBool
 
 try:
     from ultralytics import YOLO
@@ -42,7 +43,7 @@ class PersonDetectionNode(Node):
         self.declare_parameter('topics.color_image_sub', 'camera/front/color/image_raw')
         self.declare_parameter('topics.depth_image_sub', 'camera/front/depth/image_raw')
         self.declare_parameter('topics.depth_scale_sub', 'camera/front/depth/scale')
-        self.declare_parameter('topics.follow_mode_sub', 'hri/set_follow_mode')
+        self.declare_parameter('services.follow_mode_service', 'hri/set_follow_mode')
         self.declare_parameter('topics.persons_pub', 'hri/persons')
         self.declare_parameter('topics.interaction_trigger_pub', 'hri/interaction_trigger')
         self.declare_parameter('topics.tracking_state_pub', 'hri/tracking_state')
@@ -94,7 +95,7 @@ class PersonDetectionNode(Node):
         color_image_topic = self.get_parameter('topics.color_image_sub').value
         depth_image_topic = self.get_parameter('topics.depth_image_sub').value
         depth_scale_topic = self.get_parameter('topics.depth_scale_sub').value
-        follow_mode_topic = self.get_parameter('topics.follow_mode_sub').value
+        follow_mode_service = self.get_parameter('services.follow_mode_service').value
         persons_topic = self.get_parameter('topics.persons_pub').value
         interaction_trigger_topic = self.get_parameter('topics.interaction_trigger_pub').value
         tracking_state_topic = self.get_parameter('topics.tracking_state_pub').value
@@ -110,8 +111,8 @@ class PersonDetectionNode(Node):
             self.create_subscription(
                 Float32, depth_scale_topic,
                 lambda msg: setattr(self, '_depth_scale', msg.data), 10)
-        self.create_subscription(
-            Bool, follow_mode_topic, self._follow_mode_callback, 10)
+        self.create_service(
+            SetBool, follow_mode_service, self._follow_mode_service_callback)
 
         # Publishers
         self.persons_detail_pub = self.create_publisher(String, persons_topic, 10)
@@ -129,12 +130,18 @@ class PersonDetectionNode(Node):
         except Exception as e:
             self.get_logger().error(f'Failed to convert depth image: {e}')
 
-    def _follow_mode_callback(self, msg: Bool):
-        if msg.data:
+    def _follow_mode_service_callback(self, request: SetBool.Request, response: SetBool.Response):
+        if request.data:
             self._pending_register = True
-            self.get_logger().info('Request follow mode — register target in next frame')
+            response.success = True
+            response.message = 'Follow mode enable accepted (target will be registered on next frame)'
+            self.get_logger().info('Follow mode service request ON — register target in next frame')
         else:
             self._release_target('Unfollow by external command')
+            response.success = True
+            response.message = 'Follow mode disabled and target released'
+
+        return response
 
     def image_callback(self, msg: Image):
         try:

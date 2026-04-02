@@ -13,11 +13,13 @@ Subscribe topics:
   tts/done                 (Bool)   - TTS playback finished
 
 Publish topics:
-  hri/set_follow_mode      (Bool)   - enable/disable person following
   hri/manager_state        (String) - current HRI state (1 Hz)
   llm/query                (String) - query + context sent to LLM node
   tts/text                 (String) - direct TTS output (bypass LLM)
   nav/command              (String) - high-level navigation command
+
+Service clients:
+  hri/set_follow_mode      (SetBool) - enable/disable person following
 
 State machine:
   IDLE        - waiting for wake word
@@ -32,6 +34,7 @@ from enum import Enum
 
 import rclpy
 from rclpy.node import Node
+from std_srvs.srv import SetBool
 from std_msgs.msg import Bool, String
 
 
@@ -56,7 +59,7 @@ class HRIManagerNode(Node):
         self.declare_parameter('topics.expression_command_sub', 'hri/expression_command')
         self.declare_parameter('topics.landmark_context_sub', 'landmark/context')
         self.declare_parameter('topics.tts_done_sub', 'tts/done')
-        self.declare_parameter('topics.follow_mode_pub', 'hri/set_follow_mode')
+        self.declare_parameter('services.follow_mode_service', 'hri/set_follow_mode')
         self.declare_parameter('topics.manager_state_pub', 'hri/manager_state')
         self.declare_parameter('topics.llm_query_pub', 'llm/query')
         self.declare_parameter('topics.tts_text_pub', 'tts/text')
@@ -78,7 +81,7 @@ class HRIManagerNode(Node):
         expression_command_topic = self.get_parameter('topics.expression_command_sub').value
         landmark_context_topic = self.get_parameter('topics.landmark_context_sub').value
         tts_done_topic = self.get_parameter('topics.tts_done_sub').value
-        follow_mode_topic = self.get_parameter('topics.follow_mode_pub').value
+        follow_mode_service = self.get_parameter('services.follow_mode_service').value
         manager_state_topic = self.get_parameter('topics.manager_state_pub').value
         llm_query_topic = self.get_parameter('topics.llm_query_pub').value
         tts_text_topic = self.get_parameter('topics.tts_text_pub').value
@@ -101,11 +104,11 @@ class HRIManagerNode(Node):
             Bool, tts_done_topic, self._on_tts_done, 10)
 
         # Publishers
-        self.follow_mode_pub = self.create_publisher(Bool, follow_mode_topic, 10)
         self.manager_state_pub = self.create_publisher(String, manager_state_topic, 10)
         self.llm_query_pub = self.create_publisher(String, llm_query_topic, 10)
         self.tts_pub = self.create_publisher(String, tts_text_topic, 10)
         self.nav_command_pub = self.create_publisher(String, nav_command_topic, 10)
+        self.follow_mode_client = self.create_client(SetBool, follow_mode_service)
 
         # State publish timer (1 Hz)
         self.create_timer(1.0, self._publish_state)
@@ -269,10 +272,31 @@ class HRIManagerNode(Node):
         self.get_logger().info(f'LLM query: "{user_text[:40]}"')
 
     def _set_follow_mode(self, enable: bool):
-        msg = Bool()
-        msg.data = enable
-        self.follow_mode_pub.publish(msg)
-        self.get_logger().info(f'Follow mode: {"ON" if enable else "OFF"}')
+        if not self.follow_mode_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().error('Follow mode service unavailable')
+            return
+
+        req = SetBool.Request()
+        req.data = enable
+        future = self.follow_mode_client.call_async(req)
+        future.add_done_callback(
+            lambda done: self._on_follow_mode_response(done, enable)
+        )
+
+    def _on_follow_mode_response(self, future, requested_enable: bool):
+        try:
+            res = future.result()
+        except Exception as exc:
+            self.get_logger().error(
+                f'Follow mode {"ON" if requested_enable else "OFF"} failed: {exc}'
+            )
+            return
+
+        level = self.get_logger().info if res.success else self.get_logger().warn
+        level(
+            f'Follow mode {"ON" if requested_enable else "OFF"} '
+            f'{"succeeded" if res.success else "failed"}: {res.message}'
+        )
 
     def _nav_command(self, command: str, **kwargs):
         payload = {'command': command, **kwargs, 'timestamp': time.time()}

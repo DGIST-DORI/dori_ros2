@@ -143,7 +143,7 @@ def generate_launch_description():
             'topics.color_image_sub': _topic(dori_ns, '/camera/front/color/image_raw'),
             'topics.depth_image_sub': _topic(dori_ns, '/camera/front/depth/image_raw'),
             'topics.depth_scale_sub': _topic(dori_ns, '/camera/front/depth/scale'),
-            'topics.follow_mode_sub': _topic(dori_ns, '/hri/set_follow_mode'),
+            'services.follow_mode_service': _topic(dori_ns, '/hri/set_follow_mode'),
             'topics.persons_pub': _topic(dori_ns, '/hri/persons'),
             'topics.interaction_trigger_pub': _topic(dori_ns, '/hri/interaction_trigger'),
             'topics.tracking_state_pub': _topic(dori_ns, '/hri/tracking_state'),
