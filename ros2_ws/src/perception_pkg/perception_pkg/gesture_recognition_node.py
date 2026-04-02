@@ -19,7 +19,7 @@ Publish topics:
   hri/annotated_gesture (Image)  - visualization (optional)
 
 Subscribe topics:
-  camera/color/image_raw    (Image)
+  camera/front/color/image_raw    (Image)
   hri/interaction_trigger   (Bool)
 """
 
@@ -98,7 +98,7 @@ class GestureRecognitionNode(Node):
         self.declare_parameter('publish_cooldown_sec', 1.5)      # 동일 명령 중복 발행 억제
         self.declare_parameter('min_result_confidence', 0.5)     # 결과 사용 최소 confidence
         self.declare_parameter('use_handedness_correction', True)
-        self.declare_parameter('topics.color_image_sub', 'camera/color/image_raw')
+        self.declare_parameter('topics.color_image_sub', 'camera/front/color/image_raw')
         self.declare_parameter('topics.interaction_trigger_sub', 'hri/interaction_trigger')
         self.declare_parameter('topics.gesture_pub', 'hri/gesture')
         self.declare_parameter('topics.gesture_command_pub', 'hri/gesture_command')

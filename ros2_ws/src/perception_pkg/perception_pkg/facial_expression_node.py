@@ -13,7 +13,7 @@ Publish topics:
   hri/annotated_expression (Image)  - visualization (optional)
 
 Subscribe topics:
-  camera/color/image_raw   (Image)
+  camera/front/color/image_raw   (Image)
   hri/interaction_trigger  (Bool)
 """
 
@@ -105,7 +105,7 @@ class FacialExpressionNode(Node):
         self.declare_parameter('confirm_frames', 5)
         self.declare_parameter('publish_cooldown_sec', 3.0)
         self.declare_parameter('min_face_presence_confidence', 0.5)
-        self.declare_parameter('topics.color_image_sub', 'camera/color/image_raw')
+        self.declare_parameter('topics.color_image_sub', 'camera/front/color/image_raw')
         self.declare_parameter('topics.interaction_trigger_sub', 'hri/interaction_trigger')
         self.declare_parameter('topics.expression_pub', 'hri/expression')
         self.declare_parameter('topics.expression_command_pub', 'hri/expression_command')

@@ -34,15 +34,15 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 
 == Perception
 
-[[topic-dori-camera-color-image-raw]]
-=== /camera/color/image_raw
+[[topic-dori-camera-front-color-image-raw]]
+=== /camera/front/color/image_raw
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
 *Publishers*:: depth_camera_node
 *Subscribers*:: person_detection_node, gesture_recognition_node, facial_expression_node, landmark_detection_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /camera/color/image_raw → person_detection_node, gesture_recognition_node, facial_expression_node, landmark_detection_node
+*Flow*:: depth_camera_node → /camera/front/color/image_raw → person_detection_node, gesture_recognition_node, facial_expression_node, landmark_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -60,15 +60,15 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 *Description*:: RGB camera stream used by perception pipelines.
 
 
-[[topic-dori-camera-depth-image-raw]]
-=== /camera/depth/image_raw
+[[topic-dori-camera-front-depth-image-raw]]
+=== /camera/front/depth/image_raw
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
 *Publishers*:: depth_camera_node
 *Subscribers*:: person_detection_node, landmark_detection_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /camera/depth/image_raw → person_detection_node, landmark_detection_node
+*Flow*:: depth_camera_node → /camera/front/depth/image_raw → person_detection_node, landmark_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -86,15 +86,15 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 *Description*:: Raw depth frame for distance estimation and landmark range filtering.
 
 
-[[topic-dori-camera-color-camera_info]]
-=== /camera/color/camera_info
+[[topic-dori-camera-front-color-camera_info]]
+=== /camera/front/color/camera_info
 
 *Type (msg)*:: `sensor_msgs/msg/CameraInfo`
 *Publishers*:: depth_camera_node
 *Subscribers*:: landmark_detection_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /camera/color/camera_info → landmark_detection_node
+*Flow*:: depth_camera_node → /camera/front/color/camera_info → landmark_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -106,15 +106,15 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 *Description*:: RGB intrinsics for pixel-to-direction / localization math.
 
 
-[[topic-dori-camera-depth-camera_info]]
-=== /camera/depth/camera_info
+[[topic-dori-camera-front-depth-camera_info]]
+=== /camera/front/depth/camera_info
 
 *Type (msg)*:: `sensor_msgs/msg/CameraInfo`
 *Publishers*:: depth_camera_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /camera/depth/camera_info → (none documented)
+*Flow*:: depth_camera_node → /camera/front/depth/camera_info → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -126,15 +126,15 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 *Description*:: Depth intrinsics metadata stream.
 
 
-[[topic-dori-camera-depth-image_colormap]]
-=== /camera/depth/image_colormap
+[[topic-dori-camera-front-depth-image_colormap]]
+=== /camera/front/depth/image_colormap
 
 *Type (msg)*:: `sensor_msgs/msg/Image`
 *Publishers*:: depth_camera_node
 *Subscribers*:: (none documented)
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: depth_camera_node → /camera/depth/image_colormap → (none documented)
+*Flow*:: depth_camera_node → /camera/front/depth/image_colormap → (none documented)
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -146,15 +146,15 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 *Description*:: Colorized depth visualization stream.
 
 
-[[topic-dori-camera-depth-scale]]
-=== /camera/depth/scale
+[[topic-dori-camera-front-depth-scale]]
+=== /camera/front/depth/scale
 
 *Type (msg)*:: `std_msgs/msg/Float32`
 *Publishers*:: (none documented)
 *Subscribers*:: person_detection_node
 *Frequency*:: Expected: N/A, Actual: TBD
 *QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: (none documented) → /camera/depth/scale → person_detection_node
+*Flow*:: (none documented) → /camera/front/depth/scale → person_detection_node
 
 .Message fields
 [cols="1,1,1,3",options="header"]
@@ -164,6 +164,8 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 |===
 
 *Description*:: Optional depth meter-per-unit scale expected by person detection.
+
+NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for example, `/camera/rear/color/image_raw`, `/camera/rear/depth/image_raw`, `/camera/rear/depth/camera_info`, `/camera/rear/depth/scale`).
 
 
 [[topic-dori-follow-target_offset]]
@@ -832,5 +834,4 @@ This is a single source (SSOT) for ROS2 topic details documentation.
 |===
 
 *Description*:: Periodic system telemetry for monitoring and diagnostics.
-
 

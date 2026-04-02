@@ -41,9 +41,9 @@ class LandmarkDetectionNode(Node):
         self.declare_parameter('landmark_db_path', 'landmark_db.json')
         self.declare_parameter('max_detection_distance_m', 8.0)  # max distance to consider a detection valid for localization
         self.declare_parameter('localization_confidence_threshold', 0.6)
-        self.declare_parameter('topics.color_image_sub', 'camera/color/image_raw')
-        self.declare_parameter('topics.depth_image_sub', 'camera/depth/image_raw')
-        self.declare_parameter('topics.color_camera_info_sub', 'camera/color/camera_info')
+        self.declare_parameter('topics.color_image_sub', 'camera/front/color/image_raw')
+        self.declare_parameter('topics.depth_image_sub', 'camera/front/depth/image_raw')
+        self.declare_parameter('topics.color_camera_info_sub', 'camera/front/color/camera_info')
         self.declare_parameter('topics.detections_pub', 'landmark/detections')
         self.declare_parameter('topics.localization_pub', 'landmark/localization')
         self.declare_parameter('topics.context_pub', 'landmark/context')
