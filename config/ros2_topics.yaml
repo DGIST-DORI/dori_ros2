@@ -358,19 +358,6 @@
       "owner_pkg": "tts_pkg"
     },
     {
-      "topic": "hri/set_follow_mode",
-      "msg_type": "std_msgs/msg/Bool",
-      "publishers": [
-        "hri_manager_node"
-      ],
-      "subscribers": [
-        "person_detection_node"
-      ],
-      "qos": "unknown",
-      "description": "Enable/disable person target registration and follow behavior.",
-      "owner_pkg": "interaction_pkg"
-    },
-    {
       "topic": "hri/manager_state",
       "msg_type": "std_msgs/msg/String",
       "publishers": [
@@ -563,6 +550,20 @@
       "qos": "unknown",
       "description": "Velocity command output to robot base.",
       "owner_pkg": "navigation_pkg"
+    }
+  ],
+  "services": [
+    {
+      "service": "hri/set_follow_mode",
+      "srv_type": "std_srvs/srv/SetBool",
+      "servers": [
+        "person_detection_node"
+      ],
+      "clients": [
+        "hri_manager_node"
+      ],
+      "description": "Enable/disable person target follow mode with explicit success/failure response.",
+      "owner_pkg": "interaction_pkg"
     }
   ]
 }

@@ -510,24 +510,30 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 *Description*:: JSON list of detected persons/tracks.
 
 
-[[topic-dori-hri-set_follow_mode]]
-=== /hri/set_follow_mode
+[[service-dori-hri-set_follow_mode]]
+=== /hri/set_follow_mode (service)
 
-*Type (msg)*:: `std_msgs/msg/Bool`
-*Publishers*:: hri_manager_node
-*Subscribers*:: person_detection_node
-*Frequency*:: Expected: N/A, Actual: TBD
-*QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: hri_manager_node → /hri/set_follow_mode → person_detection_node
+*Type (srv)*:: `std_srvs/srv/SetBool`
+*Clients*:: hri_manager_node
+*Servers*:: person_detection_node
+*Flow*:: hri_manager_node → /hri/set_follow_mode (SetBool) → person_detection_node
 
-.Message fields
+.Request fields
 [cols="1,1,1,3",options="header"]
 |===
 | Field | Type | Unit | Description
-| data | TBD | - | See message definition for field-level details.
+| data | bool | - | `true` enables follow mode; `false` disables and releases target.
 |===
 
-*Description*:: Enable/disable person target registration and follow behavior.
+.Response fields
+[cols="1,1,1,3",options="header"]
+|===
+| Field | Type | Unit | Description
+| success | bool | - | Service application result.
+| message | string | - | Human-readable result details.
+|===
+
+*Description*:: Follow mode 제어를 요청하고 success/message로 적용 결과를 즉시 반환한다.
 
 
 [[topic-dori-hri-tracking_state]]
@@ -834,4 +840,3 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 |===
 
 *Description*:: Periodic system telemetry for monitoring and diagnostics.
-

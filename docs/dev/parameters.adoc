@@ -79,7 +79,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | topics.color_image_sub | string | `/camera/front/color/image_raw` | topic path | - | RGB input topic.
 | topics.depth_image_sub | string | `/camera/front/depth/image_raw` | topic path | - | Depth input topic.
 | topics.depth_scale_sub | string | `/camera/front/depth/scale` | topic path | - | Depth scale input topic.
-| topics.follow_mode_sub | string | `/hri/set_follow_mode` | topic path | - | Follow-mode enable topic.
+| services.follow_mode_service | string | `/hri/set_follow_mode` | service path | - | Follow-mode SetBool service.
 | topics.persons_pub | string | `/hri/persons` | topic path | - | Detected person list topic.
 | topics.interaction_trigger_pub | string | `/hri/interaction_trigger` | topic path | - | Interaction trigger topic.
 | topics.tracking_state_pub | string | `/hri/tracking_state` | topic path | - | Tracking state topic.
@@ -203,7 +203,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | topics.expression_command_sub | string | `/hri/expression_command` | topic path | - | Expression command input.
 | topics.landmark_context_sub | string | `/landmark/context` | topic path | - | Landmark context input.
 | topics.tts_done_sub | string | `/tts/done` | topic path | - | TTS completion input.
-| topics.follow_mode_pub | string | `/hri/set_follow_mode` | topic path | - | Follow mode control output.
+| services.follow_mode_service | string | `/hri/set_follow_mode` | service path | - | Follow mode SetBool service client target.
 | topics.manager_state_pub | string | `/hri/manager_state` | topic path | - | HRI state output.
 | topics.llm_query_pub | string | `/llm/query` | topic path | - | LLM query output.
 | topics.tts_text_pub | string | `/tts/text` | topic path | - | Direct TTS text output.
