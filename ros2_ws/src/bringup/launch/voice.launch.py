@@ -60,7 +60,7 @@ def generate_launch_description():
             'rag_top_k': LaunchConfiguration('rag_top_k'),
             'topics.query_sub': _topic(dori_ns, '/llm/query'),
             'topics.response_pub': _topic(dori_ns, '/llm/response'),
-            'topics.destination_pub': _topic(dori_ns, '/nav/destination'),
+            'actions.navigate': _topic(dori_ns, '/nav/navigate_to'),
         }],
     )
 

@@ -43,7 +43,7 @@ def generate_launch_description():
             'topics.expression_command_sub': _topic(dori_ns, '/hri/expression_command'),
             'topics.landmark_context_sub': _topic(dori_ns, '/landmark/context'),
             'topics.tts_done_sub': _topic(dori_ns, '/tts/done'),
-            'topics.follow_mode_pub': _topic(dori_ns, '/hri/set_follow_mode'),
+            'services.follow_mode_service': _topic(dori_ns, '/hri/set_follow_mode'),
             'topics.manager_state_pub': _topic(dori_ns, '/hri/manager_state'),
             'topics.llm_query_pub': _topic(dori_ns, '/llm/query'),
             'topics.tts_text_pub': _topic(dori_ns, '/tts/text'),

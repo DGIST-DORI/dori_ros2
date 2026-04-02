@@ -76,10 +76,10 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | lost_timeout_sec | double | 5.0 | >0 | s | Tracking loss timeout.
 | follow_distance_m | double | 1.2 | >0 | m | Desired follow distance.
 | reacquire_iou_thresh | double | 0.3 | [0,1] | - | Reacquire IOU threshold.
-| topics.color_image_sub | string | `/camera/color/image_raw` | topic path | - | RGB input topic.
-| topics.depth_image_sub | string | `/camera/depth/image_raw` | topic path | - | Depth input topic.
-| topics.depth_scale_sub | string | `/camera/depth/scale` | topic path | - | Depth scale input topic.
-| topics.follow_mode_sub | string | `/hri/set_follow_mode` | topic path | - | Follow-mode enable topic.
+| topics.color_image_sub | string | `/camera/front/color/image_raw` | topic path | - | RGB input topic.
+| topics.depth_image_sub | string | `/camera/front/depth/image_raw` | topic path | - | Depth input topic.
+| topics.depth_scale_sub | string | `/camera/front/depth/scale` | topic path | - | Depth scale input topic.
+| services.follow_mode_service | string | `/hri/set_follow_mode` | service path | - | Follow-mode SetBool service.
 | topics.persons_pub | string | `/hri/persons` | topic path | - | Detected person list topic.
 | topics.interaction_trigger_pub | string | `/hri/interaction_trigger` | topic path | - | Interaction trigger topic.
 | topics.tracking_state_pub | string | `/hri/tracking_state` | topic path | - | Tracking state topic.
@@ -107,9 +107,9 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | landmark_db_path | string | `landmark_db.json` | file path | - | Landmark DB JSON path.
 | max_detection_distance_m | double | 8.0 | >0 | m | Max valid detection distance.
 | localization_confidence_threshold | double | 0.6 | [0,1] | - | Localization confidence threshold.
-| topics.color_image_sub | string | `/camera/color/image_raw` | topic path | - | RGB input topic.
-| topics.depth_image_sub | string | `/camera/depth/image_raw` | topic path | - | Depth input topic.
-| topics.color_camera_info_sub | string | `/camera/color/camera_info` | topic path | - | Camera intrinsics topic.
+| topics.color_image_sub | string | `/camera/front/color/image_raw` | topic path | - | RGB input topic.
+| topics.depth_image_sub | string | `/camera/front/depth/image_raw` | topic path | - | Depth input topic.
+| topics.color_camera_info_sub | string | `/camera/front/color/camera_info` | topic path | - | Camera intrinsics topic.
 | topics.detections_pub | string | `/landmark/detections` | topic path | - | Raw detection topic.
 | topics.localization_pub | string | `/landmark/localization` | topic path | - | Localization output topic.
 | topics.context_pub | string | `/landmark/context` | topic path | - | Context summary topic.
@@ -141,7 +141,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | publish_cooldown_sec | double | 1.5 | >=0 | s | Cooldown between same command publications.
 | min_result_confidence | double | 0.5 | [0,1] | - | Minimum result confidence.
 | use_handedness_correction | bool | true | true/false | - | Correct handedness heuristics.
-| topics.color_image_sub | string | `/camera/color/image_raw` | topic path | - | RGB input topic.
+| topics.color_image_sub | string | `/camera/front/color/image_raw` | topic path | - | RGB input topic.
 | topics.interaction_trigger_sub | string | `/hri/interaction_trigger` | topic path | - | Trigger topic.
 | topics.gesture_pub | string | `/hri/gesture` | topic path | - | Gesture detail topic.
 | topics.gesture_command_pub | string | `/hri/gesture_command` | topic path | - | Gesture command topic.
@@ -173,7 +173,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | frown_threshold | double | -0.015 | tuned value | - | Frown feature threshold.
 | brow_frown_threshold | double | 0.025 | tuned value | - | Brow-frown threshold.
 | ear_open_threshold | double | 0.25 | tuned value | - | Eye aspect ratio threshold.
-| topics.color_image_sub | string | `/camera/color/image_raw` | topic path | - | RGB input topic.
+| topics.color_image_sub | string | `/camera/front/color/image_raw` | topic path | - | RGB input topic.
 | topics.interaction_trigger_sub | string | `/hri/interaction_trigger` | topic path | - | Trigger topic.
 | topics.expression_pub | string | `/hri/expression` | topic path | - | Expression detail topic.
 | topics.expression_command_pub | string | `/hri/expression_command` | topic path | - | Expression command topic.
@@ -203,7 +203,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | topics.expression_command_sub | string | `/hri/expression_command` | topic path | - | Expression command input.
 | topics.landmark_context_sub | string | `/landmark/context` | topic path | - | Landmark context input.
 | topics.tts_done_sub | string | `/tts/done` | topic path | - | TTS completion input.
-| topics.follow_mode_pub | string | `/hri/set_follow_mode` | topic path | - | Follow mode control output.
+| services.follow_mode_service | string | `/hri/set_follow_mode` | service path | - | Follow mode SetBool service client target.
 | topics.manager_state_pub | string | `/hri/manager_state` | topic path | - | HRI state output.
 | topics.llm_query_pub | string | `/llm/query` | topic path | - | LLM query output.
 | topics.tts_text_pub | string | `/tts/text` | topic path | - | Direct TTS text output.
@@ -254,7 +254,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | rag_top_k | int | 3 | >=1 | - | Number of retrieved chunks.
 | topics.query_sub | string | `/llm/query` | topic path | - | Query input topic.
 | topics.response_pub | string | `/llm/response` | topic path | - | Response output topic.
-| topics.destination_pub | string | `/nav/destination` | topic path | - | Parsed nav goal output.
+| actions.navigate | string | `/nav/navigate_to` | action name | - | Navigation action target for goal requests.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -298,6 +298,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | goal_tolerance | double | 0.2 | >0 | m | Goal reached tolerance.
 | obstacle_distance | double | 0.5 | >0 | m | Obstacle detection threshold.
 | control_frequency | double | 20.0 | >0 | Hz | Main control loop frequency.
+| actions.navigate | string | `/nav/navigate_to` | action name | - | Action server endpoint.
 |===
 
 *Dynamic reconfigure*:: Not supported
