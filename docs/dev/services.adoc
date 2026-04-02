@@ -1,0 +1,5 @@
+= ROS2 Service API Reference
+
+This workspace currently has no navigation-specific service endpoints.
+
+Service contracts are documented when they are introduced.
