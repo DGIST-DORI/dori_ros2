@@ -2,7 +2,7 @@
   "version": 1,
   "topics": [
     {
-      "topic": "camera/color/image_raw",
+      "topic": "camera/front/color/image_raw",
       "msg_type": "sensor_msgs/msg/Image",
       "publishers": [
         "depth_camera_node"
@@ -18,7 +18,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "camera/depth/image_raw",
+      "topic": "camera/front/depth/image_raw",
       "msg_type": "sensor_msgs/msg/Image",
       "publishers": [
         "depth_camera_node"
@@ -32,7 +32,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "camera/depth/image_colormap",
+      "topic": "camera/front/depth/image_colormap",
       "msg_type": "sensor_msgs/msg/Image",
       "publishers": [
         "depth_camera_node"
@@ -43,7 +43,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "camera/color/camera_info",
+      "topic": "camera/front/color/camera_info",
       "msg_type": "sensor_msgs/msg/CameraInfo",
       "publishers": [
         "depth_camera_node"
@@ -56,7 +56,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "camera/depth/camera_info",
+      "topic": "camera/front/depth/camera_info",
       "msg_type": "sensor_msgs/msg/CameraInfo",
       "publishers": [
         "depth_camera_node"
@@ -67,7 +67,7 @@
       "owner_pkg": "perception_pkg"
     },
     {
-      "topic": "camera/depth/scale",
+      "topic": "camera/front/depth/scale",
       "msg_type": "std_msgs/msg/Float32",
       "publishers": [],
       "subscribers": [
@@ -75,6 +75,70 @@
       ],
       "qos": "unknown",
       "description": "Optional depth meter-per-unit scale expected by person detection.",
+      "owner_pkg": "external"
+    },
+    {
+      "topic": "camera/rear/color/image_raw",
+      "msg_type": "sensor_msgs/msg/Image",
+      "publishers": [
+        "depth_camera_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Rear RGB camera stream.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "camera/rear/depth/image_raw",
+      "msg_type": "sensor_msgs/msg/Image",
+      "publishers": [
+        "depth_camera_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Rear raw depth frame.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "camera/rear/depth/image_colormap",
+      "msg_type": "sensor_msgs/msg/Image",
+      "publishers": [
+        "depth_camera_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Rear colorized depth visualization stream.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "camera/rear/color/camera_info",
+      "msg_type": "sensor_msgs/msg/CameraInfo",
+      "publishers": [
+        "depth_camera_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Rear RGB intrinsics metadata stream.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "camera/rear/depth/camera_info",
+      "msg_type": "sensor_msgs/msg/CameraInfo",
+      "publishers": [
+        "depth_camera_node"
+      ],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Rear depth intrinsics metadata stream.",
+      "owner_pkg": "perception_pkg"
+    },
+    {
+      "topic": "camera/rear/depth/scale",
+      "msg_type": "std_msgs/msg/Float32",
+      "publishers": [],
+      "subscribers": [],
+      "qos": "unknown",
+      "description": "Optional rear depth meter-per-unit scale.",
       "owner_pkg": "external"
     },
     {
