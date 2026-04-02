@@ -19,6 +19,9 @@ Usage:
 
 import argparse
 import asyncio
+import base64
+import hashlib
+import hmac
 import json
 import logging
 import os
@@ -30,10 +33,12 @@ import tempfile
 import threading
 import time
 import uuid
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import Literal
 
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import Depends, FastAPI, File, Header, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -125,6 +130,199 @@ app.add_middleware(
 )
 
 
+# ── AuthN/AuthZ ───────────────────────────────────────────────────────────────
+
+_AUTH_TOKEN_HEADER = 'Bearer'
+_JWT_SECRET = os.environ.get('DORI_API_JWT_SECRET', '').strip()
+_JWT_AUDIENCE = os.environ.get('DORI_API_JWT_AUDIENCE', '').strip()
+_JWT_ISSUER = os.environ.get('DORI_API_JWT_ISSUER', '').strip()
+_ACCESS_ROLE_MAP_RAW = os.environ.get('DORI_API_ACCESS_TOKENS', '').strip()
+
+
+@dataclass(frozen=True)
+class AuthPrincipal:
+    user_id: str
+    roles: frozenset[str]
+    auth_type: str
+
+
+def _b64url_decode(value: str) -> bytes:
+    padding = '=' * (-len(value) % 4)
+    return base64.urlsafe_b64decode(value + padding)
+
+
+def _parse_access_role_map(raw: str) -> dict[str, AuthPrincipal]:
+    principals: dict[str, AuthPrincipal] = {}
+    if not raw:
+        return principals
+
+    # format: token=user_id:role1|role2,token2=user2:viewer
+    for item in (part.strip() for part in raw.split(',') if part.strip()):
+        if '=' not in item:
+            continue
+        token, right = item.split('=', 1)
+        if ':' in right:
+            user_id, role_blob = right.split(':', 1)
+        else:
+            user_id, role_blob = right, 'viewer'
+        roles = frozenset(r.strip().lower() for r in role_blob.split('|') if r.strip())
+        principals[token.strip()] = AuthPrincipal(
+            user_id=user_id.strip() or 'unknown',
+            roles=roles or frozenset({'viewer'}),
+            auth_type='access',
+        )
+    return principals
+
+
+_ACCESS_ROLE_MAP = _parse_access_role_map(_ACCESS_ROLE_MAP_RAW)
+
+
+def _log_auth_event(request: Request, principal: AuthPrincipal | None, required: str, status_code: int) -> None:
+    logger.info(
+        'auth_audit status=%s path=%s user=%s roles=%s required=%s method=%s',
+        status_code,
+        request.url.path,
+        principal.user_id if principal else '-',
+        ','.join(sorted(principal.roles)) if principal else '-',
+        required,
+        request.method,
+    )
+
+
+def _verify_jwt(token: str) -> AuthPrincipal:
+    try:
+        encoded_header, encoded_payload, encoded_signature = token.split('.')
+    except ValueError as e:
+        raise HTTPException(
+            status_code=401,
+            detail='Invalid token format',
+            headers={'WWW-Authenticate': 'Bearer'},
+        ) from e
+
+    try:
+        header = json.loads(_b64url_decode(encoded_header).decode('utf-8'))
+        payload = json.loads(_b64url_decode(encoded_payload).decode('utf-8'))
+    except Exception as e:
+        raise HTTPException(
+            status_code=401,
+            detail='Invalid token payload',
+            headers={'WWW-Authenticate': 'Bearer'},
+        ) from e
+
+    alg = header.get('alg', '')
+    if alg != 'HS256':
+        raise HTTPException(
+            status_code=401,
+            detail='Unsupported JWT algorithm',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+    if not _JWT_SECRET:
+        raise HTTPException(
+            status_code=401,
+            detail='JWT secret is not configured',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+
+    signed_part = f'{encoded_header}.{encoded_payload}'.encode('utf-8')
+    expected_sig = base64.urlsafe_b64encode(
+        hmac.new(_JWT_SECRET.encode('utf-8'), signed_part, hashlib.sha256).digest()
+    ).decode('utf-8').rstrip('=')
+    if not hmac.compare_digest(expected_sig, encoded_signature):
+        raise HTTPException(
+            status_code=401,
+            detail='Invalid token signature',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+
+    now_ts = int(time.time())
+    exp = payload.get('exp')
+    if exp is not None and int(exp) < now_ts:
+        raise HTTPException(
+            status_code=401,
+            detail='Token expired',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+    nbf = payload.get('nbf')
+    if nbf is not None and int(nbf) > now_ts:
+        raise HTTPException(
+            status_code=401,
+            detail='Token not active yet',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+    if _JWT_AUDIENCE and payload.get('aud') != _JWT_AUDIENCE:
+        raise HTTPException(
+            status_code=401,
+            detail='Invalid token audience',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+    if _JWT_ISSUER and payload.get('iss') != _JWT_ISSUER:
+        raise HTTPException(
+            status_code=401,
+            detail='Invalid token issuer',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+
+    roles = payload.get('roles', payload.get('scope', ''))
+    if isinstance(roles, str):
+        role_values = frozenset(r.strip().lower() for r in roles.replace(',', ' ').split() if r.strip())
+    elif isinstance(roles, list):
+        role_values = frozenset(str(r).strip().lower() for r in roles if str(r).strip())
+    else:
+        role_values = frozenset()
+
+    user_id = str(payload.get('sub', payload.get('user_id', 'unknown')))
+    return AuthPrincipal(user_id=user_id, roles=role_values or frozenset({'viewer'}), auth_type='jwt')
+
+
+def _authenticate_request(authorization: str | None, access: str | None) -> AuthPrincipal:
+    if authorization and authorization.startswith(f'{_AUTH_TOKEN_HEADER} '):
+        bearer = authorization[len(_AUTH_TOKEN_HEADER) + 1:].strip()
+        if bearer:
+            return _verify_jwt(bearer)
+
+    if access:
+        token = access.strip()
+        if token in _ACCESS_ROLE_MAP:
+            return _ACCESS_ROLE_MAP[token]
+
+    raise HTTPException(
+        status_code=401,
+        detail='Authentication required',
+        headers={'WWW-Authenticate': 'Bearer'},
+    )
+
+
+def _has_permission(principal: AuthPrincipal, required: Literal['view', 'control']) -> bool:
+    if 'admin' in principal.roles:
+        return True
+    if required == 'view':
+        return bool({'viewer', 'view', 'control', 'deploy'} & principal.roles)
+    return bool({'control', 'deploy'} & principal.roles)
+
+
+def require_permission(required: Literal['view', 'control']):
+    async def _dependency(
+        request: Request,
+        authorization: str | None = Header(default=None),
+        access: str | None = Header(default=None, alias='Access'),
+    ) -> AuthPrincipal:
+        principal: AuthPrincipal | None = None
+        try:
+            principal = _authenticate_request(authorization, access)
+        except HTTPException:
+            _log_auth_event(request, principal=None, required=required, status_code=401)
+            raise
+
+        if not _has_permission(principal, required):
+            _log_auth_event(request, principal=principal, required=required, status_code=403)
+            raise HTTPException(status_code=403, detail='Forbidden')
+
+        _log_auth_event(request, principal=principal, required=required, status_code=200)
+        return principal
+
+    return _dependency
+
+
 def _resolve_web_dir() -> Path | None:
     if args.web_dir:
         candidate = Path(args.web_dir).expanduser().resolve()
@@ -146,7 +344,10 @@ def _resolve_web_dir() -> Path | None:
 # ── /api/knowledge/parse-menu ─────────────────────────────────────────────────
 
 @app.post('/api/knowledge/parse-menu')
-async def parse_menu(files: list[UploadFile] = File(...)):
+async def parse_menu(
+    files: list[UploadFile] = File(...),
+    _: AuthPrincipal = Depends(require_permission('control')),
+):
     """
     Receive one or more menu files (xlsx/pdf), save to a temp dir,
     run parse_cafeteria_menu.py, and return per-file results.
@@ -259,7 +460,10 @@ def _run_build_index(
 
 
 @app.post('/api/knowledge/build-index')
-async def build_index(body: dict):
+async def build_index(
+    body: dict,
+    _: AuthPrincipal = Depends(require_permission('control')),
+):
     incremental = body.get('incremental', True)
     batch_size = body.get('batch_size')
     chunk_batch_size = body.get('chunk_batch_size')
@@ -295,7 +499,11 @@ async def build_index(body: dict):
 
 
 @app.get('/api/knowledge/build-index/status/{job_id}')
-async def build_index_status(job_id: str, cursor: int = Query(0, ge=0)):
+async def build_index_status(
+    job_id: str,
+    cursor: int = Query(0, ge=0),
+    _: AuthPrincipal = Depends(require_permission('view')),
+):
     """
     Build-index status contract:
       - total_chunks is sourced from build_index.py final summary line:
@@ -425,7 +633,10 @@ def _run_crawl_job(job_id: str, cmd: list[str]):
 
 
 @app.post('/api/knowledge/crawl-campus')
-async def crawl_campus(body: dict):
+async def crawl_campus(
+    body: dict,
+    _: AuthPrincipal = Depends(require_permission('control')),
+):
     if not CRAWLER_SCRIPT.exists():
         raise HTTPException(500, f'Crawler script not found: {CRAWLER_SCRIPT}')
 
@@ -451,7 +662,10 @@ async def crawl_campus(body: dict):
 
 
 @app.get('/api/knowledge/crawl-campus/status/{job_id}')
-async def crawl_campus_status(job_id: str):
+async def crawl_campus_status(
+    job_id: str,
+    _: AuthPrincipal = Depends(require_permission('view')),
+):
     job = _crawl_jobs.get(job_id)
     if not job:
         raise HTTPException(404, 'Job not found')
@@ -468,7 +682,7 @@ async def crawl_campus_status(job_id: str):
 # ── /api/knowledge/index-info ─────────────────────────────────────────────────
 
 @app.get('/api/knowledge/index-info')
-async def index_info():
+async def index_info(_: AuthPrincipal = Depends(require_permission('view'))):
     meta_file = INDEXED_DIR / 'metadata.json'
     index_file = INDEXED_DIR / 'index.faiss'
 
@@ -491,7 +705,7 @@ async def index_info():
 # ── /api/knowledge/documents ──────────────────────────────────────────────────
 
 @app.get('/api/knowledge/documents')
-async def list_documents():
+async def list_documents(_: AuthPrincipal = Depends(require_permission('view'))):
     docs = []
     if not PROCESSED_DIR.exists():
         return docs
@@ -544,12 +758,16 @@ def _save_knowledge(locations: dict):
 
 
 @app.get('/api/knowledge/buildings')
-async def get_buildings():
+async def get_buildings(_: AuthPrincipal = Depends(require_permission('view'))):
     return _load_knowledge()
 
 
 @app.put('/api/knowledge/buildings/{key}')
-async def update_building(key: str, body: dict):
+async def update_building(
+    key: str,
+    body: dict,
+    _: AuthPrincipal = Depends(require_permission('control')),
+):
     locations = _load_knowledge()
     if key not in locations:
         raise HTTPException(404, f'Building key not found: {key}')
@@ -696,11 +914,7 @@ if WEB_DIR:
 #   DORI_WEBHOOK_SECRET  : GitHub webhook secret (HMAC-SHA256)
 #   DORI_ROS_DISTRO      : ROS distro name (default: humble)
 
-import hashlib
-import hmac
 import shlex
-import threading
-from fastapi import Request
 
 _WEBHOOK_SECRET = _os.environ.get('DORI_WEBHOOK_SECRET', '').encode()
 _ROS_DISTRO     = _os.environ.get('DORI_ROS_DISTRO', 'humble')
@@ -1255,13 +1469,13 @@ async def github_webhook(request: Request):
 
 
 @app.get('/api/deploy/status')
-async def deploy_status():
+async def deploy_status(_: AuthPrincipal = Depends(require_permission('view'))):
     """Poll deploy pipeline progress."""
     return JSONResponse(_deploy_job)
 
 
 @app.post('/api/deploy/trigger')
-async def deploy_trigger():
+async def deploy_trigger(_: AuthPrincipal = Depends(require_permission('control'))):
     """Manually trigger the deploy pipeline (no webhook needed, dev use)."""
     with _deploy_lock:
         if _deploy_job['status'] == 'running':
@@ -1272,7 +1486,7 @@ async def deploy_trigger():
 
 
 @app.post('/api/deploy/repair-web')
-async def deploy_repair_web():
+async def deploy_repair_web(_: AuthPrincipal = Depends(require_permission('control'))):
     """Run a web integrity check and repair-publish if required."""
     with _deploy_lock:
         if _deploy_job['status'] == 'running':
