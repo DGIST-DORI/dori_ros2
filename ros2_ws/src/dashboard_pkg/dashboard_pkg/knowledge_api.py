@@ -329,15 +329,17 @@ def _authenticate_request(authorization: str | None, access: str | None) -> Auth
     )
 
 
-def _has_permission(principal: AuthPrincipal, required: Literal['view', 'control']) -> bool:
+def _has_permission(principal: AuthPrincipal, required: Literal['view', 'control', 'admin']) -> bool:
     if 'admin' in principal.roles:
         return True
     if required == 'view':
         return bool({'viewer', 'view', 'control', 'deploy'} & principal.roles)
-    return bool({'control', 'deploy'} & principal.roles)
+    if required == 'control':
+        return bool({'control', 'deploy'} & principal.roles)
+    return False
 
 
-def require_permission(required: Literal['view', 'control']):
+def require_permission(required: Literal['view', 'control', 'admin']):
     async def _dependency(
         request: Request,
         authorization: str | None = Header(default=None),
@@ -815,6 +817,175 @@ async def update_building(
         raise HTTPException(500, str(e))
     return {'ok': True, 'key': key}
 
+
+# ── /api/control/actions (external-safe control path) ────────────────────────
+
+_CONTROL_EXECUTOR = os.environ.get('DORI_CONTROL_EXECUTOR', 'dry-run').strip().lower() or 'dry-run'
+_CONTROL_ACTIONS = frozenset({'move', 'stop', 'set_mode'})
+_CONTROL_MODES = frozenset({'manual', 'auto', 'dock', 'idle'})
+_CONTROL_RATE_LIMITS = {
+    # action -> (max_requests, window_seconds)
+    'move': (10, 1.0),
+    'stop': (5, 1.0),
+    'set_mode': (2, 1.0),
+}
+_control_rate_events: dict[tuple[str, str], list[float]] = {}
+_control_rate_lock = threading.Lock()
+
+
+def _validate_float_range(value, *, field: str, min_value: float, max_value: float) -> float:
+    if not isinstance(value, (int, float)):
+        raise HTTPException(400, f'{field} must be a number')
+    normalized = float(value)
+    if normalized < min_value or normalized > max_value:
+        raise HTTPException(400, f'{field} must be in range [{min_value}, {max_value}]')
+    return normalized
+
+
+def _enforce_control_rate_limit(principal: AuthPrincipal, action: str) -> None:
+    limit = _CONTROL_RATE_LIMITS.get(action)
+    if not limit:
+        return
+    max_requests, window_sec = limit
+    now = time.monotonic()
+    key = (principal.user_id, action)
+
+    with _control_rate_lock:
+        events = _control_rate_events.setdefault(key, [])
+        cutoff = now - window_sec
+        events[:] = [t for t in events if t >= cutoff]
+        if len(events) >= max_requests:
+            raise HTTPException(
+                status_code=429,
+                detail=f'rate limit exceeded for action={action} '
+                       f'({max_requests}/{window_sec:.1f}s)',
+            )
+        events.append(now)
+
+
+def _execute_control_action(action: str, params: dict) -> dict:
+    """
+    Execute a validated control action through a constrained backend interface.
+
+    Default mode is dry-run for safety. To enable ROS2 CLI execution:
+      DORI_CONTROL_EXECUTOR=ros2_cli
+    """
+    if _CONTROL_EXECUTOR != 'ros2_cli':
+        return {
+            'executor': _CONTROL_EXECUTOR,
+            'executed': False,
+            'detail': 'dry-run mode: validated but not published to ROS network',
+        }
+
+    if action == 'move':
+        linear_x = params['linear_x']
+        linear_y = params['linear_y']
+        angular_z = params['angular_z']
+        payload = (
+            '{linear: {x: ' + f'{linear_x:.4f}' + ', y: ' + f'{linear_y:.4f}' + ', z: 0.0}, '
+            'angular: {x: 0.0, y: 0.0, z: ' + f'{angular_z:.4f}' + '}}'
+        )
+        cmd = [
+            'ros2', 'topic', 'pub', '--once',
+            '/cmd_vel', 'geometry_msgs/msg/Twist',
+            payload,
+        ]
+    elif action == 'stop':
+        cmd = [
+            'ros2', 'topic', 'pub', '--once',
+            '/cmd_vel', 'geometry_msgs/msg/Twist',
+            '{linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}',
+        ]
+    elif action == 'set_mode':
+        mode = params['mode']
+        cmd = [
+            'ros2', 'topic', 'pub', '--once',
+            '/dori/control/mode', 'std_msgs/msg/String',
+            f'{{data: "{mode}"}}',
+        ]
+    else:
+        raise HTTPException(400, f'Unsupported action: {action}')
+
+    completed = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+    if completed.returncode != 0:
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                'control action execution failed: '
+                + (completed.stderr.strip() or completed.stdout.strip() or f'exit={completed.returncode}')
+            ),
+        )
+    return {'executor': _CONTROL_EXECUTOR, 'executed': True, 'detail': 'published via ros2_cli'}
+
+
+@app.post('/api/control/actions')
+async def control_actions(
+    body: dict,
+    principal: AuthPrincipal = Depends(require_permission('control')),
+):
+    """
+    Public-safe control API for external users.
+    Only allowlisted actions are accepted, with strict validation and rate limiting.
+    """
+    action = body.get('action')
+    params = body.get('params', {})
+    if not isinstance(action, str):
+        raise HTTPException(400, 'action must be a string')
+    if not isinstance(params, dict):
+        raise HTTPException(400, 'params must be an object')
+
+    action = action.strip().lower()
+    if action not in _CONTROL_ACTIONS:
+        raise HTTPException(400, f'action must be one of: {sorted(_CONTROL_ACTIONS)}')
+
+    validated: dict = {}
+    if action == 'move':
+        validated['linear_x'] = _validate_float_range(params.get('linear_x', 0.0), field='linear_x', min_value=-0.8, max_value=0.8)
+        validated['linear_y'] = _validate_float_range(params.get('linear_y', 0.0), field='linear_y', min_value=-0.8, max_value=0.8)
+        validated['angular_z'] = _validate_float_range(params.get('angular_z', 0.0), field='angular_z', min_value=-1.2, max_value=1.2)
+    elif action == 'set_mode':
+        mode = params.get('mode')
+        if not isinstance(mode, str):
+            raise HTTPException(400, 'mode must be a string')
+        mode = mode.strip().lower()
+        if mode not in _CONTROL_MODES:
+            raise HTTPException(400, f'mode must be one of: {sorted(_CONTROL_MODES)}')
+        validated['mode'] = mode
+
+    _enforce_control_rate_limit(principal, action)
+    exec_result = _execute_control_action(action, validated)
+    return {
+        'ok': True,
+        'action': action,
+        'validated_params': validated,
+        'rate_limit': {
+            'max_requests': _CONTROL_RATE_LIMITS[action][0],
+            'window_sec': _CONTROL_RATE_LIMITS[action][1],
+        },
+        **exec_result,
+    }
+
+
+@app.post('/api/admin/publish')
+async def admin_publish(
+    body: dict,
+    _: AuthPrincipal = Depends(require_permission('admin')),
+):
+    """
+    High-risk raw publish endpoint.
+    Intentionally admin-only and disabled unless explicitly enabled.
+    """
+    if os.environ.get('DORI_ENABLE_ADMIN_PUBLISH', '').strip().lower() not in ('1', 'true', 'yes'):
+        raise HTTPException(403, 'admin publish endpoint is disabled')
+    return {
+        'ok': False,
+        'detail': (
+            'admin publish endpoint is reserved for controlled environments. '
+            'Use /api/control/actions for external control flows.'
+        ),
+        'requested': body,
+    }
+
 # ── /api/tunnel-url ───────────────────────────────────────────────────────────
 # 터널 WS URL을 반환. 프론트엔드가 외부 접속 시 폴링해서 WS URL 기본값 자동 설정.
 #
@@ -834,6 +1005,7 @@ _CF_URL_RE        = _re.compile(r'https://[a-z0-9\-]+\.trycloudflare\.com')
 #     DORI_WS_URL=wss://ws.dgist-dori.xyz
 _FIXED_DASHBOARD_URL = _os.environ.get('DORI_DASHBOARD_URL', '').strip()
 _FIXED_WS_URL        = _os.environ.get('DORI_WS_URL', '').strip()
+_EXPOSE_ROSBRIDGE_TUNNEL = _os.environ.get('DORI_EXPOSE_ROSBRIDGE_TUNNEL', '').strip().lower() in ('1', 'true', 'yes')
 
 
 def _parse_tunnel_url(log_path: Path) -> str | None:
@@ -849,10 +1021,10 @@ def _parse_tunnel_url(log_path: Path) -> str | None:
 @app.get('/api/tunnel-url')
 async def get_tunnel_url():
     """
-    Return Cloudflare Tunnel public URLs for the dashboard and rosbridge.
+    Return Cloudflare Tunnel public URL for the dashboard and (optionally) rosbridge.
 
     Response:
-      { "dashboard_url": str|null, "ws_url": str|null, "ready": bool }
+      { "dashboard_url": str|null, "ws_url": str|null, "ready": bool, "ws_exposed": bool }
 
     Priority:
       1) DORI_WS_URL / DORI_DASHBOARD_URL env vars (fixed custom domain)
@@ -861,22 +1033,26 @@ async def get_tunnel_url():
     ws_url must use wss:// — Cloudflare Tunnel always terminates TLS.
     """
     # 1순위: 고정 도메인 환경변수
-    if _FIXED_WS_URL:
+    if _FIXED_WS_URL and _EXPOSE_ROSBRIDGE_TUNNEL:
         return {
             'dashboard_url': _FIXED_DASHBOARD_URL or None,
             'ws_url':        _FIXED_WS_URL,
             'ready':         True,
+            'ws_exposed':    True,
         }
 
     # 2순위: trycloudflare.com 임시 터널 로그 파싱
     dashboard_url = _parse_tunnel_url(_CF_LOG_DASHBOARD)
-    ws_http_url   = _parse_tunnel_url(_CF_LOG_WS)
-    ws_url = ws_http_url.replace('https://', 'wss://', 1) if ws_http_url else None
+    ws_url = None
+    if _EXPOSE_ROSBRIDGE_TUNNEL:
+        ws_http_url = _parse_tunnel_url(_CF_LOG_WS)
+        ws_url = ws_http_url.replace('https://', 'wss://', 1) if ws_http_url else None
 
     return {
         'dashboard_url': dashboard_url,
         'ws_url':        ws_url,
-        'ready':         ws_url is not None,
+        'ready':         dashboard_url is not None or ws_url is not None,
+        'ws_exposed':    _EXPOSE_ROSBRIDGE_TUNNEL and ws_url is not None,
     }
 
 # ── Static file serving ────────────────────────────────────────────────────────
@@ -1512,7 +1688,7 @@ async def deploy_status(_: AuthPrincipal = Depends(require_permission('view'))):
 
 
 @app.post('/api/deploy/trigger')
-async def deploy_trigger(_: AuthPrincipal = Depends(require_permission('control'))):
+async def deploy_trigger(_: AuthPrincipal = Depends(require_permission('admin'))):
     """Manually trigger the deploy pipeline (no webhook needed, dev use)."""
     with _deploy_lock:
         if _deploy_job['status'] == 'running':
@@ -1523,7 +1699,7 @@ async def deploy_trigger(_: AuthPrincipal = Depends(require_permission('control'
 
 
 @app.post('/api/deploy/repair-web')
-async def deploy_repair_web(_: AuthPrincipal = Depends(require_permission('control'))):
+async def deploy_repair_web(_: AuthPrincipal = Depends(require_permission('admin'))):
     """Run a web integrity check and repair-publish if required."""
     with _deploy_lock:
         if _deploy_job['status'] == 'running':
