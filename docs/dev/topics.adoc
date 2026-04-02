@@ -700,44 +700,8 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 
 == Navigation
 
-[[topic-dori-nav-status]]
-=== /nav/status
+NOTE: `/nav/destination`, `/nav/status`, and `/nav/cancel` are deprecated. Use <<actions.adoc#action-dori-nav-navigate_to,`/nav/navigate_to` action>> for goal, feedback, and cancel control.
 
-*Type (msg)*:: `std_msgs/msg/String`
-*Publishers*:: navigator_node
-*Subscribers*:: (none documented)
-*Frequency*:: Expected: N/A, Actual: TBD
-*QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: navigator_node → /nav/status → (none documented)
-
-.Message fields
-[cols="1,1,1,3",options="header"]
-|===
-| Field | Type | Unit | Description
-| data | string | - | Human-readable navigation status.
-|===
-
-*Description*:: Status updates for navigation progress/failure/completion.
-
-
-[[topic-dori-nav-cancel]]
-=== /nav/cancel
-
-*Type (msg)*:: `std_msgs/msg/Bool`
-*Publishers*:: external/nav client node
-*Subscribers*:: navigator_node
-*Frequency*:: Expected: N/A, Actual: TBD
-*QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: external/nav client node → /nav/cancel → navigator_node
-
-.Message fields
-[cols="1,1,1,3",options="header"]
-|===
-| Field | Type | Unit | Description
-| data | TBD | - | See message definition for field-level details.
-|===
-
-*Description*:: Cancel signal for current navigation task.
 
 
 [[topic-dori-nav-command]]
@@ -759,25 +723,6 @@ NOTE: Rear camera topics use the same schema under `/camera/rear/...` (for examp
 
 *Description*:: High-level navigation command channel.
 
-
-[[topic-dori-nav-destination]]
-=== /nav/destination
-
-*Type (msg)*:: `geometry_msgs/msg/PoseStamped`
-*Publishers*:: llm_node
-*Subscribers*:: navigator_node
-*Frequency*:: Expected: N/A, Actual: TBD
-*QoS*:: Reliability: Reliable, Durability: Volatile
-*Flow*:: llm_node → /nav/destination → navigator_node
-
-.Message fields
-[cols="1,1,1,3",options="header"]
-|===
-| Field | Type | Unit | Description
-| data | TBD | - | See message definition for field-level details.
-|===
-
-*Description*:: Navigation goal pose extracted from navigation intent.
 
 
 [[topic-dori-nav-global_path]]

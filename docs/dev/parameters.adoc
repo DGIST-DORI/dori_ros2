@@ -254,7 +254,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | rag_top_k | int | 3 | >=1 | - | Number of retrieved chunks.
 | topics.query_sub | string | `/llm/query` | topic path | - | Query input topic.
 | topics.response_pub | string | `/llm/response` | topic path | - | Response output topic.
-| topics.destination_pub | string | `/nav/destination` | topic path | - | Parsed nav goal output.
+| actions.navigate | string | `/nav/navigate_to` | action name | - | Navigation action target for goal requests.
 |===
 
 *Dynamic reconfigure*:: Not supported
@@ -298,6 +298,7 @@ This document is the SSOT for ROS2 parameter details in the current workspace.
 | goal_tolerance | double | 0.2 | >0 | m | Goal reached tolerance.
 | obstacle_distance | double | 0.5 | >0 | m | Obstacle detection threshold.
 | control_frequency | double | 20.0 | >0 | Hz | Main control loop frequency.
+| actions.navigate | string | `/nav/navigate_to` | action name | - | Action server endpoint.
 |===
 
 *Dynamic reconfigure*:: Not supported

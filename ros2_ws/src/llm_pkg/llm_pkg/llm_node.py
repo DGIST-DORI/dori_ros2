@@ -7,7 +7,9 @@ Subscribe topics:
 
 Publish topics:
   llm/response     (String) - generated response text (consumed by TTS node)
-  nav/destination  (PoseStamped) - navigation goal when intent is navigation
+
+Actions (client):
+  nav/navigate_to  (navigation_interfaces/action/Navigate) - navigation goal request
 """
 
 import json
@@ -19,6 +21,8 @@ from typing import Dict, List, Optional
 
 import rclpy
 from geometry_msgs.msg import PoseStamped
+from navigation_interfaces.action import Navigate
+from rclpy.action import ActionClient
 from rclpy.node import Node
 from std_msgs.msg import String
 
@@ -259,7 +263,7 @@ class LLMNode(Node):
         self.declare_parameter('rag_top_k',        3)
         self.declare_parameter('topics.query_sub', 'llm/query')
         self.declare_parameter('topics.response_pub', 'llm/response')
-        self.declare_parameter('topics.destination_pub', 'nav/destination')
+        self.declare_parameter('actions.navigate', 'nav/navigate_to')
 
         knowledge_file   = self.get_parameter('knowledge_file').value
         rag_index_dir    = self.get_parameter('rag_index_dir').value
@@ -300,12 +304,12 @@ class LLMNode(Node):
 
         query_topic = self.get_parameter('topics.query_sub').value
         response_topic = self.get_parameter('topics.response_pub').value
-        destination_topic = self.get_parameter('topics.destination_pub').value
+        navigate_action = self.get_parameter('actions.navigate').value
 
-        # Subscribers / Publishers
+        # Subscribers / Publishers / Action clients
         self.create_subscription(String, query_topic, self._on_query, 10)
         self.response_pub = self.create_publisher(String, response_topic, 10)
-        self.destination_pub = self.create_publisher(PoseStamped, destination_topic, 10)
+        self.navigate_action_client = ActionClient(self, Navigate, navigate_action)
 
         self.get_logger().info('LLM Node started')
 
@@ -389,7 +393,7 @@ class LLMNode(Node):
     def _handle_navigation(self, text: str) -> str:
         location = self.kb.search_location(text)
         if location:
-            self._publish_destination(location)
+            self._send_navigation_goal(location)
             if self.current_language == 'en':
                 return f"I'll guide you to {location.name}. {location.description}"
             return f'{location.name}(으)로 안내하겠습니다. {location.description}'
@@ -526,16 +530,51 @@ class LLMNode(Node):
         entry = responses.get(key, {})
         return entry.get(lang, entry.get('ko', ''))
 
-    def _publish_destination(self, location: Location):
+    def _send_navigation_goal(self, location: Location):
+        if not self.navigate_action_client.wait_for_server(timeout_sec=1.0):
+            self.get_logger().warn('Navigation action server unavailable')
+            return
+
         pose = PoseStamped()
-        pose.header.stamp    = self.get_clock().now().to_msg()
+        pose.header.stamp = self.get_clock().now().to_msg()
         pose.header.frame_id = 'map'
         pose.pose.position.x = float(location.coordinates[0])
         pose.pose.position.y = float(location.coordinates[1])
         pose.pose.position.z = 0.0
         pose.pose.orientation.w = 1.0
-        self.destination_pub.publish(pose)
-        self.get_logger().info(f'Navigation destination: {location.name}')
+
+        goal = Navigate.Goal()
+        goal.destination = pose
+
+        future = self.navigate_action_client.send_goal_async(
+            goal,
+            feedback_callback=self._on_navigation_feedback,
+        )
+        future.add_done_callback(self._on_navigation_goal_response)
+        self.get_logger().info(f'Navigation goal sent: {location.name}')
+
+    def _on_navigation_goal_response(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().warn('Navigation goal rejected')
+            return
+
+        self.get_logger().info('Navigation goal accepted')
+        result_future = goal_handle.get_result_async()
+        result_future.add_done_callback(self._on_navigation_result)
+
+    def _on_navigation_feedback(self, feedback_msg):
+        feedback = feedback_msg.feedback
+        self.get_logger().debug(
+            f'Navigation feedback: state={feedback.state}, '
+            f'distance={feedback.distance_remaining:.2f}'
+        )
+
+    def _on_navigation_result(self, future):
+        result = future.result().result
+        self.get_logger().info(
+            f'Navigation result: code={result.code}, message={result.message}'
+        )
 
 
 # Entry point
