@@ -8,3 +8,9 @@ __pycache__
 *.pt
 *.pv
 *.task
+.venv/
+.vscode/
+*.pyc
+Autonomous_Drive/runs/
+Autonomous_Drive/maps/
+Autonomous_Drive/*.db

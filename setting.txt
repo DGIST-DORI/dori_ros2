@@ -1,0 +1,18 @@
+conda activate env_isaaclab
+
+export ROS_DISTRO=humble
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\
+$CONDA_PREFIX/lib/python3.11/site-packages/isaacsim/exts/isaacsim.ros2.bridge/humble/lib
+export FASTDDS_SHM_TRANSPORT=0
+
+isaacsim
+
+
+
+
+
+source /opt/ros/humble/setup.bash
+
+
+ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True

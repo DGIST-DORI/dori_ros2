@@ -1,0 +1,20 @@
+name: isaac_sim_ros_py310
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - setuptools
+  - wheel
+  - numpy=1.26.*
+  - opencv
+  - pillow
+  - pyyaml
+  - jinja2
+  - typeguard
+  - rich
+  - tqdm
+  - typing-extensions
+  - exceptiongroup
+  - pip:
+      - openai
