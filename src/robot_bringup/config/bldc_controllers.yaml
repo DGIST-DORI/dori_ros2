@@ -1,0 +1,26 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    bldc_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+    bldc_position_controller:
+      type: position_controllers/JointGroupPositionController
+
+bldc_velocity_controller:
+  ros__parameters:
+    joints:
+      - left_wheel_joint
+      - right_wheel_joint
+    interface_name: velocity
+
+bldc_position_controller:
+  ros__parameters:
+    joints:
+      - left_wheel_joint
+      - right_wheel_joint
+    interface_name: position

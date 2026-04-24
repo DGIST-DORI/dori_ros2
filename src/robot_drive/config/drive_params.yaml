@@ -1,0 +1,19 @@
+drive_controller_node:
+  ros__parameters:
+    wheel_radius: 0.25
+    wheel_separation: 0.60
+    max_linear_velocity: 1.72
+    max_angular_velocity: 1.2
+    linear_accel_limit: 1.0
+    angular_accel_limit: 2.0
+
+    default_drive_profile: "normal"
+
+    drive_normal_vel_kd: 1.5
+    drive_normal_tau_ff: 0.0
+
+    drive_slope_vel_kd: 2.0
+    drive_slope_tau_ff: 0.2
+
+    drive_obstacle_vel_kd: 2.5
+    drive_obstacle_tau_ff: 0.3

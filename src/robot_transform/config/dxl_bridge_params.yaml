@@ -1,0 +1,8 @@
+dxl_bridge_node:
+  ros__parameters:
+    logical_motor3_dxl_id: 1
+    logical_motor4_dxl_id: 2
+    dxl_position_min: 0
+    dxl_position_max: 4095
+    dxl_degree_min: 0.0
+    dxl_degree_max: 360.0

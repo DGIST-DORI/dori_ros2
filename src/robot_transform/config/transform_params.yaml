@@ -1,0 +1,49 @@
+transform_manager_node:
+  ros__parameters:
+    pose_detect_tolerance_deg: 5.0
+    default_step_timeout_sec: 5.0
+    initial_step_delay_sec: 1.5
+    force_initial_pose: 0
+    motor1_joint_name: "left_wheel_joint"
+    motor2_joint_name: "right_wheel_joint"
+    motor3_joint_name: "motor_3_joint"
+    motor4_joint_name: "motor_4_joint"
+    dxl_wrap_turns: 3.0
+
+transform_controller_node:
+  ros__parameters:
+    position_tolerance_deg: 3.0
+    velocity_tolerance_rad_s: 0.10
+    settle_time_sec: 0.2
+
+    default_transform_profile: "precise"
+
+    transform_precise_pos_kp: 45.0
+    transform_precise_pos_kd: 2.2
+    transform_precise_tau_ff: 0.0
+
+    transform_fast_pos_kp: 30.0
+    transform_fast_pos_kd: 1.2
+    transform_fast_tau_ff: 0.0
+
+    transform_soft_pos_kp: 20.0
+    transform_soft_pos_kd: 0.8
+    transform_soft_tau_ff: 0.0
+
+    test_auto_success: false
+    test_auto_success_delay_sec: 0.6
+
+    motor1_joint_name: "left_wheel_joint"
+    motor2_joint_name: "right_wheel_joint"
+    motor3_joint_name: "motor_3_joint"
+    motor4_joint_name: "motor_4_joint"
+
+    bldc_wrap_turns: 12.0
+    dxl_wrap_turns: 3.0
+
+fake_joint_states_node:
+  ros__parameters:
+    motor1_joint_name: "motor_1_joint"
+    motor2_joint_name: "motor_2_joint"
+    motor3_joint_name: "motor_3_joint"
+    motor4_joint_name: "motor_4_joint"
